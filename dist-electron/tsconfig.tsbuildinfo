@@ -1,0 +1,1 @@
+{"root":["../electron/main.ts","../electron/preload.ts","../electron/utils/isdev.ts","../src/shared/types.ts"],"version":"5.8.3"}
