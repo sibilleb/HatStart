@@ -1,35 +1,280 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { CategoryGrid } from './components/CategoryGrid';
+import { RecommendationPanel } from './components/RecommendationPanel';
+import { SelectionSummary } from './components/SelectionSummary';
+import './index.css';
+import { SystemDetectionService } from './services/system-detection-service';
+import type {
+    CategoryInfo,
+    FilterOptions,
+    InstallationProgress,
+    ToolCategory,
+    ToolSelection
+} from './types/ui-types';
+
+console.log('📱 App.tsx: Loading HatStart App component...');
+
+// Initialize the system detection service
+const systemDetectionService = new SystemDetectionService();
+
+// Sample data for demonstration/fallback
+const sampleCategories: CategoryInfo[] = [
+  {
+    id: 'programming-languages' as ToolCategory,
+    name: 'Programming Languages',
+    description: 'Essential programming languages for development',
+    icon: '💻',
+    color: '#3B82F6',
+    tools: [
+      {
+        id: 'node-js',
+        name: 'Node.js',
+        description: 'JavaScript runtime built on Chrome\'s V8 JavaScript engine',
+        version: '18.17.0',
+        isInstalled: true,
+        isRecommended: true,
+        category: 'programming-languages' as ToolCategory,
+        platforms: ['windows', 'macos', 'linux'],
+        size: '35 MB',
+        installationTime: '2 min',
+        tags: ['javascript', 'runtime', 'server'],
+      },
+      {
+        id: 'python',
+        name: 'Python',
+        description: 'High-level programming language for general-purpose programming',
+        version: '3.11.4',
+        isInstalled: false,
+        isRecommended: true,
+        category: 'programming-languages' as ToolCategory,
+        platforms: ['windows', 'macos', 'linux'],
+        size: '25 MB',
+        installationTime: '3 min',
+        tags: ['python', 'scripting', 'data-science'],
+      },
+    ],
+  },
+  {
+    id: 'code-editors' as ToolCategory,
+    name: 'Code Editors',
+    description: 'Powerful editors for writing and editing code',
+    icon: '📝',
+    color: '#10B981',
+    tools: [
+      {
+        id: 'vscode',
+        name: 'Visual Studio Code',
+        description: 'Free source-code editor made by Microsoft',
+        version: '1.81.0',
+        isInstalled: true,
+        isRecommended: true,
+        category: 'code-editors' as ToolCategory,
+        platforms: ['windows', 'macos', 'linux'],
+        size: '85 MB',
+        installationTime: '3 min',
+        tags: ['editor', 'microsoft', 'extensions'],
+      },
+    ],
+  },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
+  console.log('🎨 App: Rendering HatStart App component...');
+  
+  // State management
+  const [categories, setCategories] = useState<CategoryInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | undefined>();
+  const [expandedCategories, setExpandedCategories] = useState<Set<ToolCategory>>(new Set());
+  const [selection, setSelection] = useState<ToolSelection>({
+    selectedTools: new Set(),
+    deselectedRecommendations: new Set(),
+    customSelections: new Set(),
+  });
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    searchQuery: '',
+    showOnlyRecommended: false,
+    showOnlyNotInstalled: false,
+    selectedCategories: new Set(),
+    selectedPlatforms: new Set(),
+  });
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const [installationProgress, setInstallationProgress] = useState<InstallationProgress>({
+    isInstalling: false,
+    currentTool: '',
+    completed: 0,
+    total: 0,
+  });
+
+  // Load system detection data on component mount
+  useEffect(() => {
+    console.log('🔄 App: Loading system detection data...');
+    
+    const loadSystemData = async () => {
+      try {
+        setIsLoading(true);
+        setError(undefined);
+        
+        // Load categories from system detection
+        console.log('📡 App: Fetching categories from system detection...');
+        const detectedCategories = await systemDetectionService.getCategoriesForUI();
+        console.log('✅ App: Categories loaded:', detectedCategories.length);
+        setCategories(detectedCategories);
+        
+        // Auto-expand categories that have detected tools
+        const categoriesToExpand = new Set<ToolCategory>();
+        detectedCategories.forEach(category => {
+          const hasInstalledTools = category.tools.some(tool => tool.isInstalled);
+          if (hasInstalledTools) {
+            categoriesToExpand.add(category.id);
+          }
+        });
+        setExpandedCategories(categoriesToExpand);
+        console.log('📂 App: Auto-expanded categories:', Array.from(categoriesToExpand));
+        
+        // Show recommendations panel if this is first visit
+        const hasRecommendations = detectedCategories.some(category =>
+          category.tools.some(tool => tool.isRecommended)
+        );
+        setShowRecommendations(hasRecommendations);
+        console.log('💡 App: Show recommendations:', hasRecommendations);
+        
+      } catch (err) {
+        console.error('❌ App: Failed to load system detection data:', err);
+        setError('Failed to detect system tools. Using offline mode.');
+        // Fallback to mock data if detection fails
+        setCategories(sampleCategories);
+        console.log('🔄 App: Using fallback sample data');
+      } finally {
+        setIsLoading(false);
+        console.log('✅ App: Loading complete');
+      }
+    };
+
+    loadSystemData();
+  }, []);
+
+  const handleCategoryToggle = (categoryId: ToolCategory) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  const handleSelectionChange = (newSelection: ToolSelection) => {
+    setSelection(newSelection);
+  };
+
+  const handleInstallSelected = (toolIds: string[]) => {
+    console.log('🚀 Installing tools:', toolIds);
+    setInstallationProgress({
+      isInstalling: true,
+      currentTool: 'Setting up...',
+      completed: 0,
+      total: toolIds.length,
+    });
+  };
+
+  const handleExportSelection = () => {
+    const selectedToolsArray = Array.from(selection.selectedTools);
+    const exportData = {
+      selectedTools: selectedToolsArray,
+      timestamp: new Date().toISOString(),
+      categories: categories.filter(cat => 
+        cat.tools.some(tool => selectedToolsArray.includes(tool.id))
+      ),
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+      type: 'application/json' 
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hatstart-selection.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Get all tools for recommendations
+  const allTools = categories.flatMap(cat => cat.tools);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            HatStart Developer Toolkit
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Automatically detect and install the development tools you need
+          </p>
+          {error && (
+            <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-md text-yellow-800">
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+            <p className="text-gray-600">Detecting your development environment...</p>
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto">
+            {/* Category Grid */}
+            <CategoryGrid
+              categories={categories}
+              expandedCategories={expandedCategories}
+              onCategoryToggle={handleCategoryToggle}
+              selection={selection}
+              onSelectionChange={handleSelectionChange}
+              filterOptions={filterOptions}
+              onFilterChange={setFilterOptions}
+            />
+
+            {/* Recommendation Panel */}
+            {showRecommendations && (
+              <RecommendationPanel
+                allTools={allTools}
+                currentSelection={selection}
+                onSelectionChange={handleSelectionChange}
+                onDismiss={() => setShowRecommendations(false)}
+              />
+            )}
+
+            {/* Selection Summary */}
+            <SelectionSummary
+              selection={selection}
+              tools={allTools}
+              onInstallSelected={handleInstallSelected}
+              onClearSelection={() => setSelection({
+                selectedTools: new Set(),
+                deselectedRecommendations: new Set(),
+                customSelections: new Set(),
+              })}
+              onExportSelection={handleExportSelection}
+              installationProgress={installationProgress}
+              estimatedTime="15-30 minutes"
+              estimatedSize="2.5 GB"
+              isVisible={selection.selectedTools.size > 0}
+              position="bottom-right"
+            />
+          </div>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+console.log('✅ App.tsx: HatStart App component defined');
+
+export default App;

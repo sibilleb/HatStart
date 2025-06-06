@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
+import * as ipcHandlers from './ipc-handlers';
 import { isDev } from './utils/isDev';
 
 // Keep a global reference of the window object
@@ -43,7 +44,11 @@ const createWindow = (): void => {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  ipcHandlers.setupManifestIpcHandlers();
+  ipcHandlers.setupSystemDetectionIpcHandlers();
+});
 
 // Quit when all windows are closed, except on macOS
 app.on('window-all-closed', () => {

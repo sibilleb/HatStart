@@ -1,68 +1,236 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@layer base {
+  * {
+    box-sizing: border-box;
   }
-  a:hover {
-    color: #747bff;
+  
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Enhanced scroll behavior */
+    scroll-behavior: smooth;
   }
-  button {
-    background-color: #f9f9f9;
+  
+  body {
+    margin: 0;
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    /* Touch action optimization for mobile */
+    touch-action: manipulation;
+  }
+  
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-secondary-200;
+    /* Mobile-optimized padding */
+    @apply p-4 sm:p-5 lg:p-6;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:border-secondary-300;
+    /* Enhanced touch feedback */
+    @apply active:scale-[0.98] sm:active:scale-100;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white rounded-md font-medium transition-colors duration-200 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    /* Responsive padding and text size */
+    @apply px-3 py-2 text-sm sm:px-4 sm:py-2.5 sm:text-base;
+    /* Enhanced touch target for mobile */
+    @apply min-h-[44px] sm:min-h-[40px];
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-100 text-secondary-700 rounded-md font-medium transition-colors duration-200 hover:bg-secondary-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    /* Responsive padding and text size */
+    @apply px-3 py-2 text-sm sm:px-4 sm:py-2.5 sm:text-base;
+    /* Enhanced touch target for mobile */
+    @apply min-h-[44px] sm:min-h-[40px];
+  }
+  
+  .input-base {
+    @apply block w-full rounded-md border-secondary-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200;
+    /* Mobile-optimized input sizing */
+    @apply text-base sm:text-sm min-h-[44px] sm:min-h-[40px];
+  }
+  
+  .category-card {
+    @apply bg-white rounded-lg shadow-sm border border-secondary-200 transition-all duration-200 hover:shadow-md hover:border-secondary-300;
+    /* Mobile-optimized padding */
+    @apply p-4 sm:p-5 lg:p-6;
+    /* Touch feedback for mobile */
+    @apply active:scale-[0.99] sm:active:scale-100;
+  }
+  
+  .category-card-expanded {
+    @apply bg-primary-50 border-primary-200 shadow-md;
+  }
+  
+  .selection-item {
+    @apply bg-white rounded-md border border-secondary-200 transition-all duration-200 hover:border-secondary-300 cursor-pointer;
+    /* Mobile-optimized padding */
+    @apply p-3 sm:p-4;
+    /* Enhanced touch target */
+    @apply min-h-[60px] sm:min-h-[auto];
+  }
+  
+  .selection-item-selected {
+    @apply bg-primary-50 border-primary-300 ring-2 ring-primary-500 ring-opacity-50;
+  }
+
+  /* Mobile-specific utility classes */
+  .mobile-safe-area {
+    @apply pb-safe;
+  }
+
+  /* Container constraints for ultra-wide screens */
+  .container-constrained {
+    @apply max-w-screen-2xl mx-auto;
+  }
+
+  /* Responsive grid utilities */
+  .grid-responsive-1 {
+    @apply grid grid-cols-1;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Enhanced animations for mobile */
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* Sticky positioning helpers */
+  .sticky-header {
+    @apply sticky top-0 z-30 bg-white border-b border-secondary-200;
+  }
+
+  /* Safe area utilities for notched devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+@layer utilities {
+  /* Custom animation keyframes */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Text truncation utilities */
+  .text-truncate {
+    @apply truncate;
+  }
+
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Focus improvements for accessibility */
+  .focus-ring-enhanced {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-white;
+  }
+
+  /* Touch optimization */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Responsive margins and padding */
+  .responsive-spacing {
+    @apply space-y-4 sm:space-y-6 lg:space-y-8;
+  }
+
+  /* Container width constraints */
+  .container-narrow {
+    @apply max-w-4xl mx-auto;
+  }
+
+  .container-wide {
+    @apply max-w-7xl mx-auto;
   }
 }
