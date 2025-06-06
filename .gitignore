@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Personal development tools and project management
+.cursor/
+.taskmaster/
+.roo/
+.roomodes
+.windsurfrules
+.roorules
+.cursorrules
