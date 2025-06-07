@@ -1,4 +1,6 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
     type HatStartError
 } from '../src/shared/error-handling';
@@ -310,6 +312,135 @@ export function setupSystemDetectionIpcHandlers(): void {
           userMessage: hatStartError.userMessage
         }
       };
+    }
+  });
+}
+
+/**
+ * Setup IPC handlers for file operations
+ */
+export function setupFileOperationsIpcHandlers(): void {
+  // Ensure a directory exists
+  const ensureDirectoryExists = (dirPath: string): void => {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  };
+
+  // Get app data directory
+  const getAppDataPath = (): string => {
+    return app.getPath('userData');
+  };
+
+  // Resolve full path for a file
+  const resolveFilePath = (fileName: string, directory?: string): string => {
+    const appDataPath = getAppDataPath();
+    const basePath = directory 
+      ? path.join(appDataPath, directory) 
+      : appDataPath;
+
+    ensureDirectoryExists(basePath);
+    return path.join(basePath, fileName);
+  };
+
+  // Save data to a file
+  ipcMain.handle('file:save', async (event, options: { 
+    fileName: string; 
+    data: string; 
+    directory?: string 
+  }) => {
+    try {
+      const { fileName, data, directory } = options;
+      const filePath = resolveFilePath(fileName, directory);
+      
+      fs.writeFileSync(filePath, data, 'utf8');
+      return true;
+    } catch (error) {
+      console.error('Failed to save file:', error);
+      return false;
+    }
+  });
+
+  // Load data from a file
+  ipcMain.handle('file:load', async (event, options: { 
+    fileName: string; 
+    directory?: string 
+  }) => {
+    try {
+      const { fileName, directory } = options;
+      const filePath = resolveFilePath(fileName, directory);
+      
+      if (!fs.existsSync(filePath)) {
+        return null;
+      }
+      
+      return fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+      console.error('Failed to load file:', error);
+      return null;
+    }
+  });
+
+  // Check if a file exists
+  ipcMain.handle('file:exists', async (event, options: { 
+    fileName: string; 
+    directory?: string 
+  }) => {
+    try {
+      const { fileName, directory } = options;
+      const filePath = resolveFilePath(fileName, directory);
+      
+      return fs.existsSync(filePath);
+    } catch (error) {
+      console.error('Failed to check if file exists:', error);
+      return false;
+    }
+  });
+
+  // Delete a file
+  ipcMain.handle('file:delete', async (event, options: { 
+    fileName: string; 
+    directory?: string 
+  }) => {
+    try {
+      const { fileName, directory } = options;
+      const filePath = resolveFilePath(fileName, directory);
+      
+      if (!fs.existsSync(filePath)) {
+        return false;
+      }
+      
+      fs.unlinkSync(filePath);
+      return true;
+    } catch (error) {
+      console.error('Failed to delete file:', error);
+      return false;
+    }
+  });
+
+  // List files in a directory
+  ipcMain.handle('file:list', async (event, options: { 
+    directory: string; 
+    extension?: string 
+  }) => {
+    try {
+      const { directory, extension } = options;
+      const dirPath = resolveFilePath('', directory);
+      
+      if (!fs.existsSync(dirPath)) {
+        return [];
+      }
+      
+      const files = fs.readdirSync(dirPath);
+      
+      if (extension) {
+        return files.filter((file: string) => file.endsWith(extension));
+      }
+      
+      return files;
+    } catch (error) {
+      console.error('Failed to list files:', error);
+      return [];
     }
   });
 }

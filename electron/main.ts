@@ -48,6 +48,7 @@ app.whenReady().then(() => {
   createWindow();
   ipcHandlers.setupManifestIpcHandlers();
   ipcHandlers.setupSystemDetectionIpcHandlers();
+  ipcHandlers.setupFileOperationsIpcHandlers();
 });
 
 // Quit when all windows are closed, except on macOS

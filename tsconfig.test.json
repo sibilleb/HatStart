@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "verbatimModuleSyntax": false,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["jest", "node", "@testing-library/jest-dom"]
+  },
+  "include": ["src", "jest.setup.js", "__mocks__", "**/*.test.ts", "**/*.test.tsx"]
+} 

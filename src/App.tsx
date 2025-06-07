@@ -1,21 +1,29 @@
 import { useEffect, useState } from 'react';
 import { CategoryGrid } from './components/CategoryGrid';
 import { RecommendationPanel } from './components/RecommendationPanel';
+import { SearchFilterPanel } from './components/SearchFilterPanel';
 import { SelectionSummary } from './components/SelectionSummary';
 import './index.css';
+import { JobRoleConfigService } from './services/job-role-config-service';
+import { JobRoleRecommendationService } from './services/job-role-recommendation-service';
 import { SystemDetectionService } from './services/system-detection-service';
 import type {
     CategoryInfo,
     FilterOptions,
     InstallationProgress,
     ToolCategory,
-    ToolSelection
+    ToolSelection,
+    ToolWithStatus
 } from './types/ui-types';
 
 console.log('📱 App.tsx: Loading HatStart App component...');
 
 // Initialize the system detection service
 const systemDetectionService = new SystemDetectionService();
+// Initialize the job role recommendation service
+const jobRoleRecommendationService = new JobRoleRecommendationService();
+// Initialize the job role config service
+const jobRoleConfigService = new JobRoleConfigService();
 
 // Sample data for demonstration/fallback
 const sampleCategories: CategoryInfo[] = [
@@ -97,6 +105,11 @@ function App() {
     showOnlyNotInstalled: false,
     selectedCategories: new Set(),
     selectedPlatforms: new Set(),
+    // Job role filter options
+    filterByJobRole: false,
+    selectedJobRole: undefined,
+    priorityLevel: undefined,
+    showRoleRecommendations: false,
   });
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [installationProgress, setInstallationProgress] = useState<InstallationProgress>({
@@ -105,6 +118,35 @@ function App() {
     completed: 0,
     total: 0,
   });
+
+  // Apply job role recommendations when selected role changes
+  useEffect(() => {
+    if (filterOptions.filterByJobRole && filterOptions.selectedJobRole) {
+      console.log('🔄 App: Applying job role recommendations for:', filterOptions.selectedJobRole);
+      
+      // Apply job role recommendations to all tools in all categories
+      const updatedCategories = categories.map(category => {
+        // Ensure tools have the installationStatus property for ToolWithStatus
+        const toolsWithStatus = category.tools.map(tool => ({
+          ...tool,
+          installationStatus: tool.isInstalled ? 'installed' : 'not-installed'
+        })) as ToolWithStatus[];
+        
+        const updatedTools = jobRoleRecommendationService.applyRoleRecommendations(
+          toolsWithStatus,
+          filterOptions.selectedJobRole as string
+        );
+        
+        return {
+          ...category,
+          tools: updatedTools,
+        };
+      });
+      
+      setCategories(updatedCategories);
+      console.log('✅ App: Job role recommendations applied');
+    }
+  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole]);
 
   // Load system detection data on component mount
   useEffect(() => {
@@ -119,7 +161,43 @@ function App() {
         console.log('📡 App: Fetching categories from system detection...');
         const detectedCategories = await systemDetectionService.getCategoriesForUI();
         console.log('✅ App: Categories loaded:', detectedCategories.length);
-        setCategories(detectedCategories);
+        
+        // Set default job role if available (first one in the list)
+        const jobRoles = jobRoleConfigService.getAllConfigs();
+        if (jobRoles.length > 0) {
+          const defaultRole = jobRoles[0];
+          console.log('🎭 App: Setting default job role:', defaultRole.name);
+          
+          // Apply job role recommendations to detected categories
+          const categoriesWithRoleRecommendations = detectedCategories.map(category => {
+            // Ensure tools have the installationStatus property for ToolWithStatus
+            const toolsWithStatus = category.tools.map(tool => ({
+              ...tool,
+              installationStatus: tool.isInstalled ? 'installed' : 'not-installed'
+            })) as ToolWithStatus[];
+            
+            const updatedTools = jobRoleRecommendationService.applyRoleRecommendations(
+              toolsWithStatus,
+              defaultRole.id
+            );
+            
+            return {
+              ...category,
+              tools: updatedTools,
+            };
+          });
+          
+          setCategories(categoriesWithRoleRecommendations);
+          
+          // Update filter options with default role
+          setFilterOptions(prev => ({
+            ...prev,
+            selectedJobRole: defaultRole.id,
+          }));
+        } else {
+          // No job roles available, just use the detected categories
+          setCategories(detectedCategories);
+        }
         
         // Auto-expand categories that have detected tools
         const categoriesToExpand = new Set<ToolCategory>();
@@ -201,6 +279,12 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  // Handle filter changes
+  const handleFilterChange = (newFilters: FilterOptions) => {
+    console.log('🔍 App: Filter options changed:', newFilters);
+    setFilterOptions(newFilters);
+  };
+
   // Get all tools for recommendations
   const allTools = categories.flatMap(cat => cat.tools);
 
@@ -230,16 +314,28 @@ function App() {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto">
-            {/* Category Grid */}
-            <CategoryGrid
-              categories={categories}
-              expandedCategories={expandedCategories}
-              onCategoryToggle={handleCategoryToggle}
-              selection={selection}
-              onSelectionChange={handleSelectionChange}
-              filterOptions={filterOptions}
-              onFilterChange={setFilterOptions}
-            />
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left Sidebar - Filters */}
+              <div className="lg:w-1/4">
+                <SearchFilterPanel 
+                  filterOptions={filterOptions}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+              
+              {/* Main Content - Category Grid */}
+              <div className="lg:w-3/4">
+                <CategoryGrid
+                  categories={categories}
+                  expandedCategories={expandedCategories}
+                  onCategoryToggle={handleCategoryToggle}
+                  selection={selection}
+                  onSelectionChange={handleSelectionChange}
+                  filterOptions={filterOptions}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+            </div>
 
             {/* Recommendation Panel */}
             {showRecommendations && (

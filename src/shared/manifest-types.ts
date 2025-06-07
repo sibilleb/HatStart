@@ -3,6 +3,8 @@
  * Comprehensive interfaces for developer tool management and installation
  */
 
+import type { ToolExperienceRequirement } from '../types/experience-types';
+
 // Base types for type safety
 export type ToolCategory = 
   | 'frontend'
@@ -89,6 +91,8 @@ export interface InstallationCommand {
   command: string;
   /** Arguments to pass to the command */
   args?: string[];
+  /** Download URL for direct download installations */
+  downloadUrl?: string;
   /** Pre-installation commands */
   preInstall?: string[];
   /** Post-installation commands */
@@ -221,8 +225,13 @@ export interface ToolManifest {
   category: ToolCategory;
   /** Sub-categories or tags */
   tags?: string[];
-  /** Recommended experience level */
-  experienceLevel: ExperienceLevel[];
+  /** 
+   * @deprecated Use experienceRequirement instead
+   * Recommended experience level 
+   */
+  experienceLevel?: ExperienceLevel[];
+  /** Experience level requirements for this tool */
+  experienceRequirement?: ToolExperienceRequirement;
   /** System requirements */
   systemRequirements: SystemRequirements;
   /** Version information */
@@ -257,6 +266,15 @@ export interface ToolManifest {
   lastUpdated?: string;
   /** Manifest schema version */
   schemaVersion: string;
+  /** Learning resources specific to this tool */
+  learningResources?: {
+    title: string;
+    url: string;
+    type: 'tutorial' | 'documentation' | 'video' | 'course';
+    experienceLevel: ExperienceLevel;
+  }[];
+  /** Features that make this tool challenging for beginners */
+  difficultyIndicators?: string[];
 }
 
 // Category manifest interface

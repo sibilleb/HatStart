@@ -88,6 +88,14 @@ export interface ToolWithStatus extends Tool {
   installationStatus: InstallationStatus;
   installationProgress?: number;
   installationError?: string;
+  // Job role specific information
+  jobRolePriority?: 'essential' | 'recommended' | 'optional';
+  jobRoleRecommendation?: {
+    roleId: string;
+    roleName: string;
+    priority: 'essential' | 'recommended' | 'optional';
+    rationale?: string;
+  };
 }
 
 /**
@@ -99,6 +107,11 @@ export interface FilterOptions {
   showOnlyNotInstalled: boolean;
   selectedCategories: Set<ToolCategory>;
   selectedPlatforms: Set<Platform>;
+  // Job role filtering options
+  filterByJobRole: boolean;
+  selectedJobRole?: string;
+  priorityLevel?: 'essential' | 'recommended' | 'all'; // Filter by tool priority for the selected role
+  showRoleRecommendations: boolean; // Show role-specific recommendations
 }
 
 /**

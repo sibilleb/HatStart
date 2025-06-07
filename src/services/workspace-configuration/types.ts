@@ -1,0 +1,405 @@
+/**
+ * Workspace Configuration Types
+ * Interfaces and types for managing workspace-level configuration and environment
+ */
+
+import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type {
+    ProjectVersionConfig,
+    VersionedTool,
+    VersionManagerType,
+    VersionOperationResult,
+    VersionSpecifier,
+} from '../version-manager-types.js';
+
+/**
+ * Workspace configuration scope
+ */
+export type WorkspaceScope = 
+  | 'global'     // System-wide configuration
+  | 'user'       // User-specific configuration
+  | 'workspace'  // Workspace-specific configuration
+  | 'project';   // Project-specific configuration
+
+/**
+ * Environment variable operation types
+ */
+export type EnvironmentOperation = 
+  | 'set'        // Set environment variable
+  | 'append'     // Append to environment variable (e.g., PATH)
+  | 'prepend'    // Prepend to environment variable
+  | 'remove'     // Remove environment variable
+  | 'replace';   // Replace environment variable value
+
+/**
+ * Shell profile types
+ */
+export type ShellProfile = 
+  | '.bashrc'
+  | '.bash_profile'
+  | '.zshrc'
+  | '.zsh_profile'
+  | '.profile'
+  | '.fish/config.fish'
+  | 'Microsoft.PowerShell_profile.ps1';
+
+/**
+ * Environment variable configuration
+ */
+export interface EnvironmentVariable {
+  /** Variable name */
+  name: string;
+  /** Variable value */
+  value: string;
+  /** Operation to perform */
+  operation: EnvironmentOperation;
+  /** Scope of the variable */
+  scope: WorkspaceScope;
+  /** Whether the variable is persistent */
+  persistent: boolean;
+  /** Platform-specific configuration */
+  platformSpecific?: Partial<Record<Platform, string>>;
+}
+
+/**
+ * PATH entry configuration
+ */
+export interface PathEntry {
+  /** Path to add */
+  path: string;
+  /** Priority (lower numbers = higher priority) */
+  priority: number;
+  /** Whether to prepend or append */
+  position: 'prepend' | 'append';
+  /** Tool that owns this path entry */
+  tool?: VersionedTool;
+  /** Version manager that manages this path */
+  manager?: VersionManagerType;
+  /** Whether the path is conditional (only add if directory exists) */
+  conditional: boolean;
+}
+
+/**
+ * Shell integration configuration
+ */
+export interface ShellIntegration {
+  /** Shell profile to modify */
+  profile: ShellProfile;
+  /** Initialization commands */
+  initCommands: string[];
+  /** Environment variables to set */
+  environmentVariables: EnvironmentVariable[];
+  /** PATH entries to add */
+  pathEntries: PathEntry[];
+  /** Whether integration is enabled */
+  enabled: boolean;
+  /** Backup file path */
+  backupPath?: string;
+}
+
+/**
+ * Tool version configuration for workspace
+ */
+export interface WorkspaceToolConfig {
+  /** Tool name */
+  tool: VersionedTool;
+  /** Version specifier */
+  version: VersionSpecifier;
+  /** Version manager to use */
+  manager: VersionManagerType;
+  /** Tool-specific environment variables */
+  environment?: Record<string, string>;
+  /** Tool-specific PATH entries */
+  pathEntries?: PathEntry[];
+  /** Whether this tool is active in the workspace */
+  active: boolean;
+}
+
+/**
+ * Workspace configuration
+ */
+export interface WorkspaceConfiguration {
+  /** Workspace root directory */
+  workspaceRoot: string;
+  /** Workspace name */
+  name?: string;
+  /** Tool configurations */
+  tools: WorkspaceToolConfig[];
+  /** Global environment variables */
+  environment: EnvironmentVariable[];
+  /** Global PATH configuration */
+  pathConfiguration: PathEntry[];
+  /** Shell integrations */
+  shellIntegrations: ShellIntegration[];
+  /** Project configurations (nested projects) */
+  projects: ProjectVersionConfig[];
+  /** Configuration metadata */
+  metadata: {
+    /** Configuration version */
+    version: string;
+    /** Last updated timestamp */
+    lastUpdated: Date;
+    /** Platform this configuration was created on */
+    platform: Platform;
+    /** Architecture this configuration was created on */
+    architecture: Architecture;
+    /** User who created/modified the configuration */
+    user?: string;
+  };
+}
+
+/**
+ * Environment synchronization result
+ */
+export interface EnvironmentSyncResult {
+  /** Whether synchronization was successful */
+  success: boolean;
+  /** Environment variables that were changed */
+  changedVariables: string[];
+  /** PATH entries that were modified */
+  modifiedPaths: string[];
+  /** Shell profiles that were updated */
+  updatedProfiles: ShellProfile[];
+  /** Error message if synchronization failed */
+  error?: string;
+  /** Warnings during synchronization */
+  warnings: string[];
+  /** Duration of synchronization in milliseconds */
+  duration: number;
+}
+
+/**
+ * Workspace detection result
+ */
+export interface WorkspaceDetectionResult {
+  /** Whether a workspace was detected */
+  detected: boolean;
+  /** Workspace root directory */
+  workspaceRoot?: string;
+  /** Detected workspace type */
+  workspaceType?: 'git' | 'npm' | 'python' | 'rust' | 'go' | 'java' | 'generic';
+  /** Configuration files found */
+  configFiles: string[];
+  /** Version manager configurations detected */
+  versionManagers: VersionManagerType[];
+  /** Tools detected in the workspace */
+  detectedTools: VersionedTool[];
+  /** Confidence score (0-1) */
+  confidence: number;
+}
+
+/**
+ * Configuration backup
+ */
+export interface ConfigurationBackup {
+  /** Backup timestamp */
+  timestamp: Date;
+  /** Original configuration */
+  configuration: WorkspaceConfiguration;
+  /** Files that were backed up */
+  backedUpFiles: string[];
+  /** Backup directory */
+  backupDirectory: string;
+  /** Reason for backup */
+  reason: string;
+}
+
+/**
+ * Workspace configuration service interface
+ */
+export interface IWorkspaceConfigurationService {
+  /**
+   * Detect workspace configuration
+   */
+  detectWorkspace(directory?: string): Promise<WorkspaceDetectionResult>;
+
+  /**
+   * Load workspace configuration
+   */
+  loadConfiguration(workspaceRoot: string): Promise<WorkspaceConfiguration | null>;
+
+  /**
+   * Save workspace configuration
+   */
+  saveConfiguration(config: WorkspaceConfiguration): Promise<void>;
+
+  /**
+   * Apply workspace configuration
+   */
+  applyConfiguration(config: WorkspaceConfiguration): Promise<EnvironmentSyncResult>;
+
+  /**
+   * Synchronize environment with current configuration
+   */
+  synchronizeEnvironment(workspaceRoot?: string): Promise<EnvironmentSyncResult>;
+
+  /**
+   * Update tool version in workspace
+   */
+  updateToolVersion(
+    tool: VersionedTool,
+    version: VersionSpecifier,
+    manager: VersionManagerType,
+    workspaceRoot?: string
+  ): Promise<VersionOperationResult>;
+
+  /**
+   * Add tool to workspace
+   */
+  addTool(
+    tool: VersionedTool,
+    version: VersionSpecifier,
+    manager: VersionManagerType,
+    workspaceRoot?: string
+  ): Promise<VersionOperationResult>;
+
+  /**
+   * Remove tool from workspace
+   */
+  removeTool(
+    tool: VersionedTool,
+    workspaceRoot?: string
+  ): Promise<VersionOperationResult>;
+
+  /**
+   * Get current workspace configuration
+   */
+  getCurrentConfiguration(workspaceRoot?: string): Promise<WorkspaceConfiguration | null>;
+
+  /**
+   * Create backup of current configuration
+   */
+  createBackup(
+    workspaceRoot: string,
+    reason: string
+  ): Promise<ConfigurationBackup>;
+
+  /**
+   * Restore configuration from backup
+   */
+  restoreBackup(backup: ConfigurationBackup): Promise<EnvironmentSyncResult>;
+
+  /**
+   * Validate workspace configuration
+   */
+  validateConfiguration(config: WorkspaceConfiguration): Promise<ValidationResult>;
+}
+
+/**
+ * Environment manager interface
+ */
+export interface IEnvironmentManager {
+  /**
+   * Get current environment variables
+   */
+  getCurrentEnvironment(): Promise<Record<string, string>>;
+
+  /**
+   * Set environment variable
+   */
+  setEnvironmentVariable(
+    name: string,
+    value: string,
+    scope: WorkspaceScope,
+    persistent?: boolean
+  ): Promise<boolean>;
+
+  /**
+   * Remove environment variable
+   */
+  removeEnvironmentVariable(
+    name: string,
+    scope: WorkspaceScope
+  ): Promise<boolean>;
+
+  /**
+   * Update PATH variable
+   */
+  updatePath(entries: PathEntry[]): Promise<boolean>;
+
+  /**
+   * Get current PATH entries
+   */
+  getCurrentPath(): Promise<string[]>;
+
+  /**
+   * Refresh environment (reload from shell)
+   */
+  refreshEnvironment(): Promise<boolean>;
+}
+
+/**
+ * Shell integration manager interface
+ */
+export interface IShellIntegrationManager {
+  /**
+   * Detect available shell profiles
+   */
+  detectShellProfiles(): Promise<ShellProfile[]>;
+
+  /**
+   * Get current shell type
+   */
+  getCurrentShell(): Promise<string>;
+
+  /**
+   * Update shell profile
+   */
+  updateShellProfile(
+    profile: ShellProfile,
+    integration: ShellIntegration
+  ): Promise<boolean>;
+
+  /**
+   * Remove shell integration
+   */
+  removeShellIntegration(
+    profile: ShellProfile,
+    integration: ShellIntegration
+  ): Promise<boolean>;
+
+  /**
+   * Backup shell profile
+   */
+  backupShellProfile(profile: ShellProfile): Promise<string>;
+
+  /**
+   * Restore shell profile from backup
+   */
+  restoreShellProfile(profile: ShellProfile, backupPath: string): Promise<boolean>;
+}
+
+/**
+ * Configuration validation result
+ */
+export interface ValidationResult {
+  /** Whether configuration is valid */
+  valid: boolean;
+  /** Validation errors */
+  errors: string[];
+  /** Validation warnings */
+  warnings: string[];
+  /** Suggestions for improvement */
+  suggestions: string[];
+}
+
+/**
+ * Workspace configuration events
+ */
+export type WorkspaceConfigurationEvent = 
+  | 'configuration-loaded'
+  | 'configuration-saved'
+  | 'configuration-applied'
+  | 'environment-synchronized'
+  | 'tool-added'
+  | 'tool-removed'
+  | 'tool-version-changed'
+  | 'backup-created'
+  | 'backup-restored';
+
+/**
+ * Event listener interface
+ */
+export interface IWorkspaceConfigurationEventListener {
+  onEvent(event: WorkspaceConfigurationEvent, data: unknown): void;
+} 

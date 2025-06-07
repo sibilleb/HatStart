@@ -1,5 +1,16 @@
 import type { DetectionResult, SystemDetectionReport } from '../shared/detection-types.js';
 
+// File operation types
+export interface FileOperationOptions {
+  fileName: string;
+  directory?: string;
+  extension?: string;
+}
+
+export interface SaveFileOptions extends FileOperationOptions {
+  data: string;
+}
+
 // Electron API types
 export interface ElectronAPI {
   // General IPC invoke method
@@ -58,6 +69,13 @@ export interface ElectronAPI {
       userMessage: string;
     };
   }>;
+  
+  // File operations APIs
+  saveToFile: (options: SaveFileOptions) => Promise<boolean>;
+  loadFromFile: (options: FileOperationOptions) => Promise<string | null>;
+  fileExists: (options: FileOperationOptions) => Promise<boolean>;
+  deleteFile: (options: FileOperationOptions) => Promise<boolean>;
+  listFiles: (options: { directory: string; extension?: string }) => Promise<string[]>;
   
   // Installation APIs (to be implemented later)
   installTool: (toolId: string) => Promise<unknown>;

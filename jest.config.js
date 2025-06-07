@@ -1,48 +1,22 @@
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
-  testMatch: [
-    '**/tests/**/*.test.ts',
-    '**/tests/**/*.spec.ts',
-    '**/__tests__/**/*.ts',
-    '**/?(*.)+(spec|test).ts'
-  ],
+// @ts-check
+/** @type {import('jest').Config} */
+export default {
+  preset: 'ts-jest/presets/default-esm',
+  testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      useESM: false,
-      tsconfig: {
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-        moduleResolution: 'node'
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+        useESM: true
       }
-    }]
+    ]
   },
-  collectCoverageFrom: [
-    'src/shared/**/*.ts',
-    '!src/shared/**/*.d.ts',
-    '!src/shared/**/types.ts',
-    '!src/shared/**/*-types.ts'
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  moduleFileExtensions: ['ts', 'js', 'json'],
-  verbose: true,
-  testTimeout: 30000, // 30 seconds for cross-platform detection tests
-  maxWorkers: '50%', // Use half of available CPU cores
-  // Module name mapping for .js imports in TypeScript
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1'
+    '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
+    '\\.(gif|ttf|eot|svg|png)$': '<rootDir>/__mocks__/fileMock.js'
   },
-  // Global test configuration
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    }
-  },
-  // Environment variables for testing
-  testEnvironmentOptions: {
-    NODE_ENV: 'test'
-  }
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)']
 }; 

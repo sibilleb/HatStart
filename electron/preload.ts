@@ -1,5 +1,6 @@
 import type { InstallProgress } from '@shared/types';
 import { contextBridge, ipcRenderer } from 'electron';
+import type { FileOperationOptions, SaveFileOptions } from '../src/types/electron';
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
@@ -24,6 +25,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   detectInstalledTools: () => ipcRenderer.invoke('system-detection:detect'),
   getSystemInfo: () => ipcRenderer.invoke('system-detection:info'),
   detectTool: (toolName: string) => ipcRenderer.invoke('system-detection:tool', toolName),
+  
+  // File operations APIs
+  saveToFile: (options: SaveFileOptions) => ipcRenderer.invoke('file:save', options),
+  loadFromFile: (options: FileOperationOptions) => ipcRenderer.invoke('file:load', options),
+  fileExists: (options: FileOperationOptions) => ipcRenderer.invoke('file:exists', options),
+  deleteFile: (options: FileOperationOptions) => ipcRenderer.invoke('file:delete', options),
+  listFiles: (options: { directory: string; extension?: string }) => ipcRenderer.invoke('file:list', options),
   
   // Installation APIs (to be implemented later)
   installTool: (toolId: string) => ipcRenderer.invoke('install-tool', toolId),

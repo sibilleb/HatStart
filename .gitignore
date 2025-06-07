@@ -32,3 +32,14 @@ dist-ssr
 .windsurfrules
 .roorules
 .cursorrules
+
+# Added by Task Master AI
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.vscode
+# OS specific
+# Task files
+tasks.json
+tasks/ 

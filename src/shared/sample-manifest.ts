@@ -13,7 +13,36 @@ export const sampleNodeJS: ToolManifest = {
   longDescription: 'Node.js is a free, open-source, cross-platform JavaScript runtime environment that lets developers create servers, web apps, command line tools and scripts.',
   category: 'language',
   tags: ['javascript', 'runtime', 'server'],
-  experienceLevel: ['beginner', 'intermediate', 'advanced'],
+  experienceRequirement: {
+    minimumLevel: 'beginner',
+    recommendedLevel: 'intermediate',
+    rationale: 'While Node.js can be used by beginners for simple scripts, intermediate knowledge is recommended for building production applications.',
+    alternativesForBeginners: []
+  },
+  learningResources: [
+    {
+      title: 'Node.js Getting Started Guide',
+      url: 'https://nodejs.org/en/docs/guides/getting-started-guide/',
+      type: 'tutorial',
+      experienceLevel: 'beginner'
+    },
+    {
+      title: 'Node.js Official Documentation',
+      url: 'https://nodejs.org/docs/',
+      type: 'documentation',
+      experienceLevel: 'intermediate'
+    },
+    {
+      title: 'Node.js Best Practices',
+      url: 'https://github.com/goldbergyoni/nodebestpractices',
+      type: 'documentation',
+      experienceLevel: 'advanced'
+    }
+  ],
+  difficultyIndicators: [
+    'Requires understanding of asynchronous programming',
+    'Command-line interface for many operations'
+  ],
   systemRequirements: {
     platforms: ['windows', 'macos', 'linux'],
     architectures: ['x64', 'arm64'],
@@ -67,15 +96,28 @@ export const sampleNodeJS: ToolManifest = {
   },
   documentation: {
     officialDocs: 'https://nodejs.org/docs/',
-    quickStart: 'https://nodejs.org/en/learn/getting-started/introduction-to-nodejs',
-    apiReference: 'https://nodejs.org/api/'
+    quickStart: 'https://nodejs.org/en/docs/guides/getting-started-guide/',
+    apiReference: 'https://nodejs.org/api/',
+    tutorials: [
+      'https://nodejs.dev/learn',
+      'https://www.w3schools.com/nodejs/'
+    ],
+    videos: [
+      'https://www.youtube.com/watch?v=TlB_eWDSMt4',
+      'https://www.youtube.com/watch?v=fBNz5xF-Kx4'
+    ],
+    community: [
+      'https://github.com/nodejs/node',
+      'https://stackoverflow.com/questions/tagged/node.js'
+    ],
+    troubleshooting: 'https://nodejs.org/en/docs/guides/debugging-getting-started/'
   },
   website: 'https://nodejs.org/',
   repository: 'https://github.com/nodejs/node',
   license: 'MIT',
   maintainer: {
-    name: 'Node.js Foundation',
-    url: 'https://nodejs.org/'
+    name: 'OpenJS Foundation',
+    url: 'https://openjsf.org/'
   },
   popularityScore: 95,
   isActiveMaintained: true,

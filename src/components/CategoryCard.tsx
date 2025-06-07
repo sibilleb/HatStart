@@ -36,6 +36,33 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       return false;
     }
 
+    // Job role filtering
+    if (filterOptions.filterByJobRole && filterOptions.selectedJobRole) {
+      const toolWithRole = tool as unknown as { jobRoleRecommendation?: { 
+        roleId: string;
+        priority: string;
+      }};
+      
+      const hasRoleRecommendation = toolWithRole.jobRoleRecommendation && 
+        toolWithRole.jobRoleRecommendation.roleId === filterOptions.selectedJobRole;
+      
+      if (!hasRoleRecommendation) return false;
+
+      // Filter by priority level if specified
+      if (filterOptions.priorityLevel && toolWithRole.jobRoleRecommendation) {
+        if (filterOptions.priorityLevel === 'essential' && 
+            toolWithRole.jobRoleRecommendation.priority !== 'essential') {
+          return false;
+        }
+        
+        if (filterOptions.priorityLevel === 'recommended' && 
+            !(toolWithRole.jobRoleRecommendation.priority === 'essential' || 
+              toolWithRole.jobRoleRecommendation.priority === 'recommended')) {
+          return false;
+        }
+      }
+    }
+
     return true;
   });
 
@@ -85,6 +112,17 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     tool.isInstalled
   ).length;
 
+  // Count essential tools for the current job role
+  const essentialToolsCount = filterOptions.filterByJobRole && filterOptions.selectedJobRole
+    ? filteredTools.filter(tool => {
+        const toolWithRole = tool as unknown as { jobRoleRecommendation?: { 
+          roleId: string;
+          priority: string;
+        }};
+        return toolWithRole.jobRoleRecommendation?.priority === 'essential';
+      }).length
+    : 0;
+
   return (
     <div 
       className={`category-card ${isExpanded ? 'category-card-expanded' : ''}`}
@@ -132,6 +170,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             {installedCount > 0 && (
               <div className="text-green-600">
                 {installedCount} installed
+              </div>
+            )}
+            {/* Role-specific recommendations */}
+            {filterOptions.filterByJobRole && filterOptions.selectedJobRole && 
+             essentialToolsCount > 0 && (
+              <div className="text-indigo-600 font-medium">
+                {essentialToolsCount} essential
               </div>
             )}
           </div>
