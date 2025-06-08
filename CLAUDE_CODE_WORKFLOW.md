@@ -392,3 +392,45 @@ When conversation is auto-compacted, follow this checklist:
 - [ ] Read relevant sections of CLAUDE.md for project context
 - [ ] Check if any subtasks were completed but not committed
 - [ ] Verify no linting errors exist before continuing
+
+## Feature Complexity Review Process
+
+When reviewing features for necessary vs unnecessary complexity:
+
+1. **Apply the Three-Lens Test**
+   - **End User Lens**: Does complexity improve the tailored installation experience?
+   - **Customizer Lens**: Do companies need this for custom roles (e.g., Ansible Developer)?
+   - **Maintainer Lens**: Can we maintain this long-term?
+
+2. **Document Review Decisions**
+   - Current implementation complexity (lines of code, features)
+   - Assessment of necessary vs unnecessary complexity
+   - Impact on users and customizers
+   - Get approval before major changes
+
+3. **Preserve Core Value**
+   - Smart detection and recommendations
+   - Job-role-based tool selection
+   - Extensible catalog system
+   - Proper installation ordering
+   - IDE configuration for productivity
+
+4. **Examples of Necessary Complexity**
+   - Version management (developers need multiple versions)
+   - Job role system (core value proposition)
+   - Dependency ordering (ensures successful installs)
+   - Platform-specific installers (Windows/Mac/Linux differ)
+
+5. **Examples of Unnecessary Complexity**
+   - Academic algorithms not used in practice
+   - Features that duplicate OS/package manager functionality
+   - Over-abstraction that makes customization harder
+   - Language isolation that doesn't match real workflows
+
+6. **Major Change Communication**
+   When proposing significant changes:
+   - Document current behavior with examples
+   - Explain why change improves the product
+   - Show impact on user experience
+   - Detail impact on extensibility/customization
+   - Wait for approval before implementing
