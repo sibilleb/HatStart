@@ -7,6 +7,14 @@
 3. Run `git status` to check for uncommitted work
 4. Run `task-master list` to see current tasks
 
+## IMPORTANT: Auto-Compaction Recovery
+**If conversation was auto-compacted or you see "Earlier messages in this conversation have been summarized":**
+1. **IMMEDIATELY** re-read this entire CLAUDE_CODE_WORKFLOW.md
+2. **ALWAYS** check `.hatstart_session` for current state
+3. **NEVER** assume you remember the context - always verify
+4. **READ** CLAUDE.md for project context and navigation map
+5. **CHECK** git status and recent commits to understand recent work
+
 ## Quick Start Prompts (Copy & Paste These)
 
 ### "Work on the next task"
@@ -32,6 +40,11 @@ Read CLAUDE_CODE_WORKFLOW.md and review the codebase for technical debt, then fi
 ### "Check task alignment"
 ```
 Read CLAUDE_CODE_WORKFLOW.md and verify the current/next task aligns with HatStart's core mission
+```
+
+### "After auto-compaction" (Use if you see conversation was summarized)
+```
+Read CLAUDE_CODE_WORKFLOW.md paying special attention to auto-compaction recovery, then check session state and continue work
 ```
 
 ## Operational Workflow (FOLLOW EXACTLY)
@@ -244,6 +257,8 @@ When implementing, check these locations first:
 4. **ALWAYS** update session state
 5. **NEVER** skip the quality gates
 6. **NEVER** leave technical debt undocumented
+7. **ALWAYS** re-read this document after auto-compaction
+8. **ALWAYS** verify context with .hatstart_session after any interruption
 
 ## Session State File Format (.hatstart_session)
 ```
@@ -255,3 +270,14 @@ Last Completed: <subtask-id>
 Session End: <timestamp>
 Next Task: <task-id>
 ```
+
+## Auto-Compaction Context Recovery Checklist
+When conversation is auto-compacted, follow this checklist:
+- [ ] Re-read entire CLAUDE_CODE_WORKFLOW.md
+- [ ] Check .hatstart_session for current task/subtask
+- [ ] Run `git status` to see uncommitted changes
+- [ ] Run `git log --oneline -5` to see recent commits
+- [ ] Run `task-master show <current-task-id>` to refresh task details
+- [ ] Read relevant sections of CLAUDE.md for project context
+- [ ] Check if any subtasks were completed but not committed
+- [ ] Verify no linting errors exist before continuing
