@@ -1,3 +1,4 @@
+# memorize
 # Claude Code Workflow for HatStart
 
 ## MANDATORY: READ THIS FIRST
@@ -17,34 +18,38 @@
 
 ## Quick Start Prompts (Copy & Paste These)
 
+**Note**: With `# memorize` tags added, Claude Code automatically loads this workflow!
+
 ### "Work on the next task"
 ```
-Read CLAUDE_CODE_WORKFLOW.md and start working on the next task following the workflow
+Start working on the next task following the workflow
 ```
+(Alternative if memorize fails: `Read CLAUDE_CODE_WORKFLOW.md and start working on the next task`)
 
 ### "Resume work after crash"
 ```
-Read CLAUDE_CODE_WORKFLOW.md and resume work after terminal crash - check session state and continue
+Resume work after terminal crash - check session state and continue
 ```
+(Alternative if memorize fails: `Read CLAUDE_CODE_WORKFLOW.md and resume work after terminal crash`)
 
 ### "Continue current task"
 ```
-Read CLAUDE_CODE_WORKFLOW.md and continue working on the current task/subtask
+Continue working on the current task/subtask
 ```
 
 ### "Review and fix tech debt"
 ```
-Read CLAUDE_CODE_WORKFLOW.md and review the codebase for technical debt, then fix any issues found
+Review the codebase for technical debt, then fix any issues found
 ```
 
 ### "Check task alignment"
 ```
-Read CLAUDE_CODE_WORKFLOW.md and verify the current/next task aligns with HatStart's core mission
+Verify the current/next task aligns with HatStart's core mission
 ```
 
 ### "After auto-compaction" (Use if you see conversation was summarized)
 ```
-Read CLAUDE_CODE_WORKFLOW.md paying special attention to auto-compaction recovery, then check session state and continue work
+Check auto-compaction recovery steps, verify session state and continue work
 ```
 
 ## Operational Workflow (FOLLOW EXACTLY)

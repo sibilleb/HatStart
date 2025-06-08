@@ -1,3 +1,4 @@
+# memorize
 # Claude Code Context Management for HatStart
 
 This file provides context and memory management for Claude Code when working on the HatStart project. It complements (but does not replace) your existing Taskmaster and Cursor workflow.
