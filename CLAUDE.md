@@ -272,6 +272,271 @@ class MiseAdapter implements IVersionManager { }
 class NVMAdapter implements IVersionManager { }
 ```
 
+## Coding Principles & Standards
+
+### Core Principles
+
+#### 1. **Type Safety First**
+```typescript
+// ❌ Avoid
+function processTools(tools: any[]): any { }
+
+// ✅ Prefer
+function processTools(tools: Tool[]): ProcessResult {
+  // Full type safety with interfaces
+}
+```
+
+#### 2. **Explicit Error Handling**
+```typescript
+// ❌ Avoid silent failures
+try {
+  await installer.install();
+} catch (e) {
+  console.log(e);
+}
+
+// ✅ Prefer explicit error handling
+try {
+  await installer.install();
+} catch (error) {
+  if (error instanceof DependencyConflictError) {
+    return this.handleConflict(error);
+  }
+  throw new InstallationError(`Failed to install ${tool.name}`, error);
+}
+```
+
+#### 3. **Platform Abstraction**
+```typescript
+// ❌ Avoid platform checks in business logic
+if (process.platform === 'win32') {
+  // Windows specific code
+}
+
+// ✅ Prefer abstraction through adapters
+const executor = this.commandExecutorFactory.createForPlatform();
+await executor.execute(command);
+```
+
+#### 4. **Immutability Where Possible**
+```typescript
+// ❌ Avoid mutating state
+tools.forEach(tool => {
+  tool.installed = true;
+});
+
+// ✅ Prefer immutable updates
+const updatedTools = tools.map(tool => ({
+  ...tool,
+  installed: true
+}));
+```
+
+#### 5. **Single Responsibility**
+- Each service handles ONE domain (e.g., VersionManagerInstaller only handles version managers)
+- Each component has ONE clear purpose
+- Compose complex behavior from simple, focused units
+
+### Async/Promise Patterns
+
+#### 1. **Consistent Async Handling**
+```typescript
+// Always use async/await for clarity
+async function installTools(tools: Tool[]): Promise<InstallResult[]> {
+  // Parallel when independent
+  const results = await Promise.all(
+    tools.map(tool => this.installTool(tool))
+  );
+  
+  // Sequential when dependent
+  for (const tool of tools) {
+    await this.installWithDependencies(tool);
+  }
+}
+```
+
+#### 2. **Progress Tracking**
+```typescript
+// Use callbacks for long operations
+async function installWithProgress(
+  tool: Tool,
+  onProgress: (progress: Progress) => void
+): Promise<void> {
+  onProgress({ status: 'downloading', percent: 0 });
+  // ... installation steps
+  onProgress({ status: 'complete', percent: 100 });
+}
+```
+
+### Testing Standards
+
+#### 1. **Test Structure**
+```typescript
+describe('VersionManagerInstaller', () => {
+  describe('install', () => {
+    it('should install version manager successfully', async () => {
+      // Arrange
+      const mockExecutor = createMockExecutor();
+      
+      // Act
+      const result = await installer.install();
+      
+      // Assert
+      expect(result.success).toBe(true);
+    });
+  });
+});
+```
+
+#### 2. **Mock External Dependencies**
+```typescript
+// Mock file system, network calls, command execution
+vi.mock('fs/promises');
+vi.mock('../command-executor');
+```
+
+### Error Handling Standards
+
+#### 1. **Custom Error Classes**
+```typescript
+export class HatStartError extends Error {
+  constructor(message: string, public readonly code: string) {
+    super(message);
+    this.name = 'HatStartError';
+  }
+}
+
+export class DependencyConflictError extends HatStartError {
+  constructor(message: string, public conflicts: Conflict[]) {
+    super(message, 'DEPENDENCY_CONFLICT');
+  }
+}
+```
+
+#### 2. **Error Recovery**
+```typescript
+// Provide recovery mechanisms
+async function installWithRetry(tool: Tool, maxRetries = 3): Promise<void> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await this.install(tool);
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await this.delay(1000 * Math.pow(2, i)); // Exponential backoff
+    }
+  }
+}
+```
+
+### Code Organization
+
+#### 1. **File Structure**
+```
+src/services/version-managers/
+├── base-adapter.ts          # Abstract base class
+├── mise-adapter.ts          # Concrete implementation
+├── types.ts                 # Shared types
+├── index.ts                 # Public exports
+└── __tests__/              # Tests mirror structure
+```
+
+#### 2. **Export Strategy**
+```typescript
+// index.ts - Control public API
+export { MiseAdapter } from './mise-adapter';
+export type { VersionManager } from './types';
+// Don't export internal utilities
+```
+
+### Performance Considerations
+
+#### 1. **Lazy Loading**
+```typescript
+// Load heavy dependencies only when needed
+private async getAdapter(): Promise<VersionManagerAdapter> {
+  if (!this.adapter) {
+    const { MiseAdapter } = await import('./mise-adapter');
+    this.adapter = new MiseAdapter();
+  }
+  return this.adapter;
+}
+```
+
+#### 2. **Caching**
+```typescript
+// Cache expensive operations
+private cache = new Map<string, DetectionResult>();
+
+async detect(): Promise<DetectionResult> {
+  const cacheKey = this.getCacheKey();
+  if (this.cache.has(cacheKey)) {
+    return this.cache.get(cacheKey)!;
+  }
+  // ... perform detection
+  this.cache.set(cacheKey, result);
+  return result;
+}
+```
+
+### UI/React Standards
+
+#### 1. **Component Structure**
+```typescript
+// Functional components with TypeScript
+interface ToolCardProps {
+  tool: Tool;
+  onInstall: (tool: Tool) => Promise<void>;
+}
+
+export function ToolCard({ tool, onInstall }: ToolCardProps) {
+  // Use hooks for state and effects
+  const [installing, setInstalling] = useState(false);
+  
+  // Handle async operations properly
+  const handleInstall = async () => {
+    setInstalling(true);
+    try {
+      await onInstall(tool);
+    } finally {
+      setInstalling(false);
+    }
+  };
+}
+```
+
+#### 2. **State Management**
+- Use React Context for cross-component state
+- Keep state close to where it's used
+- Derive state when possible instead of syncing
+
+### Security Principles
+
+#### 1. **Command Injection Prevention**
+```typescript
+// Never concatenate user input into commands
+// ❌ Avoid
+exec(`install ${userInput}`);
+
+// ✅ Use parameterized commands
+execFile('install', [sanitizedInput]);
+```
+
+#### 2. **Path Validation**
+```typescript
+// Always validate and sanitize paths
+import { isAbsolute, normalize } from 'path';
+
+function validatePath(userPath: string): string {
+  const normalized = normalize(userPath);
+  if (!isAbsolute(normalized)) {
+    throw new Error('Path must be absolute');
+  }
+  // Additional validation...
+  return normalized;
+}
+```
+
 ## Development Guidance
 
 ### When to Use Each Context System
