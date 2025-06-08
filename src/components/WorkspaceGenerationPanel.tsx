@@ -5,32 +5,21 @@
 
 import React, { useState, useEffect } from 'react';
 import type { ToolSelection } from '../types/ui-types';
-import type { JobRole } from '../types/job-role-types';
-import type { IDEType } from '../services/ide-configuration/types';
-import { WorkspaceGenerationService } from '../services/workspace-generation/workspace-generation-service';
-import type { GeneratedWorkspace } from '../services/workspace-generation/workspace-generation-service';
+import { workspaceGenerator, type IDEType, type WorkspaceResult } from '../services/workspace-generation/simple-workspace-generator';
 
 interface WorkspaceGenerationPanelProps {
   toolSelection: ToolSelection;
-  selectedJobRole?: JobRole;
-  onWorkspaceGenerated?: (workspace: GeneratedWorkspace) => void;
 }
 
 export const WorkspaceGenerationPanel: React.FC<WorkspaceGenerationPanelProps> = ({
-  toolSelection,
-  selectedJobRole,
-  onWorkspaceGenerated
+  toolSelection
 }) => {
   const [selectedIDE, setSelectedIDE] = useState<IDEType>('vscode');
-  const [workspaceName, setWorkspaceName] = useState('');
+  const [workspaceName, setWorkspaceName] = useState('my-workspace');
   const [baseDirectory, setBaseDirectory] = useState('');
-  const [includeManifests, setIncludeManifests] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [preview, setPreview] = useState<Partial<GeneratedWorkspace> | null>(null);
+  const [result, setResult] = useState<WorkspaceResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  const workspaceService = new WorkspaceGenerationService();
 
   // Available IDEs
   const availableIDEs: Array<{ id: IDEType; name: string; icon: string }> = [
@@ -39,212 +28,180 @@ export const WorkspaceGenerationPanel: React.FC<WorkspaceGenerationPanelProps> =
     { id: 'jetbrains', name: 'JetBrains IDEs', icon: '🧠' }
   ];
 
-  // Get default directory based on OS
+  // Get default directory based on home directory
   useEffect(() => {
-    window.electronAPI.getSystemInfo().then(result => {
-      if (result.success && result.data?.homeDirectory) {
-        const home = result.data.homeDirectory;
-        setBaseDirectory(`${home}/workspaces`);
-      }
-    });
+    const homeDir = process.env.HOME || process.env.USERPROFILE || '/tmp';
+    setBaseDirectory(`${homeDir}/workspaces`);
   }, []);
 
-  // Preview workspace when selections change
-  useEffect(() => {
-    if (toolSelection.selectedTools.size > 0) {
-      previewWorkspace();
-    }
-  }, [toolSelection, selectedIDE, workspaceName]);
-
-  const previewWorkspace = async () => {
-    try {
-      const preview = await workspaceService.previewWorkspace({
-        selectedTools: toolSelection,
-        selectedIDE,
-        selectedJobRole,
-        baseDirectory,
-        workspaceName: workspaceName || undefined,
-        includeManifests
-      });
-      setPreview(preview);
-    } catch (err) {
-      console.error('Failed to preview workspace:', err);
-    }
-  };
-
   const handleGenerateWorkspace = async () => {
+    if (!workspaceName || !baseDirectory) {
+      setError('Please provide a workspace name and directory');
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
-    setSuccess(null);
+    setResult(null);
 
     try {
-      const workspace = await workspaceService.generateWorkspace({
-        selectedTools: toolSelection,
-        selectedIDE,
-        selectedJobRole,
-        baseDirectory,
-        workspaceName: workspaceName || undefined,
-        includeManifests
-      });
-
-      // Validate the workspace
-      const isValid = await workspaceService.validateWorkspace(workspace);
-      if (!isValid) {
-        throw new Error('Generated workspace failed validation');
+      // Get selected tool IDs
+      const selectedTools = Array.from(toolSelection.selectedTools);
+      
+      if (selectedTools.length === 0) {
+        setError('Please select at least one tool before generating a workspace');
+        setIsGenerating(false);
+        return;
       }
 
-      // Create workspace files using electron API
-      await window.electronAPI.createWorkspace({
-        path: workspace.path,
-        files: workspace.files
+      // Load tool metadata from manifest
+      const manifestResult = await window.electronAPI.invoke('load-manifest');
+      if ('error' in manifestResult) {
+        throw new Error(manifestResult.error);
+      }
+      
+      const workspacePath = `${baseDirectory}/${workspaceName}`;
+      
+      // Generate workspace
+      const generateResult = await workspaceGenerator.generateWorkspace({
+        selectedTools,
+        toolsMetadata: manifestResult.tools || [],
+        ide: selectedIDE,
+        workspacePath,
+        workspaceName
       });
 
-      setSuccess(`Workspace "${workspace.name}" created successfully!`);
+      setResult(generateResult);
       
-      if (onWorkspaceGenerated) {
-        onWorkspaceGenerated(workspace);
+      if (!generateResult.success) {
+        setError(generateResult.error || 'Failed to generate workspace');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate workspace');
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const hasSelectedTools = toolSelection.selectedTools.size > 0;
+  const selectedToolCount = toolSelection.selectedTools.size;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+    <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Generate IDE Workspace
         </h2>
         <p className="text-gray-600">
-          Create a pre-configured workspace with extensions, linters, and settings based on your tool selections
+          Create a configured workspace with settings and extensions for your selected tools.
         </p>
       </div>
 
-      {!hasSelectedTools ? (
+      {selectedToolCount === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-yellow-800">
-            Please select tools first to generate a workspace configuration
+            Please select tools in the Tool Selection tab before generating a workspace.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* IDE Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select IDE
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {availableIDEs.map(ide => (
-                <button
-                  key={ide.id}
-                  onClick={() => setSelectedIDE(ide.id)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    selectedIDE === ide.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <div className="text-2xl mb-1">{ide.icon}</div>
-                  <div className="text-sm font-medium">{ide.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Workspace Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Workspace Name (optional)
-            </label>
-            <input
-              type="text"
-              value={workspaceName}
-              onChange={(e) => setWorkspaceName(e.target.value)}
-              placeholder="my-awesome-project"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Base Directory */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Base Directory
-            </label>
-            <input
-              type="text"
-              value={baseDirectory}
-              onChange={(e) => setBaseDirectory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Options */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="includeManifests"
-              checked={includeManifests}
-              onChange={(e) => setIncludeManifests(e.target.checked)}
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-            />
-            <label htmlFor="includeManifests" className="ml-2 text-sm text-gray-700">
-              Include community workspace templates
-            </label>
-          </div>
-
-          {/* Preview */}
-          {preview && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Workspace Preview</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="font-medium">Name:</span> {preview.name}
-                </div>
-                <div>
-                  <span className="font-medium">Technology Stacks:</span>{' '}
-                  {preview.stack?.join(', ')}
-                </div>
-                <div>
-                  <span className="font-medium">Extensions:</span>{' '}
-                  {preview.configuration?.extensions.length || 0} extensions
-                </div>
-                <div>
-                  <span className="font-medium">Linters:</span>{' '}
-                  {preview.configuration?.linters.map(l => l.name).join(', ') || 'None'}
-                </div>
-                <div>
-                  <span className="font-medium">Formatters:</span>{' '}
-                  {preview.configuration?.formatters.map(f => f.name).join(', ') || 'None'}
-                </div>
+        <>
+          {/* Workspace Configuration */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Workspace Configuration</h3>
+            
+            {/* IDE Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select IDE
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {availableIDEs.map(ide => (
+                  <button
+                    key={ide.id}
+                    onClick={() => setSelectedIDE(ide.id)}
+                    className={`p-3 rounded-lg border-2 transition-colors ${
+                      selectedIDE === ide.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{ide.icon}</div>
+                    <div className="text-sm font-medium">{ide.name}</div>
+                  </button>
+                ))}
               </div>
             </div>
-          )}
 
-          {/* Error/Success Messages */}
+            {/* Workspace Name */}
+            <div>
+              <label htmlFor="workspace-name" className="block text-sm font-medium text-gray-700 mb-1">
+                Workspace Name
+              </label>
+              <input
+                id="workspace-name"
+                type="text"
+                value={workspaceName}
+                onChange={(e) => setWorkspaceName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="my-awesome-project"
+              />
+            </div>
+
+            {/* Base Directory */}
+            <div>
+              <label htmlFor="base-directory" className="block text-sm font-medium text-gray-700 mb-1">
+                Base Directory
+              </label>
+              <input
+                id="base-directory"
+                type="text"
+                value={baseDirectory}
+                onChange={(e) => setBaseDirectory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="/home/user/workspaces"
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Workspace will be created at: {baseDirectory}/{workspaceName}
+              </p>
+            </div>
+
+            {/* Selected Tools Summary */}
+            <div>
+              <p className="text-sm text-gray-600">
+                {selectedToolCount} tool{selectedToolCount !== 1 ? 's' : ''} selected
+              </p>
+            </div>
+          </div>
+
+          {/* Error Display */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-red-800">{error}</p>
             </div>
           )}
 
-          {success && (
+          {/* Success Display */}
+          {result && result.success && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-800">{success}</p>
+              <p className="text-green-800 font-medium mb-2">
+                Workspace generated successfully!
+              </p>
+              <p className="text-green-700 text-sm mb-2">
+                Location: {result.path}
+              </p>
+              <p className="text-green-700 text-sm">
+                Files created: {result.filesCreated.length}
+              </p>
             </div>
           )}
 
           {/* Generate Button */}
           <button
             onClick={handleGenerateWorkspace}
-            disabled={isGenerating || !baseDirectory}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-              isGenerating || !baseDirectory
+            disabled={isGenerating || selectedToolCount === 0}
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+              isGenerating || selectedToolCount === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
             {isGenerating ? (
@@ -259,7 +216,7 @@ export const WorkspaceGenerationPanel: React.FC<WorkspaceGenerationPanelProps> =
               'Generate Workspace'
             )}
           </button>
-        </div>
+        </>
       )}
     </div>
   );

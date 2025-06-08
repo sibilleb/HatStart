@@ -33,6 +33,15 @@ dist-ssr
 .roorules
 .cursorrules
 
+# Claude AI context and workflow files
+CLAUDE.md
+CLAUDE_CODE_WORKFLOW.md
+.hatstart_session
+.hatstart_*
+
+# Documentation directory (contains internal docs)
+/docs/
+
 # Added by Task Master AI
 dev-debug.log
 # Dependency directories

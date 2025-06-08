@@ -3,9 +3,6 @@ import { CategoryGrid } from './components/CategoryGrid';
 import { RecommendationPanel } from './components/RecommendationPanel';
 import { SearchFilterPanel } from './components/SearchFilterPanel';
 import { SelectionSummary } from './components/SelectionSummary';
-import { TabbedLayout } from './components/TabbedLayout';
-import { WorkspaceGenerationPanel } from './components/WorkspaceGenerationPanel';
-import { VersionManagerContainer } from './components/version-management/VersionManagerContainer';
 import './index.css';
 import { JobRoleConfigService } from './services/job-role-config-service';
 import { JobRoleRecommendationService } from './services/job-role-recommendation-service';
@@ -19,101 +16,29 @@ import type {
   ToolWithStatus
 } from './types/ui-types';
 
-console.log('📱 App.tsx: Loading HatStart App component...');
-
-// Initialize the system detection service
+// Initialize services
 const systemDetectionService = new SystemDetectionService();
-// Initialize the job role recommendation service
 const jobRoleRecommendationService = new JobRoleRecommendationService();
-// Initialize the job role config service
 const jobRoleConfigService = new JobRoleConfigService();
 
-// Sample data for demonstration/fallback
-const sampleCategories: CategoryInfo[] = [
-  {
-    id: 'programming-languages' as ToolCategory,
-    name: 'Programming Languages',
-    description: 'Essential programming languages for development',
-    icon: '💻',
-    color: '#3B82F6',
-    tools: [
-      {
-        id: 'node-js',
-        name: 'Node.js',
-        description: 'JavaScript runtime built on Chrome\'s V8 JavaScript engine',
-        version: '18.17.0',
-        isInstalled: true,
-        isRecommended: true,
-        category: 'programming-languages' as ToolCategory,
-        platforms: ['windows', 'macos', 'linux'],
-        size: '35 MB',
-        installationTime: '2 min',
-        tags: ['javascript', 'runtime', 'server'],
-      },
-      {
-        id: 'python',
-        name: 'Python',
-        description: 'High-level programming language for general-purpose programming',
-        version: '3.11.4',
-        isInstalled: false,
-        isRecommended: true,
-        category: 'programming-languages' as ToolCategory,
-        platforms: ['windows', 'macos', 'linux'],
-        size: '25 MB',
-        installationTime: '3 min',
-        tags: ['python', 'scripting', 'data-science'],
-      },
-    ],
-  },
-  {
-    id: 'code-editors' as ToolCategory,
-    name: 'Code Editors',
-    description: 'Powerful editors for writing and editing code',
-    icon: '📝',
-    color: '#10B981',
-    tools: [
-      {
-        id: 'vscode',
-        name: 'Visual Studio Code',
-        description: 'Free source-code editor made by Microsoft',
-        version: '1.81.0',
-        isInstalled: true,
-        isRecommended: true,
-        category: 'code-editors' as ToolCategory,
-        platforms: ['windows', 'macos', 'linux'],
-        size: '85 MB',
-        installationTime: '3 min',
-        tags: ['editor', 'microsoft', 'extensions'],
-      },
-    ],
-  },
-];
-
 function App() {
-  console.log('🎨 App: Rendering HatStart App component...');
-  
-  // State management
+  // Essential state only
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
-  const [expandedCategories, setExpandedCategories] = useState<Set<ToolCategory>>(new Set());
   const [selection, setSelection] = useState<ToolSelection>({
     selectedTools: new Set(),
     deselectedRecommendations: new Set(),
     customSelections: new Set(),
   });
-  const [activeTab, setActiveTab] = useState('tools');
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     searchQuery: '',
     showOnlyRecommended: false,
     showOnlyNotInstalled: false,
     selectedCategories: new Set(),
     selectedPlatforms: new Set(),
-    // Job role filter options
     filterByJobRole: false,
     selectedJobRole: undefined,
-    priorityLevel: undefined,
-    showRoleRecommendations: false,
   });
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [installationProgress, setInstallationProgress] = useState<InstallationProgress>({
@@ -123,58 +48,23 @@ function App() {
     total: 0,
   });
 
-  // Apply job role recommendations when selected role changes
+  // Load system detection data on mount
   useEffect(() => {
-    if (filterOptions.filterByJobRole && filterOptions.selectedJobRole) {
-      console.log('🔄 App: Applying job role recommendations for:', filterOptions.selectedJobRole);
-      
-      // Apply job role recommendations to all tools in all categories
-      const updatedCategories = categories.map(category => {
-        // Ensure tools have the installationStatus property for ToolWithStatus
-        const toolsWithStatus = category.tools.map(tool => ({
-          ...tool,
-          installationStatus: tool.isInstalled ? 'installed' : 'not-installed'
-        })) as ToolWithStatus[];
-        
-        const updatedTools = jobRoleRecommendationService.applyRoleRecommendations(
-          toolsWithStatus,
-          filterOptions.selectedJobRole as string
-        );
-        
-        return {
-          ...category,
-          tools: updatedTools,
-        };
-      });
-      
-      setCategories(updatedCategories);
-      console.log('✅ App: Job role recommendations applied');
-    }
-  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole, categories]);
-
-  // Load system detection data on component mount
-  useEffect(() => {
-    console.log('🔄 App: Loading system detection data...');
-    
     const loadSystemData = async () => {
       try {
         setIsLoading(true);
         setError(undefined);
         
         // Load categories from system detection
-        console.log('📡 App: Fetching categories from system detection...');
         const detectedCategories = await systemDetectionService.getCategoriesForUI();
-        console.log('✅ App: Categories loaded:', detectedCategories.length);
         
-        // Set default job role if available (first one in the list)
+        // Set default job role if available
         const jobRoles = jobRoleConfigService.getAllConfigs();
         if (jobRoles.length > 0) {
           const defaultRole = jobRoles[0];
-          console.log('🎭 App: Setting default job role:', defaultRole.name);
           
-          // Apply job role recommendations to detected categories
+          // Apply job role recommendations
           const categoriesWithRoleRecommendations = detectedCategories.map(category => {
-            // Ensure tools have the installationStatus property for ToolWithStatus
             const toolsWithStatus = category.tools.map(tool => ({
               ...tool,
               installationStatus: tool.isInstalled ? 'installed' : 'not-installed'
@@ -192,100 +82,118 @@ function App() {
           });
           
           setCategories(categoriesWithRoleRecommendations);
-          
-          // Update filter options with default role
           setFilterOptions(prev => ({
             ...prev,
             selectedJobRole: defaultRole.id,
           }));
         } else {
-          // No job roles available, just use the detected categories
           setCategories(detectedCategories);
         }
         
-        // Auto-expand categories that have detected tools
-        const categoriesToExpand = new Set<ToolCategory>();
-        detectedCategories.forEach(category => {
-          const hasInstalledTools = category.tools.some(tool => tool.isInstalled);
-          if (hasInstalledTools) {
-            categoriesToExpand.add(category.id);
-          }
-        });
-        setExpandedCategories(categoriesToExpand);
-        console.log('📂 App: Auto-expanded categories:', Array.from(categoriesToExpand));
-        
-        // Show recommendations panel if this is first visit
+        // Show recommendations if available
         const hasRecommendations = detectedCategories.some(category =>
           category.tools.some(tool => tool.isRecommended)
         );
         setShowRecommendations(hasRecommendations);
-        console.log('💡 App: Show recommendations:', hasRecommendations);
         
       } catch (err) {
-        console.error('❌ App: Failed to load system detection data:', err);
+        console.error('Failed to load system detection data:', err);
         setError('Failed to detect system tools. Using offline mode.');
-        // Fallback to mock data if detection fails
-        setCategories(sampleCategories);
-        console.log('🔄 App: Using fallback sample data');
+        // Could add fallback data here if needed
       } finally {
         setIsLoading(false);
-        console.log('✅ App: Loading complete');
       }
     };
 
     loadSystemData();
   }, []);
 
-  const handleCategoryToggle = (categoryId: ToolCategory) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(categoryId)) {
-      newExpanded.delete(categoryId);
-    } else {
-      newExpanded.add(categoryId);
+  // Apply job role recommendations when selected role changes
+  useEffect(() => {
+    if (filterOptions.filterByJobRole && filterOptions.selectedJobRole && categories.length > 0) {
+      const updatedCategories = categories.map(category => {
+        const toolsWithStatus = category.tools as ToolWithStatus[];
+        const updatedTools = jobRoleRecommendationService.applyRoleRecommendations(
+          toolsWithStatus,
+          filterOptions.selectedJobRole!
+        );
+        return {
+          ...category,
+          tools: updatedTools,
+        };
+      });
+      setCategories(updatedCategories);
     }
-    setExpandedCategories(newExpanded);
-  };
+  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole]);
 
   const handleSelectionChange = (newSelection: ToolSelection) => {
     setSelection(newSelection);
   };
 
-  const handleInstallSelected = (toolIds: string[]) => {
-    console.log('🚀 Installing tools:', toolIds);
+  const handleInstall = async () => {
+    const toolIds = Array.from(selection.selectedTools);
+    if (toolIds.length === 0) return;
+
     setInstallationProgress({
       isInstalling: true,
-      currentTool: 'Setting up...',
+      currentTool: 'Preparing installation...',
       completed: 0,
       total: toolIds.length,
     });
+
+    try {
+      // Set up progress listener
+      const removeListener = window.electronAPI.onInstallationProgress((progress) => {
+        setInstallationProgress(prev => ({
+          ...prev,
+          currentTool: progress.message,
+          completed: Math.floor((progress.progress / 100) * prev.total),
+        }));
+      });
+
+      // Install tools
+      const result = await window.electronAPI.installTools(toolIds);
+      
+      if (result.success) {
+        const { summary } = result;
+        
+        // Update tool states
+        setCategories(prevCategories => 
+          prevCategories.map(category => ({
+            ...category,
+            tools: category.tools.map(tool => ({
+              ...tool,
+              isInstalled: result.results?.some((r: any) => 
+                r.tool === tool.id && r.success
+              ) || tool.isInstalled,
+            })),
+          }))
+        );
+
+        // Show summary
+        if (summary?.failed > 0) {
+          setError(`Installation completed with errors. ${summary.successful} succeeded, ${summary.failed} failed.`);
+        }
+      } else {
+        setError(result.error || 'Installation failed');
+      }
+
+      // Cleanup
+      removeListener();
+    } catch (error) {
+      console.error('Installation error:', error);
+      setError('Failed to install tools. Please try again.');
+    } finally {
+      setInstallationProgress({
+        isInstalling: false,
+        currentTool: '',
+        completed: 0,
+        total: 0,
+      });
+    }
   };
 
-  const handleExportSelection = () => {
-    const selectedToolsArray = Array.from(selection.selectedTools);
-    const exportData = {
-      selectedTools: selectedToolsArray,
-      timestamp: new Date().toISOString(),
-      categories: categories.filter(cat => 
-        cat.tools.some(tool => selectedToolsArray.includes(tool.id))
-      ),
-    };
-    
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
-      type: 'application/json' 
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'hatstart-selection.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  // Handle filter changes
   const handleFilterChange = (newFilters: FilterOptions) => {
-    console.log('🔍 App: Filter options changed:', newFilters);
     setFilterOptions(newFilters);
   };
 
@@ -318,90 +226,68 @@ function App() {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto">
-            <TabbedLayout
-              tabs={[
-                { id: 'tools', label: 'Tool Selection', icon: '🛠️', badge: selection.selectedTools.size },
-                { id: 'workspace', label: 'Workspace Generation', icon: '📁' },
-                { id: 'version', label: 'Version Management', icon: '🔄' }
-              ]}
-              activeTabId={activeTab}
-              onTabChange={setActiveTab}
-            >
-              {{
-                tools: (
-                  <div>
-                    <div className="flex flex-col lg:flex-row gap-6">
-                      {/* Left Sidebar - Filters */}
-                      <div className="lg:w-1/4">
-                        <SearchFilterPanel 
-                          filterOptions={filterOptions}
-                          onFilterChange={handleFilterChange}
-                        />
-                      </div>
-                      
-                      {/* Main Content - Category Grid */}
-                      <div className="lg:w-3/4">
-                        <CategoryGrid
-                          categories={categories}
-                          expandedCategories={expandedCategories}
-                          onCategoryToggle={handleCategoryToggle}
-                          selection={selection}
-                          onSelectionChange={handleSelectionChange}
-                          filterOptions={filterOptions}
-                          onFilterChange={handleFilterChange}
-                        />
-                      </div>
-                    </div>
+            {/* Recommendations Panel (if available) */}
+            {showRecommendations && (
+              <div className="mb-6">
+                <RecommendationPanel
+                  recommendations={allTools.filter(tool => tool.isRecommended && !tool.isInstalled)}
+                  onAcceptAll={() => {
+                    const recommendedIds = allTools
+                      .filter(tool => tool.isRecommended && !tool.isInstalled)
+                      .map(tool => tool.id);
+                    setSelection({
+                      selectedTools: new Set(recommendedIds),
+                      deselectedRecommendations: new Set(),
+                      customSelections: new Set(),
+                    });
+                  }}
+                  onDismiss={() => setShowRecommendations(false)}
+                />
+              </div>
+            )}
 
-                    {/* Recommendation Panel */}
-                    {showRecommendations && (
-                      <RecommendationPanel
-                        allTools={allTools}
-                        currentSelection={selection}
-                        onSelectionChange={handleSelectionChange}
-                        onDismiss={() => setShowRecommendations(false)}
-                      />
-                    )}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left Sidebar - Filters */}
+              <div className="lg:w-1/4">
+                <SearchFilterPanel 
+                  filterOptions={filterOptions}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+              
+              {/* Main Content - Category Grid */}
+              <div className="lg:w-3/4">
+                <CategoryGrid
+                  categories={categories}
+                  expandedCategories={new Set(categories.map(c => c.id))}
+                  onCategoryToggle={() => {}}
+                  selection={selection}
+                  onSelectionChange={handleSelectionChange}
+                  filterOptions={filterOptions}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+            </div>
 
-                    {/* Selection Summary */}
-                    <SelectionSummary
-                      selection={selection}
-                      tools={allTools}
-                      onInstallSelected={handleInstallSelected}
-                      onClearSelection={() => setSelection({
-                        selectedTools: new Set(),
-                        deselectedRecommendations: new Set(),
-                        customSelections: new Set(),
-                      })}
-                      onExportSelection={handleExportSelection}
-                      installationProgress={installationProgress}
-                      estimatedTime="15-30 minutes"
-                      estimatedSize="2.5 GB"
-                      isVisible={selection.selectedTools.size > 0}
-                      position="bottom-right"
-                    />
-                  </div>
-                ),
-                workspace: (
-                  <WorkspaceGenerationPanel
-                    toolSelection={selection}
-                    selectedJobRole={filterOptions.selectedJobRole as any}
-                    onWorkspaceGenerated={(workspace) => {
-                      console.log('Workspace generated:', workspace);
-                      // Could show a success notification or navigate to a different tab
-                    }}
-                  />
-                ),
-                version: <VersionManagerContainer />
-              }}
-            </TabbedLayout>
+            {/* Selection Summary and Install Button */}
+            <div className="mt-8">
+              <SelectionSummary
+                selection={selection}
+                categories={categories}
+                onInstall={handleInstall}
+                onClearSelection={() => setSelection({
+                  selectedTools: new Set(),
+                  deselectedRecommendations: new Set(),
+                  customSelections: new Set(),
+                })}
+                installationProgress={installationProgress}
+              />
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-console.log('✅ App.tsx: HatStart App component defined');
 
 export default App;

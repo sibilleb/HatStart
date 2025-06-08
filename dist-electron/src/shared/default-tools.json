@@ -1,0 +1,141 @@
+{
+    "version": "1.0.0",
+    "tools": [
+        {
+            "id": "nodejs",
+            "name": "Node.js",
+            "category": "language",
+            "description": "JavaScript runtime built on Chrome's V8 engine",
+            "packageNames": {
+                "darwin": "node",
+                "win32": "nodejs",
+                "linux": "nodejs"
+            },
+            "verification": "node --version",
+            "recommendedFor": ["frontend", "backend", "fullstack"]
+        },
+        {
+            "id": "python",
+            "name": "Python",
+            "category": "language",
+            "description": "High-level programming language",
+            "packageNames": {
+                "darwin": "python@3",
+                "win32": "python",
+                "linux": "python3"
+            },
+            "verification": "python3 --version",
+            "recommendedFor": ["backend", "datascience", "devops"]
+        },
+        {
+            "id": "git",
+            "name": "Git",
+            "category": "productivity",
+            "description": "Distributed version control system",
+            "packageNames": {
+                "darwin": "git",
+                "win32": "git",
+                "linux": "git"
+            },
+            "recommendedFor": ["frontend", "backend", "fullstack", "devops", "datascience"]
+        },
+        {
+            "id": "docker",
+            "name": "Docker",
+            "category": "devops",
+            "description": "Container platform",
+            "packageNames": {
+                "darwin": "docker",
+                "win32": "docker-desktop",
+                "linux": "docker-ce"
+            },
+            "customInstall": {
+                "linux": "curl -fsSL https://get.docker.com | sh"
+            },
+            "verification": "docker --version",
+            "recommendedFor": ["backend", "fullstack", "devops"]
+        },
+        {
+            "id": "vscode",
+            "name": "Visual Studio Code",
+            "category": "productivity",
+            "description": "Lightweight code editor",
+            "packageNames": {
+                "darwin": "visual-studio-code",
+                "win32": "vscode",
+                "linux": "code"
+            },
+            "verification": "code --version",
+            "recommendedFor": ["frontend", "backend", "fullstack", "datascience"]
+        },
+        {
+            "id": "postgresql",
+            "name": "PostgreSQL",
+            "category": "database",
+            "description": "Open source relational database",
+            "packageNames": {
+                "darwin": "postgresql",
+                "win32": "postgresql",
+                "linux": "postgresql"
+            },
+            "verification": "psql --version",
+            "recommendedFor": ["backend", "fullstack"]
+        },
+        {
+            "id": "go",
+            "name": "Go",
+            "category": "language",
+            "description": "Statically typed, compiled language",
+            "packageNames": {
+                "darwin": "go",
+                "win32": "golang",
+                "linux": "golang"
+            },
+            "verification": "go version",
+            "recommendedFor": ["backend", "devops"]
+        },
+        {
+            "id": "rust",
+            "name": "Rust",
+            "category": "language",
+            "description": "Systems programming language",
+            "packageNames": {
+                "darwin": "rust",
+                "win32": "rust",
+                "linux": "rust"
+            },
+            "customInstall": {
+                "darwin": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
+                "linux": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+            },
+            "verification": "rustc --version",
+            "recommendedFor": ["backend"]
+        },
+        {
+            "id": "kubectl",
+            "name": "Kubernetes CLI",
+            "category": "devops",
+            "description": "Command line tool for Kubernetes",
+            "packageNames": {
+                "darwin": "kubernetes-cli",
+                "win32": "kubernetes-cli",
+                "linux": "kubectl"
+            },
+            "verification": "kubectl version --client",
+            "recommendedFor": ["devops"]
+        },
+        {
+            "id": "terraform",
+            "name": "Terraform",
+            "category": "devops",
+            "description": "Infrastructure as Code tool",
+            "packageNames": {
+                "darwin": "terraform",
+                "win32": "terraform",
+                "linux": "terraform"
+            },
+            "verification": "terraform --version",
+            "recommendedFor": ["devops"]
+        }
+    ]
+}

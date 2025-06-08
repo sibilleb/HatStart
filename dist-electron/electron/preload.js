@@ -29,11 +29,15 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     listFiles: (options) => electron_1.ipcRenderer.invoke('file:list', options),
     // Workspace APIs
     createWorkspace: (options) => electron_1.ipcRenderer.invoke('workspace:create', options),
-    // Installation APIs (to be implemented later)
-    installTool: (toolId) => electron_1.ipcRenderer.invoke('install-tool', toolId),
-    // Progress tracking APIs (to be implemented later)
-    onInstallProgress: (callback) => {
-        electron_1.ipcRenderer.on('install-progress', (_event, progress) => callback(progress));
+    // Installation APIs
+    installTools: (toolIds) => electron_1.ipcRenderer.invoke('install-tools', toolIds),
+    checkPrerequisites: () => electron_1.ipcRenderer.invoke('check-prerequisites'),
+    // Progress tracking APIs
+    onInstallationProgress: (callback) => {
+        const listener = (_event, progress) => callback(progress);
+        electron_1.ipcRenderer.on('installation-progress', listener);
+        // Return cleanup function
+        return () => electron_1.ipcRenderer.removeListener('installation-progress', listener);
     },
     // Version Management APIs - Minimal MVP implementation
     versionManager: {

@@ -42,12 +42,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }>;
   }) => ipcRenderer.invoke('workspace:create', options),
   
-  // Installation APIs (to be implemented later)
-  installTool: (toolId: string) => ipcRenderer.invoke('install-tool', toolId),
+  // Installation APIs
+  installTools: (toolIds: string[]) => ipcRenderer.invoke('install-tools', toolIds),
+  checkPrerequisites: () => ipcRenderer.invoke('check-prerequisites'),
   
-  // Progress tracking APIs (to be implemented later)
-  onInstallProgress: (callback: (progress: InstallProgress) => void) => {
-    ipcRenderer.on('install-progress', (_event, progress) => callback(progress));
+  // Progress tracking APIs
+  onInstallationProgress: (callback: (progress: { message: string; progress: number }) => void) => {
+    const listener = (_event: any, progress: { message: string; progress: number }) => callback(progress);
+    ipcRenderer.on('installation-progress', listener);
+    // Return cleanup function
+    return () => ipcRenderer.removeListener('installation-progress', listener);
   },
   
   // Version Management APIs - Minimal MVP implementation

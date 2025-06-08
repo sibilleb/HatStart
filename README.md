@@ -17,7 +17,6 @@ HatStart is an **open-source, cross-platform developer toolkit installer** that 
 - **🎯 Job Role Recommendations**: Get tool suggestions based on your role (Full-Stack, DevOps, Data Science, etc.)
 - **📦 Version Management**: Automatically manage multiple versions of languages (Node.js, Python, Ruby, etc.)
 - **🔧 IDE Configuration**: Auto-configure VS Code, Cursor, or JetBrains with extensions and settings
-- **🔄 Dependency Resolution**: Intelligent handling of tool dependencies and conflicts
 - **🌍 Cross-Platform**: Works seamlessly on Windows, macOS, and Linux
 - **📚 Extensible**: Easy to add new tools via YAML/JSON manifests - no coding required!
 - **🚫 Offline-First**: No cloud dependencies for core functionality
@@ -28,11 +27,11 @@ HatStart is an **open-source, cross-platform developer toolkit installer** that 
 **Progress**: 11 of 25 planned features complete (44%)
 
 ### Recently Completed ✅
-- Dependency Resolution Engine with 240+ tests
 - Version Management System (Mise, NVM, PyEnv, ASDF, RBenv)
-- Workspace Generation for IDEs
+- IDE Workspace Generation (VS Code/Cursor configuration)
 - Job Role Assessment System
 - Cross-platform Installer Framework
+- MVP Simplification (removed 49,000+ lines of over-engineered code)
 
 ### In Progress 🔄
 - Conflict Resolution UI
@@ -107,11 +106,11 @@ HatStart is built with modern web technologies:
 
 ### Key Systems
 
-1. **Manifest System**: Define tools in YAML/JSON
-2. **Dependency Resolution**: Graph-based dependency management
+1. **Simple Manifest System**: Define tools in JSON (~230 lines)
+2. **Simple Tool Installer**: Direct package manager wrapper (~400 lines)
 3. **Version Management**: Universal version manager support
-4. **Platform Adapters**: OS-specific installation logic
-5. **IDE Integration**: Automated workspace configuration
+4. **Job Role Recommendations**: Rule-based tool suggestions
+5. **IDE Workspace Generation**: Simple config file generation (~460 lines)
 
 ## 📖 Documentation
 

@@ -87,11 +87,32 @@ export interface ElectronAPI {
     }>;
   }) => Promise<{ success: boolean; error?: string }>;
   
-  // Installation APIs (to be implemented later)
-  installTool: (toolId: string) => Promise<unknown>;
+  // Installation APIs
+  installTools: (toolIds: string[]) => Promise<{
+    success: boolean;
+    summary?: {
+      total: number;
+      successful: number;
+      failed: number;
+      alreadyInstalled: number;
+      failures: Array<{ tool: string; error: string }>;
+    };
+    results?: Array<{
+      success: boolean;
+      tool: string;
+      message: string;
+      error?: Error;
+    }>;
+    error?: string;
+  }>;
+  checkPrerequisites: () => Promise<{
+    platform: string;
+    packageManager: string;
+    available: boolean;
+  }>;
   
-  // Progress tracking APIs (to be implemented later)
-  onInstallProgress: (callback: (progress: unknown) => void) => void;
+  // Progress tracking APIs
+  onInstallationProgress: (callback: (progress: { message: string; progress: number }) => void) => () => void;
   
   // Version Management APIs - Minimal MVP implementation
   versionManager: {
