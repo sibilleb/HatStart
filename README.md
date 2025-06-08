@@ -1,154 +1,153 @@
-# HatStart - The Automated Developer Toolkit Installer
+# HatStart 🎩
 
-HatStart is a modern Electron-based application that automates the installation and configuration of developer tools across different platforms. It provides an intelligent, category-based approach to setting up development environments with minimal user intervention.
+> One-click developer environment setup for Windows, macOS, and Linux
 
-## 🚀 Features
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+[![Electron](https://img.shields.io/badge/Electron-36-9FEAF9)](https://www.electronjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB)](https://reactjs.org/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-- **Intelligent Tool Detection**: Automatically detects already installed tools to avoid conflicts
-- **Category-Based Organization**: Tools organized by development categories (Frontend, Backend, DevOps, etc.)
-- **Experience Level Filtering**: Tailored tool recommendations based on user experience
-- **Cross-Platform Support**: Works on macOS, Windows, and Linux
-- **Progress Tracking**: Real-time installation progress with detailed feedback
-- **Modern UI**: Built with React and TypeScript for a responsive user experience
+## 🚀 What is HatStart?
 
-## 🛠 Tech Stack
+HatStart is an **open-source, cross-platform developer toolkit installer** that sets up your complete development environment with one click. No more following lengthy setup guides or debugging installation issues - HatStart handles everything for you.
 
-- **Frontend**: React 19 + TypeScript + Vite
-- **Desktop**: Electron 36
-- **Build System**: Vite + TypeScript + Electron Builder
-- **Code Quality**: ESLint + TypeScript strict mode
+### ✨ Key Features
 
-## 📋 Prerequisites
+- **🖱️ One-Click Installation**: Set up your entire development environment in minutes
+- **🎯 Job Role Recommendations**: Get tool suggestions based on your role (Full-Stack, DevOps, Data Science, etc.)
+- **📦 Version Management**: Automatically manage multiple versions of languages (Node.js, Python, Ruby, etc.)
+- **🔧 IDE Configuration**: Auto-configure VS Code, Cursor, or JetBrains with extensions and settings
+- **🔄 Dependency Resolution**: Intelligent handling of tool dependencies and conflicts
+- **🌍 Cross-Platform**: Works seamlessly on Windows, macOS, and Linux
+- **📚 Extensible**: Easy to add new tools via YAML/JSON manifests - no coding required!
+- **🚫 Offline-First**: No cloud dependencies for core functionality
 
-- Node.js 18+ and npm
-- Git
+## 📊 Project Status
 
-## 🏗 Development Setup
+**Current Version**: Development (Pre-release)  
+**Progress**: 11 of 25 planned features complete (44%)
 
-### 1. Clone and Install
+### Recently Completed ✅
+- Dependency Resolution Engine with 240+ tests
+- Version Management System (Mise, NVM, PyEnv, ASDF, RBenv)
+- Workspace Generation for IDEs
+- Job Role Assessment System
+- Cross-platform Installer Framework
 
-```bash
-git clone <repository-url>
-cd HatStart
-npm install
-```
+### In Progress 🔄
+- Conflict Resolution UI
+- Real-time Progress Tracking
+- Platform-specific Enhancements
 
-### 2. Development Mode
+[View Full Roadmap →](https://github.com/yourusername/hatstart/issues)
 
-Run the application in development mode with hot reload:
+## 🎯 Who is HatStart For?
 
-```bash
-npm run electron:dev
-```
+- **New Developers**: Get started quickly without setup headaches
+- **Experienced Developers**: Standardize your environment across machines
+- **Teams**: Share consistent development setups
+- **Companies**: Onboard developers faster with custom configurations
 
-This will:
-- Start the Vite dev server on http://localhost:5173
-- Launch Electron with the React app
-- Enable hot reload for both main and renderer processes
+## 🚀 Quick Start
 
-### 3. Build for Production
+### Using HatStart
 
-```bash
-# Build the application
-npm run electron:build
+1. Download the latest release for your platform
+2. Run HatStart
+3. Choose your developer role (optional)
+4. Select tools to install
+5. Click "Install" and grab a coffee ☕
 
-# Package for distribution
-npm run electron:dist
-```
+### Example: Full-Stack Developer Setup
 
-## 📁 Project Structure
-
-```
-HatStart/
-├── electron/                 # Electron main process
-│   ├── main.ts              # Main Electron process
-│   ├── preload.ts           # Preload script for secure IPC
-│   ├── utils/               # Electron utilities
-│   └── tsconfig.json        # TypeScript config for main process
-├── src/                     # React renderer process
-│   ├── components/          # React components
-│   ├── shared/              # Shared types and utilities
-│   │   └── types.ts         # TypeScript interfaces
-│   ├── App.tsx              # Main React component
-│   └── main.tsx             # React entry point
-├── public/                  # Static assets
-├── dist/                    # Built React app
-├── dist-electron/           # Built Electron main process
-└── release/                 # Packaged applications
-```
-
-## 🔧 Available Scripts
-
-- `npm run dev` - Start Vite dev server
-- `npm run build` - Build React app
-- `npm run electron:dev` - Run in development mode
-- `npm run electron:build` - Build both React and Electron
-- `npm run electron:compile` - Compile Electron TypeScript
-- `npm run electron:pack` - Package the application
-- `npm run electron:dist` - Build and package for distribution
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Check TypeScript types
-- `npm run clean` - Clean build directories
-
-## 🧪 Testing
-
-```bash
-# Type checking
-npm run type-check
-
-# Linting
-npm run lint
-```
-
-## 📦 Building for Distribution
-
-The application can be packaged for multiple platforms:
-
-```bash
-# Build for current platform
-npm run electron:dist
-
-# The packaged app will be in the release/ directory
-```
-
-Supported platforms:
-- **macOS**: DMG installer (x64 + ARM64)
-- **Windows**: NSIS installer (x64)
-- **Linux**: AppImage (x64)
-
-## 🔒 Security
-
-- Context isolation enabled
-- Node integration disabled in renderer
-- Secure IPC communication via preload script
-- TypeScript strict mode for type safety
+HatStart can set up a complete full-stack environment including:
+- Node.js (via NVM) with version management
+- Python (via PyEnv) with virtual environments  
+- Git with proper configuration
+- Docker Desktop
+- VS Code with relevant extensions
+- PostgreSQL and Redis
+- All configured and ready to use!
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+We love contributions! HatStart is designed to be easily extensible.
 
-## 📄 License
+### Add a New Tool (No Coding!)
 
-[License information to be added]
+1. Create a manifest file:
+```yaml
+id: "terraform"
+name: "Terraform"
+category: "Infrastructure"
+platforms:
+  windows:
+    installer: "chocolatey"
+    package: "terraform"
+  macos:
+    installer: "homebrew"
+    package: "terraform"
+  linux:
+    installer: "apt"
+    package: "terraform"
+```
 
-## 🐛 Troubleshooting
+2. Submit a PR - that's it!
 
-### Common Issues
+[Read Contributing Guide →](CONTRIBUTING.md)
 
-**Electron won't start in development:**
-- Ensure Vite dev server is running on port 5173
-- Check that all dependencies are installed
+## 🏗️ Architecture
 
-**TypeScript errors:**
-- Run `npm run type-check` to see detailed errors
-- Ensure all imports use correct paths
+HatStart is built with modern web technologies:
 
-**Build failures:**
-- Clean build directories: `npm run clean`
-- Reinstall dependencies: `rm -rf node_modules && npm install`
+- **Frontend**: React 19 + TypeScript + Tailwind CSS
+- **Backend**: Electron 36 with secure IPC
+- **Build**: Vite + ESLint  
+- **Testing**: Vitest with comprehensive coverage
 
-For more help, please open an issue on GitHub.
+### Key Systems
+
+1. **Manifest System**: Define tools in YAML/JSON
+2. **Dependency Resolution**: Graph-based dependency management
+3. **Version Management**: Universal version manager support
+4. **Platform Adapters**: OS-specific installation logic
+5. **IDE Integration**: Automated workspace configuration
+
+## 📖 Documentation
+
+- [Product Vision](docs/PRODUCT_VISION.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [API Documentation](docs/API.md)
+- [Manifest Format](docs/MANIFEST_FORMAT.md)
+
+## 🛠️ Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/hatstart.git
+cd hatstart
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
+
+## 📜 License
+
+HatStart is MIT licensed. See [LICENSE](LICENSE) for details.
+
+## 🙏 Acknowledgments
+
+Built with ❤️ by developers, for developers. Special thanks to all contributors!
+
+---
+
+**Note**: HatStart is in active development. Star ⭐ the repo to follow our progress!

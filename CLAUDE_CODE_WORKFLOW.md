@@ -236,6 +236,28 @@ task-master generate  # Update task files
 # - Architecture decisions
 # - Technical debt created
 # - Known issues
+
+# Update README.md if needed:
+# - Update progress percentage
+# - Move completed features to "Recently Completed"
+# - Update "In Progress" section
+# - Add any new key features
+```
+
+### 5a. README.md Maintenance
+When completing tasks, update the README.md:
+- **Progress**: Calculate new percentage (completed/total tasks)
+- **Recently Completed**: Add newly finished major features
+- **In Progress**: Update with current work
+- **Key Features**: Add if task introduced new user-facing feature
+
+Example update after completing a task:
+```markdown
+**Progress**: 12 of 25 planned features complete (48%)
+
+### Recently Completed ✅
+- Conflict Resolution UI (just completed!)
+- Dependency Resolution Engine with 240+ tests
 ```
 
 ### 6. Session End
@@ -275,6 +297,7 @@ git commit -m "docs: update session documentation"
 - [ ] No console.logs or debug code
 - [ ] Documentation updated if needed
 - [ ] CLAUDE.md updated with session notes
+- [ ] README.md updated if task completed or major feature added
 
 ## Commit Message Format
 
