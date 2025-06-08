@@ -434,3 +434,101 @@ When reviewing features for necessary vs unnecessary complexity:
    - Show impact on user experience
    - Detail impact on extensibility/customization
    - Wait for approval before implementing
+
+## New Feature Implementation Process (MVP-First)
+
+### Pre-Implementation Checklist
+Before writing ANY code for a new feature:
+
+1. **Define MVP Scope**
+   ```
+   Feature: [Name]
+   MVP: What's the absolute minimum for users to benefit?
+   Future: What can wait for v2?
+   Not Needed: What are we NOT building?
+   ```
+
+2. **Line Count Estimate**
+   ```
+   UI Component: ___ lines (typically 50-150)
+   Backend Service: ___ lines (typically 100-300)
+   Integration: ___ lines (typically 50-100)
+   Tests: ___ lines (should be < implementation)
+   TOTAL: ___ lines
+   
+   If >1000 lines: STOP and simplify scope
+   ```
+
+3. **Integration Plan**
+   ```
+   How users access it: [Menu item, button, etc.]
+   Simplest possible UI: [Describe]
+   Backend needs: [List only essential operations]
+   Can use existing code: [What can we reuse?]
+   ```
+
+### Implementation Rules
+
+1. **Start Without Abstractions**
+   - Write concrete implementation first
+   - Extract abstractions only after 3+ uses
+   - No base classes until pattern is proven
+
+2. **Connect As You Build**
+   - Backend feature = UI access on same day
+   - No "coming soon" placeholders
+   - User can test within 1 day of starting
+
+3. **Test Real Scenarios Only**
+   - Test actual user workflows
+   - No tests for "future" features
+   - Integration > Unit tests for MVP
+
+### Red Flags During Implementation
+
+STOP if you find yourself:
+- Creating abstract base classes
+- Adding "options" for future use  
+- Writing more test code than feature code
+- Building without UI to test it
+- Implementing multiple algorithms
+- Adding caching/optimization prematurely
+
+### Post-Implementation Review
+
+Before marking complete:
+1. **Line count check**: Did we stay under estimate?
+2. **User test**: Can a user actually use this feature?
+3. **Simplification**: What can we remove and still work?
+4. **Documentation**: Update README with actual feature (not planned)
+
+### Examples from HatStart
+
+❌ **What NOT to do**:
+- Dependency system: 13,722 lines, never used
+- Version management: Complete backend, "coming soon" UI
+- Test suite: 13,715 lines testing imaginary features
+
+✅ **What TO do**:
+- Job roles: ~500 lines, simple rules, works great
+- Start with 100 lines that work
+- Add complexity only when users ask
+
+### MVP Implementation Stages
+
+Stage 1 (Day 1-2): Minimal Working Feature
+- Hardcoded values OK
+- No error handling OK  
+- Just make it work for happy path
+
+Stage 2 (Day 3-4): Make it Usable
+- Add basic error handling
+- Simple UI connected
+- One real test case
+
+Stage 3 (Day 5+): Polish Based on Feedback
+- Add edge cases users actually hit
+- Improve UI based on usage
+- Add abstractions if pattern emerges
+
+Remember: Ship Stage 1 internally, Stage 2 to beta users, Stage 3 to everyone

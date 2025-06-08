@@ -272,9 +272,59 @@ class MiseAdapter implements IVersionManager { }
 class NVMAdapter implements IVersionManager { }
 ```
 
+## Lessons Learned: Avoiding Over-Engineering
+
+### Critical Discovery from Feature Review
+Our comprehensive review found EVERY task was over-engineered by 5-50x:
+- **Total**: ~50,000 lines for what needs ~3,000 lines
+- **Root Cause**: Building imagined requirements instead of actual MVP
+
+### Red Flags to Watch For
+1. **Abstract base classes before 3+ implementations exist**
+2. **"Future-proofing" with unused optional fields**
+3. **Multiple algorithm implementations for simple problems**
+4. **Deep inheritance hierarchies**
+5. **Test files larger than implementation files**
+6. **Features built but not connected to UI**
+
+### MVP-First Development Rules
+1. **Start with the simplest thing that works**
+   - For installers: Just wrap the package manager command
+   - For configs: Just write the JSON file
+   - For UI: Just show the list and install button
+
+2. **No abstractions until patterns emerge**
+   - ❌ Don't create interfaces/base classes preemptively
+   - ✅ Extract abstractions after 3+ similar implementations
+
+3. **Connect as you build**
+   - Every backend feature needs UI access
+   - No "coming soon" placeholders for built features
+   - Test the full user flow, not just units
+
+4. **Question every line**
+   - Can the platform/library do this for us?
+   - Is this solving a real user problem?
+   - Will this feature be used in the next 2 releases?
+
 ## Coding Principles & Standards
 
 ### Core Principles
+
+#### 0. **MVP First, Elegance Later**
+```typescript
+// ❌ Avoid - Over-engineered from start
+abstract class BaseInstaller<T> {
+  // 600 lines of abstraction
+}
+
+// ✅ Prefer - Start simple
+function installTool(tool: string, platform: string) {
+  if (platform === 'mac') return exec(`brew install ${tool}`);
+  if (platform === 'win') return exec(`choco install ${tool}`);
+  // Add abstraction only when pattern is clear
+}
+```
 
 #### 1. **Type Safety First**
 ```typescript
@@ -448,6 +498,114 @@ export { MiseAdapter } from './mise-adapter';
 export type { VersionManager } from './types';
 // Don't export internal utilities
 ```
+
+### Feature Development Checklist
+
+Before implementing ANY new feature, answer these questions:
+
+#### 1. **MVP Validation**
+- [ ] Is this feature needed for basic tool installation?
+- [ ] Can users work without this feature?
+- [ ] Are we solving a real problem users have TODAY?
+
+#### 2. **Complexity Check**
+- [ ] Can this be done in <100 lines?
+- [ ] Are we creating abstractions for future use?
+- [ ] Can existing libraries/platform handle this?
+
+#### 3. **Integration Planning**
+- [ ] How will users access this feature?
+- [ ] What's the simplest UI for this?
+- [ ] Can we ship and test incrementally?
+
+#### 4. **Code Estimate Reality Check**
+- Simple feature (list display, basic form): 50-100 lines
+- Medium feature (tool installation): 200-300 lines
+- Complex feature (with UI + backend): 500-800 lines
+- If estimating >1000 lines: STOP and reconsider scope
+
+### Examples from Our Codebase
+
+#### ❌ What We Built (Over-engineered)
+```typescript
+// 10,558 lines to install a tool
+class BaseInstaller {
+  // 653 lines of abstraction
+}
+class CategoryInstaller extends BaseInstaller {
+  // 1,872 lines
+}
+// ... 7 more layers
+```
+
+#### ✅ What We Actually Needed
+```typescript
+// ~50 lines to install a tool
+async function installTool(tool: Tool): Promise<void> {
+  const command = getInstallCommand(tool, platform);
+  try {
+    await exec(command);
+    showSuccess(`${tool.name} installed`);
+  } catch (error) {
+    showError(`Failed to install ${tool.name}: ${error.message}`);
+  }
+}
+```
+
+### Creating Space for Future Features (Without Over-Engineering)
+
+#### 1. **Use Strategic TODOs**
+```typescript
+async function installTool(tool: Tool): Promise<void> {
+  // TODO: Future - Add version management support
+  // When needed: if (tool.version) { ... }
+  
+  const command = getInstallCommand(tool, platform);
+  await exec(command);
+}
+```
+
+#### 2. **Simple Extension Points**
+```typescript
+// Instead of complex plugin system, just:
+interface ToolInstaller {
+  name: string;
+  install: (tool: Tool) => Promise<void>;
+}
+
+const installers: ToolInstaller[] = [
+  { name: 'default', install: defaultInstall },
+  // Future: Add custom installers here
+];
+```
+
+#### 3. **Configuration Placeholders**
+```typescript
+interface AppConfig {
+  // Current MVP
+  catalogUrl: string;
+  
+  // Future placeholders (but don't implement yet!)
+  // enableVersionManagement?: boolean;
+  // pluginDirectory?: string;
+  // customInstallers?: string[];
+}
+```
+
+#### 4. **Document Future Vision**
+Create `docs/future-features.md`:
+- Version management integration
+- Custom installer plugins  
+- Cloud backup of configurations
+- BUT: Don't build infrastructure for these yet!
+
+#### Key Principle: **Prepare, Don't Implement**
+- ✅ Add a TODO comment
+- ✅ Design with extension in mind
+- ✅ Document future plans
+- ❌ Don't build abstractions
+- ❌ Don't add "options" 
+- ❌ Don't create plugin systems
 
 ### Performance Considerations
 
