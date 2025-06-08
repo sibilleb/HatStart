@@ -1,0 +1,51 @@
+# <type>(<scope>): <subject>
+# 
+# <body>
+# 
+# Task: <task-id>
+# Subtask: <subtask-id>
+# 
+# ==== Type must be one of the following ====
+# feat     - New feature
+# fix      - Bug fix
+# docs     - Documentation only changes
+# style    - Code style changes (formatting, semicolons, etc)
+# refactor - Code change that neither fixes a bug nor adds a feature
+# test     - Adding or updating tests
+# chore    - Maintenance tasks, dependency updates, etc
+# 
+# ==== Scope should be one of the following ====
+# version-manager    - Version management system
+# dependency         - Dependency resolution engine
+# installer          - Platform installers
+# workspace          - Workspace generation
+# ui                 - User interface components
+# job-role           - Job role assessment
+# ide-config         - IDE configuration
+# types              - Type definitions
+# core               - Core infrastructure
+# 
+# ==== Subject line rules ====
+# - Use imperative mood ("add" not "added")
+# - Don't capitalize first letter
+# - No period at the end
+# - Maximum 50 characters
+# 
+# ==== Body rules ====
+# - Wrap at 72 characters
+# - Explain what and why, not how
+# - Include breaking changes with "BREAKING CHANGE:" prefix
+# - Reference issues with "Fixes #123" or "Relates to #123"
+# 
+# ==== Example ====
+# feat(version-manager): add support for Ruby version management
+# 
+# - Implement RbenvAdapter for Ruby version control
+# - Add Ruby detection to language detector
+# - Update manifest types to include Ruby tools
+# 
+# This enables developers to manage multiple Ruby versions
+# for projects requiring different Ruby environments.
+# 
+# Task: 14
+# Subtask: 14.2

@@ -1,0 +1,80 @@
+#!/bin/bash
+# HatStart Development Workflow Aliases
+# 
+# Installation:
+# Add this line to your ~/.zshrc or ~/.bashrc:
+# source /Users/lilolmedn/Library/CloudStorage/GoogleDrive-bsibille@redhat.com/My\ Drive/Projects/VDI/HatStart/.hatstart_aliases
+
+# Task Management Aliases
+alias hs-next="task-master next"
+alias hs-list="task-master list"
+alias hs-show="task-master show"
+alias hs-update="task-master update-subtask --id"
+alias hs-done="task-master set-status --status=done --id"
+alias hs-progress="task-master set-status --status=in-progress --id"
+alias hs-pending="task-master set-status --status=pending --id"
+
+# Git Workflow Aliases
+alias hs-status="git status && echo '---' && task-master list"
+alias hs-commit="git add -A && git commit -m"
+alias hs-diff="git diff --stat"
+alias hs-changes="git diff"
+
+# Task Analysis Aliases
+alias hs-analyze="task-master analyze-complexity --research"
+alias hs-expand="task-master expand --force --research --id"
+alias hs-complexity="task-master complexity-report"
+
+# Development Workflow Aliases
+alias hs-lint="npm run lint"
+alias hs-test="npm test"
+alias hs-build="npm run build"
+alias hs-dev="npm run dev"
+
+# Session Management
+alias hs-session="cat .hatstart_session"
+alias hs-session-start='echo "Session Start: $(date)" > .hatstart_session && hs-next'
+alias hs-session-end='echo "Session End: $(date)" >> .hatstart_session'
+
+# Quick Navigation
+alias hs-root="cd /Users/lilolmedn/Library/CloudStorage/GoogleDrive-bsibille@redhat.com/My\ Drive/Projects/VDI/HatStart"
+alias hs-services="cd /Users/lilolmedn/Library/CloudStorage/GoogleDrive-bsibille@redhat.com/My\ Drive/Projects/VDI/HatStart/src/services"
+alias hs-components="cd /Users/lilolmedn/Library/CloudStorage/GoogleDrive-bsibille@redhat.com/My\ Drive/Projects/VDI/HatStart/src/components"
+
+# Combined Commands
+alias hs-start-task='hs-next && read -p "Enter task ID to start: " task_id && hs-progress $task_id'
+alias hs-finish-subtask='read -p "Enter subtask ID to complete: " subtask_id && hs-done $subtask_id && hs-commit'
+alias hs-check="hs-lint && hs-test && echo 'All checks passed!'"
+
+# Help Command
+alias hs-help='echo "HatStart Workflow Commands:
+Task Management:
+  hs-next          - Show next task to work on
+  hs-list          - List all tasks
+  hs-show <id>     - Show task details
+  hs-update <id>   - Update subtask details
+  hs-done <id>     - Mark task/subtask as done
+  hs-progress <id> - Mark task/subtask as in-progress
+  
+Git Workflow:
+  hs-status        - Show git and task status
+  hs-commit \"msg\" - Quick add all and commit
+  hs-diff          - Show file change summary
+  hs-changes       - Show detailed changes
+  
+Development:
+  hs-lint          - Run linter
+  hs-test          - Run tests
+  hs-check         - Run lint and tests
+  hs-build         - Build the project
+  hs-dev           - Start dev server
+  
+Session:
+  hs-session       - View current session state
+  hs-session-start - Start new work session
+  hs-session-end   - End work session
+  
+Analysis:
+  hs-analyze       - Analyze task complexity
+  hs-expand <id>   - Expand task into subtasks
+  hs-complexity    - View complexity report"'

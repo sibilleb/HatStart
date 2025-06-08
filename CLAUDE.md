@@ -222,34 +222,134 @@ class NVMAdapter implements IVersionManager { }
 - `tests/integration/` - Integration test suites
 - `vitest.config.ts` - Test configuration
 
+## Codebase Navigation Map
+
+### Quick Navigation by Feature Area
+
+#### Version Management System
+- **Core Types**: `src/services/version-manager-types.ts` - All version management interfaces
+- **Main Service**: `src/services/version-manager-installer.ts` - Installation orchestration
+- **Adapters**: `src/services/version-managers/` - Individual version manager implementations
+  - `base-adapter.ts` - Abstract base class for all adapters
+  - `mise-adapter.ts` - Universal version manager
+  - `nvm-adapter.ts` - Node.js versions
+  - `pyenv-adapter.ts` - Python versions
+  - `asdf-adapter.ts` - Multi-language support
+  - `rbenv-adapter.ts` - Ruby versions
+- **UI Components**: `src/components/version-management/` - React components
+
+#### Dependency Resolution Engine
+- **Core Types**: `src/services/dependency-resolution/types.ts` - 60+ interfaces
+- **Graph Implementation**: `src/services/dependency-resolution/dependency-graph.ts`
+- **Resolver**: `src/services/dependency-resolution/dependency-resolver.ts`
+- **Conflict Management**: 
+  - `conflict-detector.ts` - Identifies conflicts
+  - `conflict-resolver.ts` - Resolution strategies
+- **UI**: `src/components/dependency-resolution/` - Visualization components
+
+#### Installation System
+- **Base Classes**: `src/services/base-installer.ts` - Abstract installer
+- **Platform Installers**:
+  - `src/services/windows-installer.ts` - Windows/PowerShell
+  - `src/services/macos-installer.ts` - macOS/Homebrew
+  - `src/services/linux-installer.ts` - Linux/APT/YUM
+- **Category System**: `src/services/category-installer.ts` - Tool categorization
+
+#### Workspace Generation
+- **Main Service**: `src/services/workspace-generation/workspace-generation-service.ts`
+- **Manifest System**: `src/services/workspace-generation/workspace-manifest.ts`
+- **IDE Integration**: `src/services/workspace-generation/workspace-ide-integration.ts`
+- **Examples**: `examples/workspace-manifests/` - YAML/JSON examples
+
+#### Command Execution Layer
+- **Factory**: `src/services/command-execution/command-executor-factory.ts`
+- **Base**: `src/services/command-execution/base-command-executor.ts`
+- **Platform Adapters**:
+  - `platform-adapters/unix-adapter.ts` - Linux/macOS
+  - `platform-adapters/windows-adapter.ts` - Windows
+
+#### Detection Systems
+- **OS Detection**: `src/shared/os-detector.ts` - Platform identification
+- **Language Detection**: `src/shared/language-detector.ts` - Installed languages
+- **Framework Detection**: `src/shared/framework-detector.ts` - Project frameworks
+- **IDE Detection**: `src/shared/ide-detector.ts` - Installed IDEs
+
+#### Type System Organization
+- **Main Types**: `src/types/index.ts` - Central type exports
+- **UI Types**: `src/types/ui-types.ts` - Component prop types
+- **Job Role Types**: `src/types/job-role-types.ts` - Role definitions
+- **Experience Types**: `src/types/experience-types.ts` - Assessment types
+- **Electron Types**: `src/types/electron.d.ts` - IPC definitions
+
+### Common Operations Guide
+
+#### Adding a New Programming Language
+1. Update `src/shared/manifest-types.ts` - Add to ProgrammingLanguage type
+2. Create version manager adapter in `src/services/version-managers/`
+3. Update `src/services/version-manager-factory.ts` - Add to factory
+4. Add language detection in `src/shared/language-detector.ts`
+5. Create workspace manifest in `examples/workspace-manifests/`
+
+#### Adding a New Development Tool
+1. Update `src/shared/manifest-types.ts` - Add to appropriate category
+2. Add to sample manifest in `src/shared/sample-manifest.ts`
+3. Update category installer for tool-specific logic
+4. Add IDE extensions/config in workspace generation
+
+#### Creating a New Job Role
+1. Add to `src/data/job-role-configs.ts` - Define role configuration
+2. Update `src/types/job-role-types.ts` - Add type if needed
+3. Test with `src/services/job-role-assessment.ts`
+4. Update UI in `src/components/JobRoleQuestionnaire.tsx`
+
+#### Fixing Linting/Type Errors
+1. Type errors: Start at `src/types/` for type definitions
+2. Service types: Check service-specific `*-types.ts` files
+3. Import errors: Verify paths in `tsconfig.json` files
+4. Lint rules: Check `eslint.config.js` for configuration
+
+### Service Integration Points
+
+#### Version Manager ↔ Workspace Configuration
+- Integration: `src/services/workspace-configuration/version-manager-integration.ts`
+- Environment setup: `src/services/workspace-configuration/environment-manager.ts`
+- Shell integration: `src/services/workspace-configuration/shell-integration-manager.ts`
+
+#### Dependency Resolution ↔ Category Installer
+- Integration: `src/services/dependency-resolution/dependency-aware-category-installer.ts`
+- Handles cross-category dependencies during installation
+
+#### Job Role Assessment ↔ Tool Recommendations
+- Assessment: `src/services/job-role-assessment.ts`
+- Recommendations: `src/services/job-role-recommendation-service.ts`
+- UI Flow: `JobRoleQuestionnaire` → `RecommendationPanel` → `CategoryGrid`
+
+### Testing Infrastructure
+- **Unit Tests**: `src/services/__tests__/` - Service layer tests
+- **Integration Tests**: `tests/integration/` - Cross-system tests
+- **E2E Tests**: `src/services/__tests__/*-e2e.test.ts` - End-to-end scenarios
+- **Test Utilities**: `tests/utils/test-helpers.ts` - Common test functions
+
 ## Common Prompting Patterns
 
-### For New Feature Development
+### For Working on Tasks (RECOMMENDED)
 ```
-"I need to implement [feature]. Please first read:
-1. .taskmaster/tasks/[relevant_task].txt for requirements
-2. .cursor/rules/hatstart-conventions.mdc for coding standards
-3. src/services/[related_service].ts for existing patterns
-
-Then implement the feature following established patterns."
+"Read CLAUDE_CODE_WORKFLOW.md and start working on the next task following the workflow"
 ```
 
-### For Bug Fixes
+### For Resuming After Crash
 ```
-"There's an issue with [component]. Please:
-1. Read the current implementation in src/[path]
-2. Check .cursor/rules/dev_workflow.mdc for debugging approach
-3. Review existing tests in src/__tests__/[component].test.ts
-4. Fix the issue and update tests accordingly"
+"Read CLAUDE_CODE_WORKFLOW.md and resume work after terminal crash - check session state and continue"
 ```
 
-### For Code Refactoring
+### For Continuing Current Work
 ```
-"Please refactor [component] to improve [aspect]. Reference:
-1. .cursor/rules/hatstart-conventions.mdc for patterns
-2. Current implementation in src/[path]
-3. Existing tests to ensure compatibility
-4. Update any affected documentation"
+"Read CLAUDE_CODE_WORKFLOW.md and continue working on the current task/subtask"
+```
+
+### For Technical Debt Review
+```
+"Read CLAUDE_CODE_WORKFLOW.md and review the codebase for technical debt, then fix any issues found"
 ```
 
 ## Integration with MCP and Task Management
