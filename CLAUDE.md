@@ -169,44 +169,35 @@ categories:
 - Focus on the tool's value to developers
 - Keep discussions technical and respectful
 
-## Context Integration with Existing Workflow
+## Working with Claude Code
 
-### Your Existing Context Files
-You have excellent context management already established:
+### Primary Context Sources
+This CLAUDE.md file is your primary source of truth for:
+- Product vision and principles
+- Codebase navigation map
+- Architecture patterns
+- Implementation status
+- Common operations
 
-1. **Taskmaster Tasks**: `.taskmaster/tasks/` - Contains detailed task breakdown and implementation notes
-2. **Cursor Rules**: `.cursor/rules/` - Contains development conventions and patterns
-3. **Documentation**: `docs/` - Contains algorithm documentation and guides
+### Workflow Integration
+1. **Always start with**: `CLAUDE_CODE_WORKFLOW.md` - Your operational manual
+2. **Project context from**: This file (CLAUDE.md) - No need to explore external docs
+3. **Task management via**: `task-master` CLI commands
+4. **Session state in**: `.hatstart_session` file
 
-### How to Reference These in Claude Code Prompts
+### No External References Needed
+All necessary context is consolidated in:
+- **CLAUDE.md** (this file): Complete project context and navigation
+- **CLAUDE_CODE_WORKFLOW.md**: Step-by-step operational procedures
+- **README.md**: Current project status and progress
 
-When prompting Claude Code for planning or implementation:
+You do NOT need to reference:
+- Individual task files in `.taskmaster/tasks/`
+- Cursor rules in `.cursor/rules/`
+- Old documentation in `docs/` folder
+- Any PRD or design documents
 
-#### For Project Context:
-```
-"Please read the following files to understand the project context:
-- .taskmaster/tasks/task_008.txt (for version management system details)
-- .taskmaster/tasks/task_007.txt (for dependency resolution engine details)
-- .cursor/rules/hatstart-conventions.mdc (for coding standards)
-- docs/platform-and-tool-categories.md (for category structure)
-- docs/dependency-resolution-architecture.md (for dependency system architecture)"
-```
-
-#### For Development Workflow:
-```
-"Before starting, please review:
-- .cursor/rules/dev_workflow.mdc (for development process)
-- .cursor/rules/electron.mdc (for Electron best practices)
-- .taskmaster/tasks/[relevant_task].txt (for specific implementation details)"
-```
-
-#### For Testing and Quality:
-```
-"Please check the testing approach in:
-- .cursor/rules/tests.mdc (if exists)
-- src/services/__tests__/ (for existing test patterns)
-- vitest.config.ts (for test configuration)"
-```
+Everything you need is in the three main files above, plus the actual code!
 
 ## Current Implementation Status
 
