@@ -254,7 +254,7 @@ export class FrameworkDetector {
             }
           };
         }
-      } catch (error) {
+      } catch {
         // Continue to next package manager
         continue;
       }
@@ -360,7 +360,7 @@ export class FrameworkDetector {
           return allDeps[dep].replace(/^[\^~]/, ''); // Remove version prefixes
         }
       }
-    } catch (error) {
+    } catch {
       // Ignore JSON parse errors
     }
 
@@ -428,7 +428,7 @@ export class FrameworkDetector {
       });
 
       return stdout.trim().split('\n')[0];
-    } catch (error) {
+    } catch {
       return undefined;
     }
   }

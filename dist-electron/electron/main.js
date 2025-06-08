@@ -78,6 +78,7 @@ electron_1.app.whenReady().then(() => {
     createWindow();
     ipcHandlers.setupManifestIpcHandlers();
     ipcHandlers.setupSystemDetectionIpcHandlers();
+    ipcHandlers.setupFileOperationsIpcHandlers();
 });
 // Quit when all windows are closed, except on macOS
 electron_1.app.on('window-all-closed', () => {

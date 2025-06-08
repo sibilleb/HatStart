@@ -141,9 +141,9 @@ export class CategoryInstaller implements ICategoryInstaller {
   public async executePreInstallationSteps(
     command: InstallationCommand,
     category: ToolCategory,
-    options: InstallationOptions
+    _options: InstallationOptions
   ): Promise<void> {
-    const config = this.getCategoryConfig(category);
+    const _config = this.getCategoryConfig(category);
 
     // For CLI tools (languages, devops, etc.), ensure package managers are updated
     if (this.isCLICategory(category)) {
@@ -208,7 +208,7 @@ export class CategoryInstaller implements ICategoryInstaller {
   public async verifyCategoryInstallation(
     command: InstallationCommand,
     category: ToolCategory,
-    options: InstallationOptions
+    _options: InstallationOptions
   ): Promise<boolean> {
     const config = this.getCategoryConfig(category);
 
@@ -478,7 +478,7 @@ export class CategoryInstaller implements ICategoryInstaller {
     };
   }
 
-  private addSilentFlags(args: string[], method: string, platform: string): string[] {
+  private addSilentFlags(args: string[], method: string, _platform: string): string[] {
     const newArgs = [...args];
 
     switch (method) {
@@ -639,7 +639,7 @@ export class CategoryInstaller implements ICategoryInstaller {
     }
   }
 
-  private async updateSystemPath(command: InstallationCommand, options: InstallationOptions): Promise<void> {
+  private async updateSystemPath(command: InstallationCommand, _options: InstallationOptions): Promise<void> {
     // Update system PATH for CLI tools
     try {
       const { exec } = await import('child_process');

@@ -6,10 +6,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Architecture, Platform } from '../../shared/manifest-types.js';
 import type {
-    ProjectVersionConfig,
-    VersionManagerType,
-    VersionOperationResult,
-    VersionedTool
+  ProjectVersionConfig,
+  VersionManagerType,
+  VersionOperationResult,
+  VersionedTool
 } from '../version-manager-types.js';
 
 // Mock file system operations
@@ -311,8 +311,8 @@ describe('Version Manager End-to-End Tests', () => {
         }
       });
       
-      const currentVersion = await workflow.getCurrentVersion('nvm', 'node');
-      expect(currentVersion).toBe('18.17.0');
+      const _version = await workflow.getCurrentVersion('nvm', 'node');
+      expect(_version).toBe('18.17.0');
       
       const switchResult = await workflow.switchToolVersion('nvm', 'node', '20.5.0');
       expect(switchResult.success).toBe(false);
@@ -458,8 +458,8 @@ describe('Version Manager End-to-End Tests', () => {
         }
       });
       
-      const currentVersion = await workflow.getCurrentVersion('nvm', 'node');
-      expect(currentVersion).toBe('16.20.0');
+      const _version = await workflow.getCurrentVersion('nvm', 'node');
+      expect(_version).toBe('16.20.0');
       
       // Install new version
       const installResult = await workflow.installToolVersion('nvm', 'node', '18.17.0');
@@ -543,12 +543,12 @@ class E2EWorkflow {
   }
 
   async verifyActiveVersion(
-    manager: VersionManagerType,
+    _manager: VersionManagerType,
     tool: VersionedTool,
     expectedVersion: string
   ): Promise<boolean> {
-    // Mock verification
-    return true;
+    // Mock verification - in real scenario would verify the version
+    return tool === 'node' && expectedVersion.startsWith('18');
   }
 
   async createProjectConfig(config: ProjectVersionConfig): Promise<VersionOperationResult> {
@@ -556,7 +556,7 @@ class E2EWorkflow {
       success: true,
       operation: 'local',
       tool: 'node',
-      message: 'Project config created',
+      message: `Project config created for ${config.projectRoot}`,
       duration: 500,
       timestamp: new Date()
     };
@@ -567,7 +567,7 @@ class E2EWorkflow {
       success: true,
       operation: 'local',
       tool: 'node',
-      message: 'Project config applied',
+      message: `Project config applied for ${config.projectRoot}`,
       duration: 2000,
       timestamp: new Date()
     };
@@ -589,8 +589,8 @@ class E2EWorkflow {
     managers: VersionManagerType[];
   }> {
     return {
-      hasConflicts: true,
-      managers: ['nvm', 'mise']
+      hasConflicts: tool === 'node',
+      managers: tool === 'node' ? ['nvm', 'mise'] : []
     };
   }
 
@@ -609,7 +609,11 @@ class E2EWorkflow {
   }
 
   async getRecoveryOptions(failedResult: VersionOperationResult): Promise<string[]> {
-    return ['retry', 'alternative_method', 'manual_installation'];
+    const options = ['retry', 'alternative_method'];
+    if (!failedResult.success) {
+      options.push('manual_installation');
+    }
+    return options;
   }
 
   async retryInstallation(manager: VersionManagerType): Promise<VersionOperationResult> {
@@ -623,19 +627,21 @@ class E2EWorkflow {
     };
   }
 
-  async getCurrentVersion(manager: VersionManagerType, tool: VersionedTool): Promise<string> {
-    return '18.17.0';
+  async getCurrentVersion(_manager: VersionManagerType, tool: VersionedTool): Promise<string> {
+    // Mock implementation - in real scenario would use manager to get version
+    return tool === 'node' ? '18.17.0' : '3.11.0';
   }
 
   async rollbackVersion(
-    manager: VersionManagerType,
+    _manager: VersionManagerType,
     tool: VersionedTool
   ): Promise<VersionOperationResult & { version: string }> {
+    const _version = '18.17.0';
     return {
       success: true,
       operation: 'switch',
       tool,
-      version: '18.17.0',
+      version: _version,
       message: 'Rolled back to previous version',
       duration: 1000,
       timestamp: new Date()
@@ -647,14 +653,14 @@ class E2EWorkflow {
       success: true,
       operation: 'install',
       tool: 'node',
-      message: 'All required managers installed',
+      message: `All required managers installed for ${config.projectRoot}`,
       duration: 10000,
       timestamp: new Date()
     };
   }
 
   async verifyEnvironment(config: ProjectVersionConfig): Promise<{ allVersionsCorrect: boolean }> {
-    return { allVersionsCorrect: true };
+    return { allVersionsCorrect: Object.keys(config.versions).length > 0 };
   }
 
   async installForCI(config: ProjectVersionConfig): Promise<VersionOperationResult> {
@@ -662,7 +668,7 @@ class E2EWorkflow {
       success: true,
       operation: 'install',
       tool: 'node',
-      message: 'CI environment setup complete',
+      message: `CI environment setup complete for ${config.projectRoot}`,
       duration: 25000,
       timestamp: new Date()
     };
@@ -672,11 +678,12 @@ class E2EWorkflow {
     tool: VersionedTool,
     version: string
   ): Promise<{ compatible: boolean }> {
-    return { compatible: true };
+    // Mock implementation - in real scenario would test compatibility
+    return { compatible: tool === 'node' && version.startsWith('18') };
   }
 
   async upgradeVersion(
-    manager: VersionManagerType,
+    _manager: VersionManagerType,
     tool: VersionedTool,
     version: string
   ): Promise<VersionOperationResult> {
@@ -693,8 +700,9 @@ class E2EWorkflow {
 
   async updateProjectConfigurations(
     tool: VersionedTool,
-    version: string
+    _version: string
   ): Promise<{ projectsUpdated: number }> {
-    return { projectsUpdated: 3 };
+    // Mock implementation - in real scenario would update project configs
+    return { projectsUpdated: tool === 'node' ? 3 : 2 };
   }
 } 

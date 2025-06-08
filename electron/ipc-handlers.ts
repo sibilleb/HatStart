@@ -243,7 +243,10 @@ export function setupSystemDetectionIpcHandlers(): void {
       const systemInfo = await detector.detectSystemInfo();
       return {
         success: true,
-        data: systemInfo
+        data: {
+          ...systemInfo,
+          homeDirectory: app.getPath('home')
+        }
       };
     } catch (error) {
       const hatStartError: HatStartError = {
@@ -441,6 +444,46 @@ export function setupFileOperationsIpcHandlers(): void {
     } catch (error) {
       console.error('Failed to list files:', error);
       return [];
+    }
+  });
+
+  // Create workspace with files
+  ipcMain.handle('workspace:create', async (event, options: {
+    path: string;
+    files: Array<{
+      path: string;
+      content: string;
+    }>;
+  }) => {
+    try {
+      const { path: workspacePath, files } = options;
+      
+      // Create workspace directory
+      if (!fs.existsSync(workspacePath)) {
+        fs.mkdirSync(workspacePath, { recursive: true });
+      }
+      
+      // Create each file
+      for (const file of files) {
+        const filePath = path.join(workspacePath, file.path);
+        const fileDir = path.dirname(filePath);
+        
+        // Ensure directory exists
+        if (!fs.existsSync(fileDir)) {
+          fs.mkdirSync(fileDir, { recursive: true });
+        }
+        
+        // Write file content
+        fs.writeFileSync(filePath, file.content, 'utf8');
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to create workspace:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   });
 }

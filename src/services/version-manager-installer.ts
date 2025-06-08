@@ -574,7 +574,6 @@ export class VersionManagerInstaller {
     return results;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async setupShellIntegration(config: VersionManagerInstallConfig, _options: InstallationOptions): Promise<boolean> {
 
     if (!config.shellIntegration.required || !config.shellIntegration.initCommand) {

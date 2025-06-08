@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { VersionManagerType, VersionedTool } from '../../services/version-manager-types.js';
 import type { VersionManagerPanelProps } from '../../types/version-management-ui-types.js';
 import { VersionManagerCard } from './VersionManagerCard.js';
 import { VersionSelector } from './VersionSelector.js';
@@ -43,23 +44,23 @@ export const VersionManagerPanel: React.FC<VersionManagerPanelProps> = ({
   };
 
   const handleManagerInstall = (managerType: string) => {
-    onManagerOperation('install-manager', managerType as any);
+    onManagerOperation('install-manager', managerType as VersionManagerType);
   };
 
   const handleManagerConfigure = (managerType: string) => {
-    onManagerOperation('configure-manager', managerType as any);
+    onManagerOperation('configure-manager', managerType as VersionManagerType);
   };
 
   const handleVersionSelect = (tool: string, version: string) => {
-    onVersionOperation('switch-version', tool as any, version);
+    onVersionOperation('switch-version', tool as VersionedTool, version);
   };
 
   const handleVersionInstall = (tool: string, version: string) => {
-    onVersionOperation('install-version', tool as any, version);
+    onVersionOperation('install-version', tool as VersionedTool, version);
   };
 
   const handleVersionUninstall = (tool: string, version: string) => {
-    onVersionOperation('uninstall-version', tool as any, version);
+    onVersionOperation('uninstall-version', tool as VersionedTool, version);
   };
 
   const getSelectedVersionForTool = (tool: string) => {

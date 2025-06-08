@@ -39,6 +39,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.osDetector = exports.OSDetector = void 0;
 const child_process_1 = require("child_process");
+const os = __importStar(require("os"));
 const util_1 = require("util");
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 class OSDetector {
@@ -189,7 +190,7 @@ class OSDetector {
             const { stdout } = await execAsync('uname -r', { timeout: 3000 });
             return stdout.trim();
         }
-        catch (error) {
+        catch {
             return 'Linux (Unknown Version)';
         }
     }
@@ -214,7 +215,7 @@ class OSDetector {
                 id: osRelease.ID
             };
         }
-        catch (error) {
+        catch {
             // Fallback methods
             return await this.detectLinuxDistributionFallback();
         }
@@ -270,7 +271,7 @@ class OSDetector {
             try {
                 return await method();
             }
-            catch (error) {
+            catch {
                 // Continue to next method
                 continue;
             }
@@ -308,10 +309,9 @@ class OSDetector {
      */
     async getHostname() {
         try {
-            const os = await Promise.resolve().then(() => __importStar(require('os')));
             return os.hostname();
         }
-        catch (error) {
+        catch {
             return 'Unknown';
         }
     }
@@ -323,7 +323,7 @@ class OSDetector {
             const { stdout } = await execAsync('uname -v', { timeout: 3000 });
             return stdout.trim();
         }
-        catch (error) {
+        catch {
             return 'Unknown';
         }
     }
@@ -334,7 +334,7 @@ class OSDetector {
         try {
             return process.env.SHELL || 'Unknown';
         }
-        catch (error) {
+        catch {
             return 'Unknown';
         }
     }
@@ -343,10 +343,9 @@ class OSDetector {
      */
     getTotalMemory() {
         try {
-            const os = require('os');
             return os.totalmem();
         }
-        catch (error) {
+        catch {
             return 0;
         }
     }
@@ -355,10 +354,9 @@ class OSDetector {
      */
     getFreeMemory() {
         try {
-            const os = require('os');
             return os.freemem();
         }
-        catch (error) {
+        catch {
             return 0;
         }
     }

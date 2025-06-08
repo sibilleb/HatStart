@@ -24,8 +24,23 @@ export const JobRoleConfigManager: React.FC<JobRoleConfigManagerProps> = ({
 
   // Load available configuration files on mount
   useEffect(() => {
-    loadConfigFiles();
-  }, []);
+    const loadFiles = async () => {
+      try {
+        setIsLoading(true);
+        const files = await jobRoleStorageService.listConfigFiles();
+        setConfigFiles(files);
+        setIsLoading(false);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error: unknown) {
+        setMessage('Failed to load configuration files');
+        if (onError) {
+          onError('Failed to load configuration files');
+        }
+        setIsLoading(false);
+      }
+    };
+    loadFiles();
+  }, [onError]);
 
   // Load configuration files from storage
   const loadConfigFiles = async () => {

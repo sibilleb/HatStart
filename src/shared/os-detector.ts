@@ -4,6 +4,7 @@
  */
 
 import { exec } from 'child_process';
+import * as os from 'os';
 import { promisify } from 'util';
 import type { ArchitectureType, PlatformType, SystemInfo } from './detection-types.js';
 
@@ -195,7 +196,7 @@ export class OSDetector {
     try {
       const { stdout } = await execAsync('uname -r', { timeout: 3000 });
       return stdout.trim();
-    } catch (error) {
+    } catch {
       return 'Linux (Unknown Version)';
     }
   }
@@ -222,7 +223,7 @@ export class OSDetector {
         codename: osRelease.VERSION_CODENAME || osRelease.UBUNTU_CODENAME,
         id: osRelease.ID
       };
-    } catch (error) {
+    } catch {
       // Fallback methods
       return await this.detectLinuxDistributionFallback();
     }
@@ -284,7 +285,7 @@ export class OSDetector {
     for (const method of fallbackMethods) {
       try {
         return await method();
-      } catch (error) {
+      } catch {
         // Continue to next method
         continue;
       }
@@ -327,9 +328,8 @@ export class OSDetector {
    */
   private async getHostname(): Promise<string> {
     try {
-      const os = await import('os');
       return os.hostname();
-    } catch (error) {
+    } catch {
       return 'Unknown';
     }
   }
@@ -341,7 +341,7 @@ export class OSDetector {
     try {
       const { stdout } = await execAsync('uname -v', { timeout: 3000 });
       return stdout.trim();
-    } catch (error) {
+    } catch {
       return 'Unknown';
     }
   }
@@ -352,7 +352,7 @@ export class OSDetector {
   private async getShell(): Promise<string> {
     try {
       return process.env.SHELL || 'Unknown';
-    } catch (error) {
+    } catch {
       return 'Unknown';
     }
   }
@@ -362,9 +362,8 @@ export class OSDetector {
    */
   private getTotalMemory(): number {
     try {
-      const os = require('os');
       return os.totalmem();
-    } catch (error) {
+    } catch {
       return 0;
     }
   }
@@ -374,9 +373,8 @@ export class OSDetector {
    */
   private getFreeMemory(): number {
     try {
-      const os = require('os');
       return os.freemem();
-    } catch (error) {
+    } catch {
       return 0;
     }
   }

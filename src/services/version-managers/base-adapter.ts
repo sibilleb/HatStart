@@ -3,23 +3,28 @@
  * Provides common functionality for all version manager implementations
  */
 
-import * as fs from 'fs/promises';
+import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import type { Architecture, Platform } from '../../shared/manifest-types.js';
 import type {
-    IVersionManager,
-    ProjectVersionConfig,
-    VersionedTool,
-    VersionInfo,
-    VersionInstallOptions,
-    VersionManagerCapabilities,
-    VersionManagerConfig,
-    VersionManagerStatus,
-    VersionManagerType,
-    VersionOperationResult,
-    VersionSpecifier,
+  IVersionManager,
+  ProjectVersionConfig,
+  VersionedTool,
+  VersionInfo,
+  VersionInstallOptions,
+  VersionManagerCapabilities,
+  VersionManagerConfig,
+  VersionManagerStatus,
+  VersionManagerType,
+  VersionOperationResult,
+  VersionSpecifier,
 } from '../version-manager-types.js';
+import {
+  safeParseVersionListOutput,
+  safeParseVersionOutput
+} from './type-guards.js';
 
 /**
  * Base adapter for version managers
@@ -117,9 +122,9 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
       // Save configuration
       await this.saveConfig(newConfig);
       
-      return this.createSuccessResult('configure', undefined, 'Configuration updated successfully', startTime);
+      return this.createSuccessResult('shell', undefined, 'Configuration updated successfully', startTime);
     } catch (error) {
-      return this.createErrorResult('configure', undefined, error, startTime);
+      return this.createErrorResult('shell', undefined, error, startTime);
     }
   }
 
@@ -387,7 +392,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     const startTime = Date.now();
     
     try {
-      const configFile = config.configFile || 
+      const configFile = config?.configFile || 
         path.join(config.projectRoot, this.getProjectConfigFileName());
       
       const content = this.formatProjectConfig(config.versions);
@@ -434,7 +439,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
    */
   public async getConfig(): Promise<VersionManagerConfig> {
     const configPath = await this.getConfigPath();
-    const globalVersions: Record<VersionedTool, string> = {} as any;
+    const globalVersions: Partial<Record<VersionedTool, string>> = {};
     
     // Get global versions for supported tools
     for (const tool of this.capabilities.supportedTools) {
@@ -450,7 +455,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
       configPath,
       shellIntegration: await this.checkShellIntegration(),
       autoSwitch: await this.checkAutoSwitch(),
-      globalVersions,
+      globalVersions: globalVersions as Record<VersionedTool, string>,
       environment: await this.getEnvironmentVariables(),
       options: await this.getAdditionalOptions()
     };
@@ -482,6 +487,9 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   protected abstract getConfigPath(): Promise<string | undefined>;
 
   // Helper methods
+  /**
+   * Execute command with enhanced error handling and timeout support
+   */
   protected async executeCommand(
     command: string,
     args: string[] = [],
@@ -498,40 +506,103 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     exitCode: number;
   }> {
     try {
-      const fullCommand = `${command} ${args.join(' ')}`;
-      const execOptions = {
-        timeout: options.timeout || 30000,
-        env: { ...process.env, ...options.environment },
-        cwd: options.workingDirectory
-      };
-      
-      const { stdout, stderr } = await execAsync(fullCommand, execOptions);
-      
-      if (options.onProgress && stdout) {
-        options.onProgress(stdout);
-      }
-      
-      return {
-        success: true,
-        stdout: stdout.trim(),
-        stderr: stderr.trim(),
-        exitCode: 0
-      };
-    } catch (error: any) {
+      const result = await this.executeCommandWithTimeout(command, args, options);
+      return result;
+    } catch (error) {
+      const execError = error as { code?: number; stdout?: string; stderr?: string; signal?: NodeJS.Signals; message?: string };
       return {
         success: false,
-        stdout: error.stdout?.trim() || '',
-        stderr: error.stderr?.trim() || error.message,
-        exitCode: error.code || 1
+        stdout: execError?.stdout || '',
+        stderr: execError?.stderr || execError?.message || 'Command execution failed',
+        exitCode: execError?.code || -1
       };
     }
+  }
+
+  /**
+   * Execute command with timeout and proper error handling
+   */
+  private async executeCommandWithTimeout(
+    command: string,
+    args: string[] = [],
+    options: {
+      timeout?: number;
+      environment?: Record<string, string>;
+      workingDirectory?: string;
+      onProgress?: (data: string) => void;
+    } = {}
+  ): Promise<{
+    success: boolean;
+    stdout: string;
+    stderr: string;
+    exitCode: number;
+  }> {
+    return new Promise((resolve, reject) => {
+      const timeoutMs = options.timeout || 30000; // 30 second default
+      
+      const child = spawn(command, args, {
+        cwd: options.workingDirectory || process.cwd(),
+        env: { ...process.env, ...options.environment },
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+
+      let stdout = '';
+      let stderr = '';
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      // Set up timeout
+      if (timeoutMs > 0) {
+        timeoutId = setTimeout(() => {
+          child.kill('SIGTERM');
+          reject(new Error(`Command timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }
+
+      // Handle stdout
+      child.stdout?.on('data', (data: Buffer) => {
+        const chunk = data.toString();
+        stdout += chunk;
+        options.onProgress?.(chunk);
+      });
+
+      // Handle stderr
+      child.stderr?.on('data', (data: Buffer) => {
+        const chunk = data.toString();
+        stderr += chunk;
+      });
+
+      // Handle process completion
+      child.on('close', (code: number | null, signal: NodeJS.Signals | null) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
+        const exitCode = code ?? (signal ? -1 : 0);
+        const result = {
+          success: exitCode === 0,
+          stdout: stdout.trim(),
+          stderr: stderr.trim(),
+          exitCode
+        };
+
+        resolve(result);
+      });
+
+      // Handle process errors
+      child.on('error', (error: Error) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        reject(error);
+      });
+    });
   }
 
   protected createSuccessResult(
     operation: VersionOperationResult['operation'],
     tool?: VersionedTool,
-    message: string = 'Operation completed successfully',
-    startTime: number = Date.now(),
+    message?: string,
+    startTime?: number,
     version?: string
   ): VersionOperationResult {
     return {
@@ -539,8 +610,8 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
       operation,
       tool: tool || ('' as VersionedTool),
       version,
-      message,
-      duration: Date.now() - startTime,
+      message: message || 'Operation completed successfully',
+      duration: Date.now() - (startTime || Date.now()),
       timestamp: new Date()
     };
   }
@@ -548,18 +619,58 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   protected createErrorResult(
     operation: VersionOperationResult['operation'],
     tool?: VersionedTool,
-    error: unknown,
-    startTime: number = Date.now()
+    error?: unknown,
+    startTime?: number
   ): VersionOperationResult {
+    const errorMessage = this.formatErrorMessage(error);
+    const operationMessage = tool 
+      ? `${operation} operation failed for ${tool}` 
+      : `${operation} operation failed`;
+    
     return {
       success: false,
       operation,
       tool: tool || ('' as VersionedTool),
-      message: `Operation failed: ${operation}`,
-      error: error instanceof Error ? error.message : String(error),
-      duration: Date.now() - startTime,
+      message: operationMessage,
+      error: errorMessage,
+      duration: Date.now() - (startTime || Date.now()),
       timestamp: new Date()
     };
+  }
+
+  /**
+   * Format error message with proper type safety
+   */
+  private formatErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    
+    if (typeof error === 'string') {
+      return error;
+    }
+    
+    if (error && typeof error === 'object') {
+      // Handle error objects with message property
+      const errorObj = error as Record<string, unknown>;
+      if (typeof errorObj.message === 'string') {
+        return errorObj.message;
+      }
+      
+      // Handle error objects with code property
+      if (typeof errorObj.code === 'string' || typeof errorObj.code === 'number') {
+        return `Error code: ${errorObj.code}`;
+      }
+      
+      // Try to stringify the object
+      try {
+        return JSON.stringify(error);
+      } catch {
+        return '[Object object]';
+      }
+    }
+    
+    return error ? String(error) : 'Unknown error';
   }
 
   protected detectShellType(): string {
@@ -635,7 +746,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
         content = content.replace(new RegExp(`.*${initLine}.*\n`, 'g'), '');
         await fs.writeFile(profileFile, content, 'utf-8');
       }
-    } catch (error) {
+    } catch {
       // Profile file might not exist yet
       if (enabled) {
         await fs.writeFile(profileFile, `# ${this.type} initialization\n${initLine}\n`, 'utf-8');
@@ -649,9 +760,10 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     Object.assign(process.env, vars);
   }
 
-  protected async saveConfig(config: VersionManagerConfig): Promise<void> {
+  protected async saveConfig(_config: VersionManagerConfig): Promise<void> {
     // Default implementation - can be overridden
     // Most version managers don't have a unified config file
+    // The _config parameter is intentionally unused in the base implementation
   }
 
   protected async getShellProfileFile(): Promise<string | null> {
@@ -660,7 +772,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     switch (this.shellType) {
       case 'zsh':
         return path.join(home, '.zshrc');
-      case 'bash':
+      case 'bash': {
         // Check for .bashrc first, then .bash_profile
         const bashrc = path.join(home, '.bashrc');
         const bashProfile = path.join(home, '.bash_profile');
@@ -670,6 +782,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
         } catch {
           return bashProfile;
         }
+      }
       case 'fish':
         return path.join(home, '.config', 'fish', 'config.fish');
       case 'powershell':
@@ -743,5 +856,21 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
       
       return matching[0].version;
     }
+  }
+
+  /**
+   * Parse version output from command execution with type safety
+   */
+  protected parseVersionOutput(output: string, tool: VersionedTool): VersionInfo | null {
+    // Use the safe parser with the abstract parseCurrentVersion method
+    return safeParseVersionOutput(output, (out) => this.parseCurrentVersion(tool, out));
+  }
+
+  /**
+   * Parse version list output from command execution with type safety
+   */
+  protected parseVersionListOutput(output: string, tool: VersionedTool): VersionInfo[] {
+    // Use the safe parser with the abstract parseInstalledVersions method
+    return safeParseVersionListOutput(output, (out) => this.parseInstalledVersions(tool, out));
   }
 } 

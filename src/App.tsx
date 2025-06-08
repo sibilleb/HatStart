@@ -3,17 +3,19 @@ import { CategoryGrid } from './components/CategoryGrid';
 import { RecommendationPanel } from './components/RecommendationPanel';
 import { SearchFilterPanel } from './components/SearchFilterPanel';
 import { SelectionSummary } from './components/SelectionSummary';
+import { TabbedLayout } from './components/TabbedLayout';
+import { WorkspaceGenerationPanel } from './components/WorkspaceGenerationPanel';
 import './index.css';
 import { JobRoleConfigService } from './services/job-role-config-service';
 import { JobRoleRecommendationService } from './services/job-role-recommendation-service';
 import { SystemDetectionService } from './services/system-detection-service';
 import type {
-    CategoryInfo,
-    FilterOptions,
-    InstallationProgress,
-    ToolCategory,
-    ToolSelection,
-    ToolWithStatus
+  CategoryInfo,
+  FilterOptions,
+  InstallationProgress,
+  ToolCategory,
+  ToolSelection,
+  ToolWithStatus
 } from './types/ui-types';
 
 console.log('📱 App.tsx: Loading HatStart App component...');
@@ -99,6 +101,7 @@ function App() {
     deselectedRecommendations: new Set(),
     customSelections: new Set(),
   });
+  const [activeTab, setActiveTab] = useState('tools');
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     searchQuery: '',
     showOnlyRecommended: false,
@@ -146,7 +149,7 @@ function App() {
       setCategories(updatedCategories);
       console.log('✅ App: Job role recommendations applied');
     }
-  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole]);
+  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole, categories]);
 
   // Load system detection data on component mount
   useEffect(() => {
@@ -314,56 +317,92 @@ function App() {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Left Sidebar - Filters */}
-              <div className="lg:w-1/4">
-                <SearchFilterPanel 
-                  filterOptions={filterOptions}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-              
-              {/* Main Content - Category Grid */}
-              <div className="lg:w-3/4">
-                <CategoryGrid
-                  categories={categories}
-                  expandedCategories={expandedCategories}
-                  onCategoryToggle={handleCategoryToggle}
-                  selection={selection}
-                  onSelectionChange={handleSelectionChange}
-                  filterOptions={filterOptions}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-            </div>
+            <TabbedLayout
+              tabs={[
+                { id: 'tools', label: 'Tool Selection', icon: '🛠️', badge: selection.selectedTools.size },
+                { id: 'workspace', label: 'Workspace Generation', icon: '📁' },
+                { id: 'version', label: 'Version Management', icon: '🔄' }
+              ]}
+              activeTabId={activeTab}
+              onTabChange={setActiveTab}
+            >
+              {{
+                tools: (
+                  <div>
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      {/* Left Sidebar - Filters */}
+                      <div className="lg:w-1/4">
+                        <SearchFilterPanel 
+                          filterOptions={filterOptions}
+                          onFilterChange={handleFilterChange}
+                        />
+                      </div>
+                      
+                      {/* Main Content - Category Grid */}
+                      <div className="lg:w-3/4">
+                        <CategoryGrid
+                          categories={categories}
+                          expandedCategories={expandedCategories}
+                          onCategoryToggle={handleCategoryToggle}
+                          selection={selection}
+                          onSelectionChange={handleSelectionChange}
+                          filterOptions={filterOptions}
+                          onFilterChange={handleFilterChange}
+                        />
+                      </div>
+                    </div>
 
-            {/* Recommendation Panel */}
-            {showRecommendations && (
-              <RecommendationPanel
-                allTools={allTools}
-                currentSelection={selection}
-                onSelectionChange={handleSelectionChange}
-                onDismiss={() => setShowRecommendations(false)}
-              />
-            )}
+                    {/* Recommendation Panel */}
+                    {showRecommendations && (
+                      <RecommendationPanel
+                        allTools={allTools}
+                        currentSelection={selection}
+                        onSelectionChange={handleSelectionChange}
+                        onDismiss={() => setShowRecommendations(false)}
+                      />
+                    )}
 
-            {/* Selection Summary */}
-            <SelectionSummary
-              selection={selection}
-              tools={allTools}
-              onInstallSelected={handleInstallSelected}
-              onClearSelection={() => setSelection({
-                selectedTools: new Set(),
-                deselectedRecommendations: new Set(),
-                customSelections: new Set(),
-              })}
-              onExportSelection={handleExportSelection}
-              installationProgress={installationProgress}
-              estimatedTime="15-30 minutes"
-              estimatedSize="2.5 GB"
-              isVisible={selection.selectedTools.size > 0}
-              position="bottom-right"
-            />
+                    {/* Selection Summary */}
+                    <SelectionSummary
+                      selection={selection}
+                      tools={allTools}
+                      onInstallSelected={handleInstallSelected}
+                      onClearSelection={() => setSelection({
+                        selectedTools: new Set(),
+                        deselectedRecommendations: new Set(),
+                        customSelections: new Set(),
+                      })}
+                      onExportSelection={handleExportSelection}
+                      installationProgress={installationProgress}
+                      estimatedTime="15-30 minutes"
+                      estimatedSize="2.5 GB"
+                      isVisible={selection.selectedTools.size > 0}
+                      position="bottom-right"
+                    />
+                  </div>
+                ),
+                workspace: (
+                  <WorkspaceGenerationPanel
+                    toolSelection={selection}
+                    selectedJobRole={filterOptions.selectedJobRole as any}
+                    onWorkspaceGenerated={(workspace) => {
+                      console.log('Workspace generated:', workspace);
+                      // Could show a success notification or navigate to a different tab
+                    }}
+                  />
+                ),
+                version: (
+                  <div className="bg-gray-50 rounded-lg p-8 text-center">
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                      Version Management Coming Soon
+                    </h3>
+                    <p className="text-gray-600">
+                      Manage tool versions with popular version managers like asdf, mise, nvm, and more.
+                    </p>
+                  </div>
+                )
+              }}
+            </TabbedLayout>
           </div>
         )}
       </div>

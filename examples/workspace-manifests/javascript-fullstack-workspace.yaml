@@ -1,0 +1,134 @@
+# Example Workspace Manifest for JavaScript Full-Stack Development
+# This demonstrates how contributors can add new workspace configurations
+
+id: "javascript-fullstack-workspace"
+name: "JavaScript Full-Stack Workspace"
+description: "Complete workspace setup for full-stack JavaScript development with React and Node.js"
+toolId: "nodejs"
+stack: "javascript"
+templateType: "fullstack"
+version: "1.0.0"
+author:
+  name: "HatStart Community"
+  email: "contributors@hatstart.dev"
+
+# IDE-specific workspace configurations
+ideWorkspaces:
+  vscode:
+    workspaceExtensions:
+      # Frontend extensions
+      - "dsznajder.es7-react-js-snippets"
+      - "burkeholland.simple-react-snippets"
+      - "styled-components.vscode-styled-components"
+      # Backend extensions
+      - "christian-kohler.npm-intellisense"
+      - "mikestead.dotenv"
+      # Full-stack tools
+      - "Prisma.prisma"
+      - "GraphQL.vscode-graphql"
+    
+    workspaceSettings:
+      # JavaScript/TypeScript settings
+      "javascript.preferences.includePackageJsonAutoImports": "auto"
+      "typescript.preferences.includePackageJsonAutoImports": "auto"
+      "typescript.suggest.autoImports": true
+      
+      # Editor settings
+      "editor.formatOnSave": true
+      "editor.codeActionsOnSave":
+        "source.fixAll.eslint": true
+        "source.organizeImports": true
+      
+      # Emmet for React
+      "emmet.includeLanguages":
+        "javascript": "javascriptreact"
+        "typescript": "typescriptreact"
+    
+    linters:
+      - name: "eslint"
+        configFile: ".eslintrc.json"
+        settings:
+          extends:
+            - "eslint:recommended"
+            - "plugin:react/recommended"
+            - "plugin:@typescript-eslint/recommended"
+          plugins:
+            - "react"
+            - "@typescript-eslint"
+          rules:
+            "react/prop-types": "off"
+            "@typescript-eslint/explicit-module-boundary-types": "off"
+    
+    formatters:
+      - name: "prettier"
+        configFile: ".prettierrc"
+        settings:
+          semi: true
+          trailingComma: "es5"
+          singleQuote: true
+          printWidth: 100
+          tabWidth: 2
+    
+    debugConfigs:
+      - type: "node"
+        request: "launch"
+        name: "Debug Backend"
+        program: "${workspaceFolder}/server/index.js"
+        skipFiles:
+          - "<node_internals>/**"
+      
+      - type: "chrome"
+        request: "launch"
+        name: "Debug Frontend"
+        url: "http://localhost:3000"
+        webRoot: "${workspaceFolder}/client"
+    
+    tasks:
+      - type: "npm"
+        label: "Start Development"
+        command: "run"
+        args: ["dev"]
+        group: "build"
+      
+      - type: "npm"
+        label: "Run Tests"
+        command: "test"
+        group: "test"
+    
+    environmentVariables:
+      NODE_ENV: "development"
+      REACT_APP_API_URL: "http://localhost:4000"
+
+  cursor:
+    # Cursor-specific configurations (similar to VSCode)
+    workspaceExtensions:
+      - "dsznajder.es7-react-js-snippets"
+      - "christian-kohler.npm-intellisense"
+    
+    workspaceSettings:
+      "cursor.aiEnabled": true
+      "cursor.aiModel": "gpt-4"
+      "javascript.preferences.includePackageJsonAutoImports": "auto"
+
+# Tools that work well with this workspace
+relatedTools:
+  - "react"
+  - "express"
+  - "mongodb"
+  - "postgresql"
+  - "docker"
+  - "nginx"
+
+# Job roles that would benefit from this workspace
+targetJobRoles:
+  - "fullstack-developer"
+  - "frontend-developer"
+  - "backend-developer"
+
+# Tags for search and categorization
+tags:
+  - "javascript"
+  - "react"
+  - "nodejs"
+  - "fullstack"
+  - "web-development"

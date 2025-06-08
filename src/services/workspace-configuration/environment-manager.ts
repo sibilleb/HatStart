@@ -9,9 +9,9 @@ import { delimiter, join } from 'path';
 import type { Platform } from '../../shared/manifest-types.js';
 import { createCommandExecutor } from '../command-execution/index.js';
 import type {
-    IEnvironmentManager,
-    PathEntry,
-    WorkspaceScope,
+  IEnvironmentManager,
+  PathEntry,
+  WorkspaceScope,
 } from './types.js';
 
 /**
@@ -332,7 +332,7 @@ export class EnvironmentManager implements IEnvironmentManager {
    */
   private async persistPathChanges(entries: PathEntry[]): Promise<void> {
     // Group entries by scope
-    const globalEntries = entries.filter(e => e.tool || e.manager);
+    const globalEntries = entries.filter(e => e?.tool || e?.manager);
     
     if (globalEntries.length > 0) {
       switch (this.platform) {

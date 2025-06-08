@@ -5,13 +5,13 @@
 
 import type {
     VersionedTool,
-    VersionInfo,
+    IVersionInfo,
     VersionInstallOptions,
     VersionInstallProgress,
     VersionManagerConfig,
     VersionManagerStatus,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier
 } from '../services/version-manager-types.js';
 import type { Platform } from '../shared/manifest-types.js';
@@ -47,13 +47,13 @@ export interface VersionManagerUI {
   /** Configuration */
   config?: VersionManagerConfig;
   /** Last operation result */
-  lastOperation?: VersionOperationResult;
+  lastOperation?: IVersionOperationResult;
 }
 
 /**
  * UI-specific tool version information
  */
-export interface ToolVersionUI extends VersionInfo {
+export interface ToolVersionUI extends IVersionInfo {
   /** Tool this version belongs to */
   tool: VersionedTool;
   /** Version manager that manages this version */
@@ -104,7 +104,7 @@ export interface VersionManagementOperationStatus {
   /** Error message (if status is 'error') */
   error?: string;
   /** Result (if status is 'success') */
-  result?: VersionOperationResult;
+  result?: IVersionOperationResult;
   /** Start time */
   startTime?: Date;
   /** End time */
@@ -246,7 +246,7 @@ export interface VersionInstallationProgressProps {
   /** Cancel installation handler */
   onCancel?: () => void;
   /** Installation completion handler */
-  onComplete?: (result: VersionOperationResult) => void;
+  onComplete?: (result: IVersionOperationResult) => void;
   /** Installation error handler */
   onError?: (error: string) => void;
 }

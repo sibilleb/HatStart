@@ -199,7 +199,9 @@ export class VersionManagerIntegration {
        
        // Extract environment variables from version manager configuration
        const environment: Record<string, string> = {};
-       const versionString = typeof version === 'string' ? version : `${version.major}.${version.minor || 0}.${version.patch || 0}`;
+       const versionString = typeof version === 'string' 
+         ? version 
+         : `${version.major}.${version.minor ?? 0}.${version.patch ?? 0}`;
        
        // Add tool-specific environment variables based on the tool type
        switch (tool) {
@@ -238,7 +240,10 @@ export class VersionManagerIntegration {
   ): Promise<PathEntry[]> {
     try {
       const versionManager = this.getVersionManager(manager);
-      const installPath = await versionManager.getInstallPath(tool, version);
+      const config = await versionManager.getConfig();
+      
+      // Get installation path from config
+      const installPath = config?.installationPath;
       
       if (!installPath) {
         return [];
@@ -260,7 +265,7 @@ export class VersionManagerIntegration {
 
       // Add tool-specific paths
       switch (tool) {
-        case 'node':
+        case 'node': {
           // Add npm global bin path
           const npmGlobalPath = join(installPath, 'lib', 'node_modules', '.bin');
           pathEntries.push({
@@ -272,7 +277,8 @@ export class VersionManagerIntegration {
             conditional: true,
           });
           break;
-        case 'python':
+        }
+        case 'python': {
           // Add Scripts directory for Windows
           if (this.detectPlatform() === 'windows') {
             pathEntries.push({
@@ -285,6 +291,7 @@ export class VersionManagerIntegration {
             });
           }
           break;
+        }
       }
 
       return pathEntries;
@@ -345,7 +352,7 @@ export class VersionManagerIntegration {
    */
   async createShellIntegration(
     managers: VersionManagerType[],
-    workspaceRoot?: string,
+    _workspaceRoot?: string,
   ): Promise<ShellIntegration[]> {
     const integrations: ShellIntegration[] = [];
 
@@ -354,20 +361,20 @@ export class VersionManagerIntegration {
         const manager = this.getVersionManager(managerType);
         const config = await manager.getConfig();
         
-        if (!config.shellIntegration?.enabled) {
+        if (!config.shellIntegration) {
           continue;
         }
 
         const integration: ShellIntegration = {
           profile: '.bashrc', // Default profile, should be detected dynamically
-          initCommands: config.shellIntegration.initCommands || [],
+          initCommands: [],
           environmentVariables: [],
           pathEntries: [],
           enabled: true,
         };
 
         // Add manager-specific environment variables
-        if (config.environment) {
+        if (config?.environment) {
           for (const [name, value] of Object.entries(config.environment)) {
             integration.environmentVariables.push({
               name,
@@ -380,9 +387,9 @@ export class VersionManagerIntegration {
         }
 
         // Add manager-specific PATH entries
-        if (config.binPath) {
+        if (config?.installationPath) {
           integration.pathEntries.push({
-            path: config.binPath,
+            path: join(config.installationPath, 'bin'),
             priority: 1,
             position: 'prepend',
             manager: managerType,
@@ -427,7 +434,6 @@ export class VersionManagerIntegration {
       case 'arm64':
         return 'arm64';
       case 'ia32':
-      case 'x32':
         return 'x86';
       default:
         return 'x64';

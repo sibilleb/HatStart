@@ -1,0 +1,170 @@
+# Example Workspace Manifest for Python Data Science
+# Demonstrates workspace configuration for data science and ML workflows
+
+id: "python-datascience-workspace"
+name: "Python Data Science Workspace"
+description: "Optimized workspace for data science, machine learning, and analytics with Python"
+toolId: "python"
+stack: "python"
+templateType: "data-science"
+version: "1.0.0"
+author:
+  name: "HatStart Community"
+  email: "contributors@hatstart.dev"
+
+ideWorkspaces:
+  vscode:
+    workspaceExtensions:
+      # Core Python extensions
+      - "ms-python.python"
+      - "ms-python.vscode-pylance"
+      - "ms-python.black-formatter"
+      - "ms-python.isort"
+      
+      # Jupyter and notebooks
+      - "ms-toolsai.jupyter"
+      - "ms-toolsai.jupyter-keymap"
+      - "ms-toolsai.jupyter-renderers"
+      - "ms-toolsai.vscode-jupyter-cell-tags"
+      
+      # Data science specific
+      - "RandomFractalsInc.vscode-data-preview"
+      - "GrapeCity.gc-excelviewer"
+      - "mechatroner.rainbow-csv"
+      
+      # Visualization
+      - "hediet.vscode-drawio"
+      - "bierner.markdown-mermaid"
+    
+    workspaceSettings:
+      # Python configuration
+      "python.defaultInterpreterPath": "./venv/bin/python"
+      "python.terminal.activateEnvironment": true
+      "python.formatting.provider": "black"
+      "python.linting.enabled": true
+      "python.linting.pylintEnabled": true
+      "python.linting.flake8Enabled": true
+      
+      # Jupyter settings
+      "jupyter.askForKernelRestart": false
+      "jupyter.interactiveWindow.textEditor.executeSelection": true
+      "notebook.cellToolbarLocation":
+        "default": "right"
+        "jupyter-notebook": "left"
+      
+      # Editor settings for notebooks
+      "notebook.lineNumbers": "on"
+      "notebook.output.textLineLimit": 50
+      
+      # File associations
+      "files.associations":
+        "*.ipynb": "jupyter"
+        "*.parquet": "parquet"
+    
+    linters:
+      - name: "flake8"
+        configFile: ".flake8"
+        settings:
+          max-line-length: 100
+          extend-ignore:
+            - "E203"  # whitespace before ':'
+            - "W503"  # line break before binary operator
+          exclude:
+            - ".git"
+            - "__pycache__"
+            - "venv"
+            - ".ipynb_checkpoints"
+      
+      - name: "mypy"
+        configFile: "mypy.ini"
+        settings:
+          python_version: "3.9"
+          warn_return_any: true
+          warn_unused_configs: true
+          ignore_missing_imports: true
+    
+    formatters:
+      - name: "black"
+        configFile: "pyproject.toml"
+        settings:
+          line-length: 100
+          target-version: ["py39"]
+          include: '\.pyi?$'
+      
+      - name: "isort"
+        settings:
+          profile: "black"
+          line_length: 100
+    
+    debugConfigs:
+      - type: "python"
+        request: "launch"
+        name: "Python: Current File"
+        program: "${file}"
+        console: "integratedTerminal"
+        justMyCode: false
+      
+      - type: "python"
+        request: "launch"
+        name: "Python: Debug Tests"
+        module: "pytest"
+        args: ["-v", "--tb=short"]
+        console: "integratedTerminal"
+    
+    tasks:
+      - type: "shell"
+        label: "Create Virtual Environment"
+        command: "python -m venv venv"
+        group: "build"
+      
+      - type: "shell"
+        label: "Install Dependencies"
+        command: "./venv/bin/pip install -r requirements.txt"
+        group: "build"
+      
+      - type: "shell"
+        label: "Run Jupyter Lab"
+        command: "./venv/bin/jupyter lab"
+        group: "none"
+        presentation:
+          reveal: "always"
+          panel: "new"
+    
+    environmentVariables:
+      PYTHONPATH: "${workspaceFolder}"
+      JUPYTER_ENABLE_LAB: "yes"
+
+  cursor:
+    workspaceExtensions:
+      - "ms-python.python"
+      - "ms-toolsai.jupyter"
+    
+    workspaceSettings:
+      "cursor.aiEnabled": true
+      "cursor.aiModel": "claude-3"
+      "python.defaultInterpreterPath": "./venv/bin/python"
+      "python.dataScience.alwaysTrustNotebooks": true
+
+relatedTools:
+  - "jupyter"
+  - "pandas"
+  - "numpy"
+  - "scikit-learn"
+  - "tensorflow"
+  - "pytorch"
+  - "matplotlib"
+  - "seaborn"
+  - "docker"
+
+targetJobRoles:
+  - "data-scientist"
+  - "ml-engineer"
+  - "data-engineer"
+
+tags:
+  - "python"
+  - "data-science"
+  - "machine-learning"
+  - "jupyter"
+  - "analytics"
+  - "visualization"

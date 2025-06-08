@@ -1,0 +1,326 @@
+# Claude Code Context Management for HatStart
+
+This file provides context and memory management for Claude Code when working on the HatStart project. It complements (but does not replace) your existing Taskmaster and Cursor workflow.
+
+## Project Overview
+
+**HatStart** is an Electron-based automated developer toolkit installer that helps developers quickly set up their development environment across different platforms (Windows, macOS, Linux).
+
+### Core Architecture
+- **Frontend**: React + TypeScript + Tailwind CSS
+- **Backend**: Electron main process with secure IPC
+- **Build System**: Vite + TypeScript + ESLint
+- **Testing**: Vitest with comprehensive test coverage
+- **Package Management**: Cross-platform installers via system package managers
+
+### Key Features Implemented
+- ✅ **Version Management System**: Complete system for managing multiple programming language versions (Task 8)
+- ✅ **Dependency Resolution Engine**: Comprehensive cross-category dependency management (Task 7)
+- ✅ **Category-based Installer Framework**: Modular installation system for development tools
+- ✅ **Cross-platform Support**: Windows, macOS, Linux with platform-specific adapters
+- ✅ **Job Role Assessment**: AI-powered recommendations based on developer experience
+- ✅ **IDE Configuration**: Automated setup for VS Code, Cursor, and other IDEs
+- ✅ **Workspace Management**: Project-specific environment configuration
+
+## Context Integration with Existing Workflow
+
+### Your Existing Context Files
+You have excellent context management already established:
+
+1. **Taskmaster Tasks**: `.taskmaster/tasks/` - Contains detailed task breakdown and implementation notes
+2. **Cursor Rules**: `.cursor/rules/` - Contains development conventions and patterns
+3. **Documentation**: `docs/` - Contains algorithm documentation and guides
+
+### How to Reference These in Claude Code Prompts
+
+When prompting Claude Code for planning or implementation:
+
+#### For Project Context:
+```
+"Please read the following files to understand the project context:
+- .taskmaster/tasks/task_008.txt (for version management system details)
+- .taskmaster/tasks/task_007.txt (for dependency resolution engine details)
+- .cursor/rules/hatstart-conventions.mdc (for coding standards)
+- docs/platform-and-tool-categories.md (for category structure)
+- docs/dependency-resolution-architecture.md (for dependency system architecture)"
+```
+
+#### For Development Workflow:
+```
+"Before starting, please review:
+- .cursor/rules/dev_workflow.mdc (for development process)
+- .cursor/rules/electron.mdc (for Electron best practices)
+- .taskmaster/tasks/[relevant_task].txt (for specific implementation details)"
+```
+
+#### For Testing and Quality:
+```
+"Please check the testing approach in:
+- .cursor/rules/tests.mdc (if exists)
+- src/services/__tests__/ (for existing test patterns)
+- vitest.config.ts (for test configuration)"
+```
+
+## Current Implementation Status
+
+### Completed Major Components (as of Task 8)
+
+#### 1. Dependency Resolution Engine (Task 7)
+- **Types**: `src/services/dependency-resolution/types.ts` - 60+ interfaces for comprehensive type safety
+- **Core Graph**: `src/services/dependency-resolution/dependency-graph.ts` - Adjacency list implementation with traversal algorithms
+- **Graph Builder**: `src/services/dependency-resolution/graph-builder.ts` - Multi-phase construction from manifests
+- **Resolver**: `src/services/dependency-resolution/dependency-resolver.ts` - Multiple resolution algorithms (topological, DFS, BFS)
+- **Conflict Detection**: `src/services/dependency-resolution/conflict-detector.ts` - Version conflicts, circular deps, platform issues
+- **Conflict Resolution**: `src/services/dependency-resolution/conflict-resolver.ts` - Automated and guided resolution strategies
+- **CategoryInstaller Integration**: `src/services/dependency-resolution/dependency-aware-category-installer.ts` - Native package manager support
+- **UI Components**: 
+  - `src/components/dependency-resolution/DependencyVisualization.tsx` - Interactive React visualization
+  - `src/services/dependency-resolution/dependency-cli-visualizer.ts` - CLI interface
+- **Testing**: 240+ tests covering all modules
+
+#### 2. Version Management System
+- **Types**: `src/services/version-manager-types.ts` - Complete type system
+- **Installer**: `src/services/version-manager-installer.ts` - Platform-aware installation
+- **Adapters**: `src/services/version-managers/` - Individual version manager implementations
+  - Mise (universal), NVM (Node.js), PyEnv (Python), ASDF (universal), RBenv (Ruby)
+- **Command Execution**: `src/services/command-execution/` - Cross-platform command layer
+- **Workspace Integration**: `src/services/workspace-configuration/` - Environment management
+- **UI Components**: `src/components/version-management/` - React UI for version management
+
+#### 3. Core Infrastructure
+- **Base Installer**: `src/services/base-installer.ts` - Foundation for all installers
+- **Category System**: `src/services/category-installer.ts` - Tool categorization framework
+- **Platform Detection**: `src/shared/os-detector.ts`, `src/shared/system-detector.ts`
+- **Error Handling**: Comprehensive error management across all components
+
+#### 4. User Interface
+- **Job Role Assessment**: AI-powered developer experience evaluation
+- **Category Grid**: Tool selection interface
+- **Progress Tracking**: Real-time installation feedback
+- **Version Management Panel**: Complete UI for version switching
+- **Dependency Visualization**: Interactive graph visualization with conflict highlighting
+
+### Architecture Patterns Established
+
+#### 1. Service Layer Pattern
+```typescript
+// Base service with common functionality
+abstract class BaseService {
+  protected abstract executeCommand(): Promise<CommandResult>;
+}
+
+// Platform-specific implementations
+class WindowsService extends BaseService { }
+class UnixService extends BaseService { }
+```
+
+#### 2. Factory Pattern for Cross-Platform Support
+```typescript
+// Factory creates appropriate implementation
+const factory = CommandExecutorFactory.create();
+const executor = factory.createExecutor(platform);
+```
+
+#### 3. Adapter Pattern for Version Managers
+```typescript
+// Unified interface for different version managers
+interface IVersionManager {
+  installVersion(tool: string, version: string): Promise<VersionOperationResult>;
+}
+
+// Specific implementations
+class MiseAdapter implements IVersionManager { }
+class NVMAdapter implements IVersionManager { }
+```
+
+## Development Guidance
+
+### When to Use Each Context System
+
+#### Use Taskmaster (.taskmaster/tasks/) When:
+- Planning new features or major changes
+- Breaking down complex implementation tasks
+- Tracking dependencies between tasks
+- Managing project roadmap and priorities
+
+#### Use Cursor Rules (.cursor/rules/) When:
+- Establishing coding conventions
+- Defining architectural patterns
+- Setting up development workflow
+- Creating reusable development guidelines
+
+#### Use Claude Code (CLAUDE.md) When:
+- Working on immediate code changes
+- Understanding current implementation state
+- Getting context for specific files or components
+- Making small to medium-sized improvements
+
+### Current Technical Debt and Known Issues
+
+#### Linting Status
+- ✅ All major linting errors fixed (previously 129 errors, now 0)
+- ⚠️ Minor warnings remain in version manager adapters (unused parameters with underscore prefix - acceptable)
+
+#### Testing Status
+- ✅ Comprehensive test framework established with Vitest
+- ✅ Cross-platform testing for version manager installation
+- ✅ Integration tests for version manager interfaces
+- ⚠️ Some tests failing due to placeholder implementations (expected)
+
+#### Implementation Completeness
+- ✅ **Dependency Resolution Engine**: Fully implemented with 240+ tests (Task 7)
+- ✅ **Version Management System**: Fully implemented and tested (Task 8)
+- ✅ **Command Execution Layer**: Complete cross-platform implementation
+- ✅ **Workspace Configuration**: Full environment management system
+- ✅ **Workspace Generation System**: Complete IDE workspace configuration (Task 13)
+- 🔄 **Real-world Integration**: Needs testing with actual version managers
+
+#### 3. Workspace Generation System (Task 13)
+- **Purpose**: Create optimized IDE workspaces based on user's tool selections
+- **Architecture**: Manifest-based extensibility for contributors
+- **Core Services**:
+  - `src/services/workspace-generation/workspace-generation-service.ts` - Main orchestration
+  - `src/services/workspace-generation/workspace-requirements-service.ts` - Requirement gathering
+  - `src/services/workspace-generation/workspace-manifest-loader.ts` - Manifest loading
+  - `src/services/workspace-generation/workspace-manifest-validator.ts` - Validation
+  - `src/services/workspace-generation/workspace-template-manager.ts` - Template management
+- **Manifest System**:
+  - `src/services/workspace-generation/workspace-manifest.ts` - Type definitions
+  - `examples/workspace-manifests/` - Example YAML/JSON manifests for contributors
+- **IDE Support**: VSCode, Cursor, JetBrains with language-specific extensions
+- **UI Integration**: `src/components/WorkspaceGenerationPanel.tsx` - User interface
+
+## Key Files and Their Purpose
+
+### Core Type Definitions
+- `src/types/index.ts` - Main type exports
+- `src/services/version-manager-types.ts` - Version management types
+- `src/types/version-management-ui-types.ts` - UI-specific types
+
+### Service Layer
+- `src/services/base-installer.ts` - Foundation installer class
+- `src/services/category-installer.ts` - Category-based installation framework
+- `src/services/version-manager-installer.ts` - Version manager installation service
+- `src/services/dependency-resolution/` - Complete dependency resolution engine
+- `src/services/workspace-generation/` - IDE workspace configuration system
+
+### Version Management Core
+- `src/services/version-managers/base-adapter.ts` - Base version manager implementation
+- `src/services/version-managers/[manager]-adapter.ts` - Specific implementations
+- `src/services/command-execution/` - Unified command execution system
+- `src/services/workspace-configuration/` - Environment and workspace management
+
+### User Interface
+- `src/components/version-management/` - Version management UI components
+- `src/components/CategoryGrid.tsx` - Tool category display
+- `src/components/JobRoleQuestionnaire.tsx` - Experience assessment
+- `src/components/WorkspaceGenerationPanel.tsx` - Workspace generation UI
+- `src/components/TabbedLayout.tsx` - Tab navigation for different sections
+
+### Testing Infrastructure
+- `src/services/__tests__/` - Service layer tests
+- `tests/integration/` - Integration test suites
+- `vitest.config.ts` - Test configuration
+
+## Common Prompting Patterns
+
+### For New Feature Development
+```
+"I need to implement [feature]. Please first read:
+1. .taskmaster/tasks/[relevant_task].txt for requirements
+2. .cursor/rules/hatstart-conventions.mdc for coding standards
+3. src/services/[related_service].ts for existing patterns
+
+Then implement the feature following established patterns."
+```
+
+### For Bug Fixes
+```
+"There's an issue with [component]. Please:
+1. Read the current implementation in src/[path]
+2. Check .cursor/rules/dev_workflow.mdc for debugging approach
+3. Review existing tests in src/__tests__/[component].test.ts
+4. Fix the issue and update tests accordingly"
+```
+
+### For Code Refactoring
+```
+"Please refactor [component] to improve [aspect]. Reference:
+1. .cursor/rules/hatstart-conventions.mdc for patterns
+2. Current implementation in src/[path]
+3. Existing tests to ensure compatibility
+4. Update any affected documentation"
+```
+
+## Integration with MCP and Task Management
+
+### MCP Server Integration
+If using MCP server for Taskmaster integration, you can combine Claude Code work with task tracking:
+
+```
+1. Use MCP tools to get current task: get_task or task-master show <id>
+2. Implement changes with Claude Code
+3. Use MCP tools to update task progress: update_subtask
+4. Mark task complete: set_task_status
+```
+
+### Version Control Integration
+Claude Code can help with git workflow:
+
+```
+"Please:
+1. Review current changes with git status and git diff
+2. Create appropriate commit message following project conventions
+3. Ensure all linting passes before committing"
+```
+
+## Task 13 - Workspace Generation System Implementation
+
+### Overview
+Task 13 was initially misunderstood as Virtual Desktop Infrastructure (VDI) workspace isolation but was clarified to be IDE workspace configuration. The system creates optimized IDE workspaces based on user's tool selections with language-specific extensions, linters, and settings.
+
+### Key Refactoring Changes
+1. **Terminology**: Changed from "isolation" to "optimization" throughout the codebase
+2. **Focus**: IDE workspace configuration (VSCode, Cursor, JetBrains) not VDI
+3. **Extensibility**: Manifest-based system for contributors to add new language/tool support
+
+### Manifest System for Contributors
+Contributors can add new workspace configurations by creating YAML/JSON manifests:
+
+```yaml
+# Example: javascript-fullstack-workspace.yaml
+id: "javascript-fullstack-workspace"
+name: "JavaScript Full-Stack Workspace"
+toolId: "nodejs"
+stack: "javascript"
+ideWorkspaces:
+  vscode:
+    workspaceExtensions:
+      - "dsznajder.es7-react-js-snippets"
+      - "dbaeumer.vscode-eslint"
+    workspaceSettings:
+      "editor.formatOnSave": true
+    linters:
+      - name: "eslint"
+        configFile: ".eslintrc.json"
+```
+
+### Integration with HatStart Flow
+1. User selects tools and job role
+2. Navigate to "Workspace Generation" tab
+3. Select IDE and customize settings
+4. Generate workspace with all configurations
+
+### Files Created/Modified
+- `src/services/workspace-generation/` - Complete service implementation
+- `src/components/WorkspaceGenerationPanel.tsx` - UI component
+- `src/components/TabbedLayout.tsx` - Tab navigation
+- `examples/workspace-manifests/` - Example configurations
+- `docs/task-13-workspace-generation-system.md` - Updated documentation
+
+---
+
+**Last Updated**: Based on Task 7, 8 & 13 completion (Dependency Resolution Engine, Version Management System & Workspace Generation)
+**Next Major Features**: IDE Configuration completion, Real-world integration testing
+
+This context file will be updated as new features are implemented and patterns are established. Always reference your existing Taskmaster and Cursor context files for the most current project planning and development guidelines.

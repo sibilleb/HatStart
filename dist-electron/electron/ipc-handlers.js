@@ -1,8 +1,44 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupManifestIpcHandlers = setupManifestIpcHandlers;
 exports.setupSystemDetectionIpcHandlers = setupSystemDetectionIpcHandlers;
+exports.setupFileOperationsIpcHandlers = setupFileOperationsIpcHandlers;
 const electron_1 = require("electron");
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 const error_logging_1 = require("../src/shared/error-logging");
 const system_detector_js_1 = require("../src/shared/system-detector.js");
 const manifest_loader_main_1 = require("./manifest-loader-main");
@@ -228,7 +264,10 @@ function setupSystemDetectionIpcHandlers() {
             const systemInfo = await detector.detectSystemInfo();
             return {
                 success: true,
-                data: systemInfo
+                data: {
+                    ...systemInfo,
+                    homeDirectory: electron_1.app.getPath('home')
+                }
             };
         }
         catch (error) {
@@ -293,6 +332,134 @@ function setupSystemDetectionIpcHandlers() {
                     category: hatStartError.category,
                     userMessage: hatStartError.userMessage
                 }
+            };
+        }
+    });
+}
+/**
+ * Setup IPC handlers for file operations
+ */
+function setupFileOperationsIpcHandlers() {
+    // Ensure a directory exists
+    const ensureDirectoryExists = (dirPath) => {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    };
+    // Get app data directory
+    const getAppDataPath = () => {
+        return electron_1.app.getPath('userData');
+    };
+    // Resolve full path for a file
+    const resolveFilePath = (fileName, directory) => {
+        const appDataPath = getAppDataPath();
+        const basePath = directory
+            ? path.join(appDataPath, directory)
+            : appDataPath;
+        ensureDirectoryExists(basePath);
+        return path.join(basePath, fileName);
+    };
+    // Save data to a file
+    electron_1.ipcMain.handle('file:save', async (event, options) => {
+        try {
+            const { fileName, data, directory } = options;
+            const filePath = resolveFilePath(fileName, directory);
+            fs.writeFileSync(filePath, data, 'utf8');
+            return true;
+        }
+        catch (error) {
+            console.error('Failed to save file:', error);
+            return false;
+        }
+    });
+    // Load data from a file
+    electron_1.ipcMain.handle('file:load', async (event, options) => {
+        try {
+            const { fileName, directory } = options;
+            const filePath = resolveFilePath(fileName, directory);
+            if (!fs.existsSync(filePath)) {
+                return null;
+            }
+            return fs.readFileSync(filePath, 'utf8');
+        }
+        catch (error) {
+            console.error('Failed to load file:', error);
+            return null;
+        }
+    });
+    // Check if a file exists
+    electron_1.ipcMain.handle('file:exists', async (event, options) => {
+        try {
+            const { fileName, directory } = options;
+            const filePath = resolveFilePath(fileName, directory);
+            return fs.existsSync(filePath);
+        }
+        catch (error) {
+            console.error('Failed to check if file exists:', error);
+            return false;
+        }
+    });
+    // Delete a file
+    electron_1.ipcMain.handle('file:delete', async (event, options) => {
+        try {
+            const { fileName, directory } = options;
+            const filePath = resolveFilePath(fileName, directory);
+            if (!fs.existsSync(filePath)) {
+                return false;
+            }
+            fs.unlinkSync(filePath);
+            return true;
+        }
+        catch (error) {
+            console.error('Failed to delete file:', error);
+            return false;
+        }
+    });
+    // List files in a directory
+    electron_1.ipcMain.handle('file:list', async (event, options) => {
+        try {
+            const { directory, extension } = options;
+            const dirPath = resolveFilePath('', directory);
+            if (!fs.existsSync(dirPath)) {
+                return [];
+            }
+            const files = fs.readdirSync(dirPath);
+            if (extension) {
+                return files.filter((file) => file.endsWith(extension));
+            }
+            return files;
+        }
+        catch (error) {
+            console.error('Failed to list files:', error);
+            return [];
+        }
+    });
+    // Create workspace with files
+    electron_1.ipcMain.handle('workspace:create', async (event, options) => {
+        try {
+            const { path: workspacePath, files } = options;
+            // Create workspace directory
+            if (!fs.existsSync(workspacePath)) {
+                fs.mkdirSync(workspacePath, { recursive: true });
+            }
+            // Create each file
+            for (const file of files) {
+                const filePath = path.join(workspacePath, file.path);
+                const fileDir = path.dirname(filePath);
+                // Ensure directory exists
+                if (!fs.existsSync(fileDir)) {
+                    fs.mkdirSync(fileDir, { recursive: true });
+                }
+                // Write file content
+                fs.writeFileSync(filePath, file.content, 'utf8');
+            }
+            return { success: true };
+        }
+        catch (error) {
+            console.error('Failed to create workspace:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
             };
         }
     });

@@ -49,6 +49,7 @@ export interface ElectronAPI {
       version: string;
       distribution?: string;
       distributionVersion?: string;
+      homeDirectory?: string;
     };
     error?: {
       code: string;
@@ -76,6 +77,15 @@ export interface ElectronAPI {
   fileExists: (options: FileOperationOptions) => Promise<boolean>;
   deleteFile: (options: FileOperationOptions) => Promise<boolean>;
   listFiles: (options: { directory: string; extension?: string }) => Promise<string[]>;
+  
+  // Workspace APIs
+  createWorkspace: (options: {
+    path: string;
+    files: Array<{
+      path: string;
+      content: string;
+    }>;
+  }) => Promise<{ success: boolean; error?: string }>;
   
   // Installation APIs (to be implemented later)
   installTool: (toolId: string) => Promise<unknown>;

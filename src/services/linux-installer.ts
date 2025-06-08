@@ -5,7 +5,7 @@
 
 import { existsSync } from 'fs';
 import { join } from 'path';
-import type { InstallationCommand, Platform } from '../shared/manifest-types.js';
+import type { InstallationCommand, InstallationMethod, Platform } from '../shared/manifest-types.js';
 import { BaseInstaller } from './base-installer.js';
 import type {
     InstallationOptions,
@@ -514,7 +514,7 @@ export class LinuxInstaller extends BaseInstaller {
       if (await this.checkCommandExists(pm.check)) {
         const pmCommand: InstallationCommand = {
           ...command,
-          method: pm.name as any
+          method: pm.name as InstallationMethod
         };
         
         switch (pm.name) {

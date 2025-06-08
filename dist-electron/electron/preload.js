@@ -21,6 +21,14 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     detectInstalledTools: () => electron_1.ipcRenderer.invoke('system-detection:detect'),
     getSystemInfo: () => electron_1.ipcRenderer.invoke('system-detection:info'),
     detectTool: (toolName) => electron_1.ipcRenderer.invoke('system-detection:tool', toolName),
+    // File operations APIs
+    saveToFile: (options) => electron_1.ipcRenderer.invoke('file:save', options),
+    loadFromFile: (options) => electron_1.ipcRenderer.invoke('file:load', options),
+    fileExists: (options) => electron_1.ipcRenderer.invoke('file:exists', options),
+    deleteFile: (options) => electron_1.ipcRenderer.invoke('file:delete', options),
+    listFiles: (options) => electron_1.ipcRenderer.invoke('file:list', options),
+    // Workspace APIs
+    createWorkspace: (options) => electron_1.ipcRenderer.invoke('workspace:create', options),
     // Installation APIs (to be implemented later)
     installTool: (toolId) => electron_1.ipcRenderer.invoke('install-tool', toolId),
     // Progress tracking APIs (to be implemented later)

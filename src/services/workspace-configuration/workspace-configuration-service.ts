@@ -646,7 +646,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
    * Create default configuration
    */
   private async createDefaultConfiguration(workspaceRoot: string): Promise<WorkspaceConfiguration> {
-    const detection = await this.detectWorkspace(workspaceRoot);
+          const _detection = await this.detectWorkspace(workspaceRoot);
     
     return {
       workspaceRoot,

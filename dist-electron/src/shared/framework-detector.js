@@ -167,7 +167,7 @@ class FrameworkDetector {
                     };
                 }
             }
-            catch (error) {
+            catch {
                 // Continue to next package manager
                 continue;
             }
@@ -262,7 +262,7 @@ class FrameworkDetector {
                 }
             }
         }
-        catch (error) {
+        catch {
             // Ignore JSON parse errors
         }
         return undefined;
@@ -320,7 +320,7 @@ class FrameworkDetector {
             });
             return stdout.trim().split('\n')[0];
         }
-        catch (error) {
+        catch {
             return undefined;
         }
     }

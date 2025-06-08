@@ -185,7 +185,7 @@ describe('VersionManagerInstaller', () => {
       vi.spyOn(installer, 'installVersionManager').mockResolvedValue({
         success: false,
         operation: 'install',
-        tool: 'mise' as any,
+        tool: 'mise' as VersionedTool,
         message: 'Installation failed',
         error: 'Installation failed',
         duration: 100,

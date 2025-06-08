@@ -7,14 +7,14 @@ import { ChildProcess, exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import type { Architecture, Platform } from '../../shared/manifest-types.js';
 import type {
-    CommandExecutionError,
-    CommandExecutionErrorType,
-    CommandExecutionOptions,
-    CommandExecutionResult,
-    CommandValidationResult,
-    ICommandExecutor,
-    IPlatformCommandAdapter,
-    ShellType
+  CommandExecutionError,
+  CommandExecutionErrorType,
+  CommandExecutionOptions,
+  CommandExecutionResult,
+  CommandValidationResult,
+  ICommandExecutor,
+  IPlatformCommandAdapter,
+  ShellType
 } from './types.js';
 
 const execAsync = promisify(exec);
@@ -230,14 +230,14 @@ export abstract class BaseCommandExecutor implements ICommandExecutor {
        const execError = error as { code?: number; stdout?: string; stderr?: string; signal?: NodeJS.Signals; message?: string };
        const commandError = this.createError(
          this.classifyExecError(execError),
-         execError.message || 'Command execution failed',
+         execError?.message || 'Command execution failed',
          command,
          args,
          {
-           exitCode: execError.code,
-           stdout: execError.stdout,
-           stderr: execError.stderr,
-           signal: execError.signal,
+           exitCode: execError?.code,
+           stdout: execError?.stdout,
+           stderr: execError?.stderr,
+           signal: execError?.signal,
          }
        );
 

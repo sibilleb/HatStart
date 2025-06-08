@@ -5,11 +5,11 @@
 
 import type { Architecture, Platform } from '../../shared/manifest-types.js';
 import type {
-    ProjectVersionConfig,
-    VersionedTool,
-    VersionManagerType,
-    VersionOperationResult,
-    VersionSpecifier,
+  ProjectVersionConfig,
+  VersionedTool,
+  VersionManagerType,
+  VersionOperationResult,
+  VersionSpecifier,
 } from '../version-manager-types.js';
 
 /**
@@ -41,7 +41,8 @@ export type ShellProfile =
   | '.zsh_profile'
   | '.profile'
   | '.fish/config.fish'
-  | 'Microsoft.PowerShell_profile.ps1';
+  | 'Microsoft.PowerShell_profile.ps1'
+  | 'cmd_autorun';
 
 /**
  * Environment variable configuration
@@ -95,6 +96,8 @@ export interface ShellIntegration {
   enabled: boolean;
   /** Backup file path */
   backupPath?: string;
+  /** Whether to create backup before modification */
+  backupBeforeModification?: boolean;
 }
 
 /**
@@ -117,34 +120,103 @@ export interface WorkspaceToolConfig {
 
 /**
  * Workspace configuration
+ * 
+ * Comprehensive configuration for a development workspace, including tool versions,
+ * environment variables, shell integrations, and project-specific settings.
+ * This configuration defines the complete development environment for a workspace.
  */
 export interface WorkspaceConfiguration {
-  /** Workspace root directory */
-  workspaceRoot: string;
-  /** Workspace name */
-  name?: string;
-  /** Tool configurations */
-  tools: WorkspaceToolConfig[];
-  /** Global environment variables */
-  environment: EnvironmentVariable[];
-  /** Global PATH configuration */
-  pathConfiguration: PathEntry[];
-  /** Shell integrations */
-  shellIntegrations: ShellIntegration[];
-  /** Project configurations (nested projects) */
-  projects: ProjectVersionConfig[];
-  /** Configuration metadata */
-  metadata: {
-    /** Configuration version */
-    version: string;
-    /** Last updated timestamp */
-    lastUpdated: Date;
-    /** Platform this configuration was created on */
-    platform: Platform;
-    /** Architecture this configuration was created on */
-    architecture: Architecture;
-    /** User who created/modified the configuration */
-    user?: string;
+  /** 
+   * Workspace root directory (absolute path)
+   * @example '/home/user/projects/my-workspace'
+   */
+  readonly workspaceRoot: string;
+  
+  /** 
+   * Human-readable workspace name
+   * @example 'My Development Workspace'
+   * @default Derived from workspace directory name
+   */
+  readonly name?: string;
+  
+  /** 
+   * Tool configurations for this workspace
+   * Defines which tools are available and their version requirements
+   */
+  tools: readonly WorkspaceToolConfig[];
+  
+  /** 
+   * Global environment variables for the workspace
+   * These variables will be set for all projects within the workspace
+   */
+  environment: readonly EnvironmentVariable[];
+  
+  /** 
+   * Global PATH configuration for the workspace
+   * Defines additional directories to include in the PATH
+   */
+  pathConfiguration: readonly PathEntry[];
+  
+  /** 
+   * Shell integrations for the workspace
+   * Configures how the workspace integrates with different shell environments
+   */
+  shellIntegrations: readonly ShellIntegration[];
+  
+  /** 
+   * Project configurations for nested projects
+   * Each project can have its own specific version requirements
+   */
+  projects: readonly ProjectVersionConfig[];
+  
+  /** 
+   * Configuration metadata
+   * Information about when and how this configuration was created
+   */
+  readonly metadata: {
+    /** 
+     * Configuration schema version
+     * Used for migration and compatibility checking
+     * @example '1.0.0'
+     */
+    readonly version: string;
+    
+    /** 
+     * When this configuration was last updated
+     */
+    readonly lastUpdated: Date;
+    
+    /** 
+     * Platform this configuration was created on
+     * @example 'linux', 'darwin', 'win32'
+     */
+    readonly platform: Platform;
+    
+    /** 
+     * Architecture this configuration was created on
+     * @example 'x64', 'arm64'
+     */
+    readonly architecture: Architecture;
+    
+    /** 
+     * User who created or last modified this configuration
+     * @example 'john.doe@company.com'
+     */
+    readonly user?: string;
+    
+    /**
+     * Additional metadata for workspace identification
+     */
+    readonly additionalMetadata?: {
+      /** Workspace type or category */
+      readonly workspaceType?: 'frontend' | 'backend' | 'fullstack' | 'mobile' | 'data' | 'devops' | 'generic';
+      /** Primary programming languages used */
+      readonly primaryLanguages?: readonly VersionedTool[];
+      /** Workspace description */
+      readonly description?: string;
+      /** Tags for categorization */
+      readonly tags?: readonly string[];
+    };
   };
 }
 

@@ -64,6 +64,44 @@ class ManifestValidator {
             if (!Array.isArray(obj.experienceLevel)) {
                 errors.push(this.createValidationError('experienceLevel', 'Experience level must be an array', 'INVALID_TYPE', obj.experienceLevel));
             }
+            else {
+                // Validate each experience level value
+                const validLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
+                obj.experienceLevel.forEach((level, index) => {
+                    if (typeof level !== 'string' || !validLevels.includes(level)) {
+                        errors.push(this.createValidationError(`experienceLevel[${index}]`, `Invalid experience level '${level}'. Must be one of: ${validLevels.join(', ')}`, 'INVALID_VALUE', level));
+                    }
+                });
+            }
+            warnings.push('experienceLevel field is deprecated. Please use experienceRequirement instead.');
+        }
+        // Validate new experience requirement field
+        if (obj.experienceRequirement !== undefined) {
+            this.validateExperienceRequirement(obj.experienceRequirement, 'experienceRequirement', errors);
+        }
+        // Validate learning resources
+        if (obj.learningResources !== undefined) {
+            if (!Array.isArray(obj.learningResources)) {
+                errors.push(this.createValidationError('learningResources', 'Learning resources must be an array', 'INVALID_TYPE', obj.learningResources));
+            }
+            else {
+                obj.learningResources.forEach((resource, index) => {
+                    this.validateLearningResource(resource, `learningResources[${index}]`, errors);
+                });
+            }
+        }
+        // Validate difficulty indicators
+        if (obj.difficultyIndicators !== undefined) {
+            if (!Array.isArray(obj.difficultyIndicators)) {
+                errors.push(this.createValidationError('difficultyIndicators', 'Difficulty indicators must be an array', 'INVALID_TYPE', obj.difficultyIndicators));
+            }
+            else {
+                obj.difficultyIndicators.forEach((indicator, index) => {
+                    if (typeof indicator !== 'string') {
+                        errors.push(this.createValidationError(`difficultyIndicators[${index}]`, 'Difficulty indicator must be a string', 'INVALID_TYPE', indicator));
+                    }
+                });
+            }
         }
         if (obj.systemRequirements !== undefined) {
             this.validateSystemRequirements(obj.systemRequirements, 'systemRequirements', errors);
@@ -434,6 +472,76 @@ class ManifestValidator {
             path: pathPrefix ? `${pathPrefix}.${field}` : field,
             severity: 'error'
         };
+    }
+    /**
+     * Validate experience requirement object
+     */
+    validateExperienceRequirement(data, path, errors) {
+        if (!this.isObject(data)) {
+            errors.push(this.createValidationError(path, 'Experience requirement must be an object', 'INVALID_TYPE', data));
+            return;
+        }
+        const obj = data;
+        const validLevels = ['beginner', 'intermediate', 'advanced'];
+        // Validate minimum level
+        if (!obj.minimumLevel) {
+            errors.push(this.createValidationError(`${path}.minimumLevel`, 'Minimum level is required', 'MISSING_FIELD'));
+        }
+        else if (typeof obj.minimumLevel !== 'string' || !validLevels.includes(obj.minimumLevel)) {
+            errors.push(this.createValidationError(`${path}.minimumLevel`, `Invalid minimum level. Must be one of: ${validLevels.join(', ')}`, 'INVALID_VALUE', obj.minimumLevel));
+        }
+        // Validate recommended level
+        if (obj.recommendedLevel !== undefined) {
+            if (typeof obj.recommendedLevel !== 'string' || !validLevels.includes(obj.recommendedLevel)) {
+                errors.push(this.createValidationError(`${path}.recommendedLevel`, `Invalid recommended level. Must be one of: ${validLevels.join(', ')}`, 'INVALID_VALUE', obj.recommendedLevel));
+            }
+        }
+        // Validate rationale
+        if (obj.rationale !== undefined && typeof obj.rationale !== 'string') {
+            errors.push(this.createValidationError(`${path}.rationale`, 'Rationale must be a string', 'INVALID_TYPE', obj.rationale));
+        }
+        // Validate alternatives for beginners
+        if (obj.alternativesForBeginners !== undefined) {
+            if (!Array.isArray(obj.alternativesForBeginners)) {
+                errors.push(this.createValidationError(`${path}.alternativesForBeginners`, 'Alternatives for beginners must be an array', 'INVALID_TYPE', obj.alternativesForBeginners));
+            }
+            else {
+                obj.alternativesForBeginners.forEach((alt, index) => {
+                    if (typeof alt !== 'string') {
+                        errors.push(this.createValidationError(`${path}.alternativesForBeginners[${index}]`, 'Alternative tool ID must be a string', 'INVALID_TYPE', alt));
+                    }
+                });
+            }
+        }
+    }
+    /**
+     * Validate learning resource object
+     */
+    validateLearningResource(data, path, errors) {
+        if (!this.isObject(data)) {
+            errors.push(this.createValidationError(path, 'Learning resource must be an object', 'INVALID_TYPE', data));
+            return;
+        }
+        const obj = data;
+        // Validate required fields
+        this.validateRequired(obj, 'title', 'string', errors, path);
+        this.validateRequired(obj, 'url', 'string', errors, path);
+        this.validateRequired(obj, 'type', 'string', errors, path);
+        this.validateRequired(obj, 'experienceLevel', 'string', errors, path);
+        // Validate type enum
+        if (obj.type && typeof obj.type === 'string') {
+            const validTypes = ['tutorial', 'documentation', 'video', 'course'];
+            if (!validTypes.includes(obj.type)) {
+                errors.push(this.createValidationError(`${path}.type`, `Invalid resource type. Must be one of: ${validTypes.join(', ')}`, 'INVALID_VALUE', obj.type));
+            }
+        }
+        // Validate experience level
+        if (obj.experienceLevel && typeof obj.experienceLevel === 'string') {
+            const validLevels = ['beginner', 'intermediate', 'advanced'];
+            if (!validLevels.includes(obj.experienceLevel)) {
+                errors.push(this.createValidationError(`${path}.experienceLevel`, `Invalid experience level. Must be one of: ${validLevels.join(', ')}`, 'INVALID_VALUE', obj.experienceLevel));
+            }
+        }
     }
 }
 exports.ManifestValidator = ManifestValidator;

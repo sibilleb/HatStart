@@ -33,6 +33,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteFile: (options: FileOperationOptions) => ipcRenderer.invoke('file:delete', options),
   listFiles: (options: { directory: string; extension?: string }) => ipcRenderer.invoke('file:list', options),
   
+  // Workspace APIs
+  createWorkspace: (options: {
+    path: string;
+    files: Array<{
+      path: string;
+      content: string;
+    }>;
+  }) => ipcRenderer.invoke('workspace:create', options),
+  
   // Installation APIs (to be implemented later)
   installTool: (toolId: string) => ipcRenderer.invoke('install-tool', toolId),
   

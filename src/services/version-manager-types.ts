@@ -70,27 +70,134 @@ export type VersionSpecifier =
     };
 
 /**
- * Version information
+ * Version information for a specific tool
+ * 
+ * Represents detailed information about a tool version, including
+ * semantic version components and metadata.
  */
-export interface VersionInfo {
-  /** Version string */
-  version: string;
-  /** Whether this is an LTS version */
-  isLTS?: boolean;
-  /** Whether this is a pre-release version */
-  isPrerelease?: boolean;
-  /** Release date */
-  releaseDate?: Date;
-  /** End of life date (if known) */
-  endOfLife?: Date;
-  /** Whether this version is currently installed */
-  isInstalled: boolean;
-  /** Whether this is the currently active version */
-  isActive: boolean;
-  /** Installation path (if installed) */
-  installationPath?: string;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
+export interface IVersionInfo {
+  /** 
+   * Tool name
+   * @example 'node', 'python', 'ruby'
+   */
+  readonly tool: VersionedTool;
+  
+  /** 
+   * Full version string as reported by the tool
+   * @example '18.17.0', '3.11.4', '3.0.0'
+   */
+  readonly version: string;
+  
+  /** 
+   * Major version number
+   * @example 18 for Node.js 18.17.0
+   */
+  readonly major: number;
+  
+  /** 
+   * Minor version number
+   * @example 17 for Node.js 18.17.0
+   */
+  readonly minor: number;
+  
+  /** 
+   * Patch version number
+   * @example 0 for Node.js 18.17.0
+   */
+  readonly patch: number;
+  
+  /** 
+   * Pre-release identifier (if any)
+   * @example 'beta', 'rc1', 'alpha'
+   */
+  readonly prerelease?: string;
+  
+  /** 
+   * Build metadata (if any)
+   * @example 'build.123', 'sha.abc123'
+   */
+  readonly build?: string;
+  
+  /** 
+   * Whether this is the currently active version
+   * @default false
+   */
+  readonly isActive?: boolean;
+  
+  /** 
+   * Whether this version is installed locally
+   * @default true
+   */
+  readonly isInstalled?: boolean;
+  
+  /** 
+   * Installation path for this version (if known)
+   * @example '/home/user/.nvm/versions/node/v18.17.0'
+   */
+  readonly installPath?: string;
+  
+  /** 
+   * Additional metadata about this version
+   */
+  readonly metadata?: {
+    /** Release date */
+    readonly releaseDate?: Date;
+    /** End of life date */
+    readonly eolDate?: Date;
+    /** Whether this is an LTS version */
+    readonly isLts?: boolean;
+    /** LTS codename (if applicable) */
+    readonly ltsCodename?: string;
+  };
+}
+
+/**
+ * Result of a version management operation
+ * 
+ * Standardized result format for all version management operations
+ * including installation, switching, uninstallation, etc.
+ */
+export interface IVersionOperationResult {
+  /** 
+   * Whether the operation completed successfully
+   */
+  readonly success: boolean;
+  
+  /** 
+   * Type of operation that was performed
+   */
+  readonly operation: 'install' | 'uninstall' | 'switch' | 'list' | 'detect' | 'configure';
+  
+  /** 
+   * Tool that was operated on
+   */
+  readonly tool: VersionedTool;
+  
+  /** 
+   * Human-readable message describing the result
+   * @example 'Successfully installed Node.js 18.17.0'
+   */
+  readonly message: string;
+  
+  /** 
+   * Error message if the operation failed
+   */
+  readonly error?: string;
+  
+  /** 
+   * Duration of the operation in milliseconds
+   */
+  readonly duration: number;
+  
+  /** 
+   * Timestamp when the operation completed
+   */
+  readonly timestamp: Date;
+  
+  /** 
+   * Additional operation-specific data
+   */
+  readonly data?: Record<string, unknown>;
 }
 
 /**
@@ -118,95 +225,232 @@ export type VersionOperation =
   | 'shell';
 
 /**
- * Version operation result
- */
-export interface VersionOperationResult {
-  /** Whether operation was successful */
-  success: boolean;
-  /** Operation that was performed */
-  operation: VersionOperation;
-  /** Tool that was operated on */
-  tool: VersionedTool;
-  /** Version that was operated on */
-  version?: string;
-  /** Result message */
-  message: string;
-  /** Error details (if operation failed) */
-  error?: string;
-  /** Command output */
-  output?: string;
-  /** Operation duration in milliseconds */
-  duration: number;
-  /** Timestamp when operation completed */
-  timestamp: Date;
-}
-
-/**
  * Version manager configuration
+ * 
+ * Defines the complete configuration for a version manager instance,
+ * including installation paths, shell integration, and tool-specific settings.
  */
 export interface VersionManagerConfig {
-  /** Version manager type */
-  type: VersionManagerType;
-  /** Installation path */
-  installationPath?: string;
-  /** Configuration file path */
-  configPath?: string;
-  /** Shell integration enabled */
+  /** 
+   * Version manager type identifier
+   * @example 'nvm', 'pyenv', 'mise'
+   */
+  readonly type: VersionManagerType;
+  
+  /** 
+   * Installation path for the version manager
+   * @example '/home/user/.nvm', '/usr/local/bin/pyenv'
+   * @default Determined by version manager's default installation location
+   */
+  readonly installationPath?: string;
+  
+  /** 
+   * Configuration file path for the version manager
+   * @example '/home/user/.nvmrc', '/home/user/.python-version'
+   * @default Determined by version manager's default config location
+   */
+  readonly configPath?: string;
+  
+  /** 
+   * Whether shell integration is enabled
+   * When enabled, the version manager will modify shell profiles to provide
+   * automatic version switching and PATH management
+   * @default true
+   */
   shellIntegration: boolean;
-  /** Auto-switching enabled */
+  
+  /** 
+   * Whether automatic version switching is enabled
+   * When enabled, the version manager will automatically switch to the
+   * appropriate version when entering a directory with a version file
+   * @default true
+   */
   autoSwitch: boolean;
-  /** Global default versions */
-  globalVersions: Record<VersionedTool, string>;
-  /** Environment variables */
+  
+  /** 
+   * Global default versions for each supported tool
+   * These versions will be used when no local version is specified
+   * @example { node: '18.17.0', python: '3.11.0' }
+   */
+  globalVersions: Partial<Record<VersionedTool, string>>;
+  
+  /** 
+   * Environment variables to set when this version manager is active
+   * @example { NODE_ENV: 'development', PYTHON_PATH: '/custom/path' }
+   */
   environment: Record<string, string>;
-  /** Additional configuration options */
+  
+  /** 
+   * Additional configuration options specific to the version manager
+   * This allows for version manager-specific settings that don't fit
+   * into the standard configuration schema
+   * @example { nvmrc_lookup: true, use_mirror: 'https://npm.taobao.org/mirrors/node' }
+   */
   options: Record<string, unknown>;
 }
 
 /**
  * Project version configuration
+ * 
+ * Defines version requirements and environment settings for a specific project.
+ * This configuration is typically stored in project-specific files like .nvmrc,
+ * .python-version, or .tool-versions.
  */
 export interface ProjectVersionConfig {
-  /** Project root directory */
-  projectRoot: string;
-  /** Tool versions for this project */
+  /** 
+   * Project root directory (absolute path)
+   * @example '/home/user/projects/my-app'
+   */
+  readonly projectRoot: string;
+  
+  /** 
+   * Tool versions required for this project
+   * Maps tool names to their required version specifiers
+   * @example { node: '18.17.0', python: '>=3.9.0', ruby: 'lts' }
+   */
   versions: Record<VersionedTool, VersionSpecifier>;
-  /** Environment variables for this project */
+  
+  /** 
+   * Project-specific environment variables
+   * These variables will be set when working in this project
+   * @example { NODE_ENV: 'development', API_URL: 'http://localhost:3000' }
+   */
   environment?: Record<string, string>;
-  /** Configuration file path */
-  configFile?: string;
-  /** Whether configuration is inherited from parent directories */
-  inherited?: boolean;
+  
+  /** 
+   * Path to the configuration file
+   * @example '/home/user/projects/my-app/.nvmrc'
+   * @default Determined by the version manager and project structure
+   */
+  readonly configFile?: string;
+  
+  /** 
+   * Whether this configuration is inherited from parent directories
+   * When true, indicates that some settings come from parent directory configs
+   * @default false
+   */
+  readonly inherited?: boolean;
+  
+  /**
+   * Configuration metadata
+   */
+  readonly metadata?: {
+    /** When this configuration was created */
+    createdAt?: Date;
+    /** When this configuration was last modified */
+    lastModified?: Date;
+    /** Version manager that created this configuration */
+    createdBy?: VersionManagerType;
+    /** Configuration format version */
+    formatVersion?: string;
+  };
 }
 
 /**
  * Version manager capabilities
+ * 
+ * Defines what operations and features a specific version manager supports.
+ * This information is used to determine which version manager to use for
+ * specific operations and to provide appropriate UI feedback.
  */
 export interface VersionManagerCapabilities {
-  /** Supported tools */
-  supportedTools: VersionedTool[];
-  /** Whether it can install versions */
-  canInstall: boolean;
-  /** Whether it can uninstall versions */
-  canUninstall: boolean;
-  /** Whether it supports global version setting */
-  supportsGlobal: boolean;
-  /** Whether it supports local (project) version setting */
-  supportsLocal: boolean;
-  /** Whether it supports shell-specific versions */
-  supportsShell: boolean;
-  /** Whether it supports automatic version switching */
-  supportsAutoSwitch: boolean;
-  /** Whether it supports LTS versions */
-  supportsLTS: boolean;
-  /** Whether it supports listing remote versions */
-  supportsRemoteList: boolean;
-  /** Whether it requires shell integration */
-  requiresShellIntegration: boolean;
-  /** Supported platforms */
-  supportedPlatforms: Platform[];
-  /** Supported architectures */
-  supportedArchitectures: Architecture[];
+  /** 
+   * Tools that this version manager can manage
+   * @example ['node', 'npm', 'yarn'] for nvm
+   */
+  readonly supportedTools: readonly VersionedTool[];
+  
+  /** 
+   * Whether this version manager can install new versions of tools
+   * @default true
+   */
+  readonly canInstall: boolean;
+  
+  /** 
+   * Whether this version manager can uninstall versions of tools
+   * @default true
+   */
+  readonly canUninstall: boolean;
+  
+  /** 
+   * Whether this version manager supports setting global default versions
+   * Global versions are used when no local version is specified
+   * @default true
+   */
+  readonly supportsGlobal: boolean;
+  
+  /** 
+   * Whether this version manager supports project-local version settings
+   * Local versions override global versions within a project directory
+   * @default true
+   */
+  readonly supportsLocal: boolean;
+  
+  /** 
+   * Whether this version manager supports shell-specific version settings
+   * Shell versions are temporary and only affect the current shell session
+   * @default false
+   */
+  readonly supportsShell: boolean;
+  
+  /** 
+   * Whether this version manager supports automatic version switching
+   * When enabled, the version manager automatically switches to the appropriate
+   * version when entering a directory with a version configuration file
+   * @default false
+   */
+  readonly supportsAutoSwitch: boolean;
+  
+  /** 
+   * Whether this version manager supports LTS (Long Term Support) versions
+   * LTS versions are stable releases with extended support periods
+   * @default false
+   */
+  readonly supportsLTS: boolean;
+  
+  /** 
+   * Whether this version manager can list available versions from remote sources
+   * This allows users to see what versions are available for installation
+   * @default true
+   */
+  readonly supportsRemoteList: boolean;
+  
+  /** 
+   * Whether this version manager requires shell integration to function properly
+   * Shell integration modifies shell profiles to provide PATH management
+   * @default true
+   */
+  readonly requiresShellIntegration: boolean;
+  
+  /** 
+   * Platforms where this version manager is supported
+   * @example ['linux', 'darwin'] for Unix-only managers
+   */
+  readonly supportedPlatforms: readonly Platform[];
+  
+  /** 
+   * CPU architectures where this version manager is supported
+   * @example ['x64', 'arm64'] for modern managers
+   */
+  readonly supportedArchitectures: readonly Architecture[];
+  
+  /**
+   * Additional capability flags for version manager-specific features
+   */
+  readonly additionalCapabilities?: {
+    /** Whether the manager supports plugin systems */
+    readonly supportsPlugins?: boolean;
+    /** Whether the manager supports custom installation sources */
+    readonly supportsCustomSources?: boolean;
+    /** Whether the manager supports version aliasing */
+    readonly supportsAliases?: boolean;
+    /** Whether the manager supports parallel installations */
+    readonly supportsParallelInstalls?: boolean;
+    /** Whether the manager supports version caching */
+    readonly supportsCaching?: boolean;
+    /** Whether the manager supports offline mode */
+    readonly supportsOfflineMode?: boolean;
+  };
 }
 
 /**
@@ -235,27 +479,27 @@ export interface IVersionManager {
   /**
    * Install the version manager itself
    */
-  installManager(): Promise<VersionOperationResult>;
+  installManager(): Promise<IVersionOperationResult>;
 
   /**
    * Configure the version manager (shell integration, etc.)
    */
-  configure(config: Partial<VersionManagerConfig>): Promise<VersionOperationResult>;
+  configure(config: Partial<VersionManagerConfig>): Promise<IVersionOperationResult>;
 
   /**
    * List installed versions for a tool
    */
-  listInstalled(tool: VersionedTool): Promise<VersionInfo[]>;
+  listInstalled(tool: VersionedTool): Promise<IVersionInfo[]>;
 
   /**
    * List available versions for a tool (remote)
    */
-  listAvailable(tool: VersionedTool): Promise<VersionInfo[]>;
+  listAvailable(tool: VersionedTool): Promise<IVersionInfo[]>;
 
   /**
    * Get currently active version for a tool
    */
-  getCurrentVersion(tool: VersionedTool): Promise<VersionInfo | null>;
+  getCurrentVersion(tool: VersionedTool): Promise<IVersionInfo | null>;
 
   /**
    * Install a specific version of a tool
@@ -264,7 +508,7 @@ export interface IVersionManager {
     tool: VersionedTool, 
     version: VersionSpecifier,
     options?: VersionInstallOptions
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Uninstall a specific version of a tool
@@ -272,7 +516,7 @@ export interface IVersionManager {
   uninstallVersion(
     tool: VersionedTool, 
     version: string
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Switch to a specific version of a tool
@@ -281,7 +525,7 @@ export interface IVersionManager {
     tool: VersionedTool, 
     version: string,
     scope?: 'global' | 'local' | 'shell'
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Set global default version for a tool
@@ -289,7 +533,7 @@ export interface IVersionManager {
   setGlobalVersion(
     tool: VersionedTool, 
     version: string
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Set local (project) version for a tool
@@ -298,7 +542,7 @@ export interface IVersionManager {
     tool: VersionedTool, 
     version: string,
     projectRoot?: string
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Get project version configuration
@@ -310,12 +554,12 @@ export interface IVersionManager {
    */
   setProjectConfig(
     config: ProjectVersionConfig
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Refresh environment (reload shell integration)
    */
-  refreshEnvironment(): Promise<VersionOperationResult>;
+  refreshEnvironment(): Promise<IVersionOperationResult>;
 
   /**
    * Get version manager configuration
@@ -325,25 +569,80 @@ export interface IVersionManager {
   /**
    * Update version manager configuration
    */
-  updateConfig(config: Partial<VersionManagerConfig>): Promise<VersionOperationResult>;
+  updateConfig(config: Partial<VersionManagerConfig>): Promise<IVersionOperationResult>;
 }
 
 /**
  * Version installation options
+ * 
+ * Configuration options for installing tool versions through version managers.
+ * These options control the installation behavior and provide hooks for
+ * monitoring installation progress.
  */
 export interface VersionInstallOptions {
-  /** Force installation even if already installed */
+  /** 
+   * Force installation even if the version is already installed
+   * When true, will reinstall the version even if it already exists
+   * @default false
+   */
   force?: boolean;
-  /** Skip verification after installation */
+  
+  /** 
+   * Skip verification after installation
+   * When true, will not verify that the installed version works correctly
+   * @default false
+   */
   skipVerification?: boolean;
-  /** Installation timeout in milliseconds */
+  
+  /** 
+   * Installation timeout in milliseconds
+   * Maximum time to wait for installation to complete
+   * @default 300000 (5 minutes)
+   * @minimum 1000
+   */
   timeout?: number;
-  /** Progress callback */
+  
+  /** 
+   * Progress callback function
+   * Called periodically during installation to report progress
+   * @param progress Current installation progress information
+   */
   onProgress?: (progress: VersionInstallProgress) => void;
-  /** Additional installation flags */
-  flags?: string[];
-  /** Environment variables for installation */
-  environment?: Record<string, string>;
+  
+  /** 
+   * Additional installation flags to pass to the version manager
+   * These are version manager-specific flags that control installation behavior
+   * @example ['--with-openssl', '--enable-shared'] for Python compilation
+   */
+  flags?: readonly string[];
+  
+  /** 
+   * Environment variables to set during installation
+   * These variables will be available to the installation process
+   * @example { CC: 'gcc-9', CFLAGS: '-O2' } for compilation settings
+   */
+  environment?: Readonly<Record<string, string>>;
+  
+  /**
+   * Installation priority level
+   * Controls resource allocation and scheduling for the installation
+   * @default 'normal'
+   */
+  priority?: 'low' | 'normal' | 'high';
+  
+  /**
+   * Whether to install in quiet mode
+   * When true, reduces output verbosity during installation
+   * @default false
+   */
+  quiet?: boolean;
+  
+  /**
+   * Custom installation source or mirror
+   * Allows overriding the default download source for the version
+   * @example 'https://npm.taobao.org/mirrors/node' for Node.js
+   */
+  source?: string;
 }
 
 /**
@@ -414,7 +713,7 @@ export interface IVersionManagementEngine {
   /**
    * Get unified view of all tool versions across managers
    */
-  getAllToolVersions(): Promise<Record<VersionedTool, VersionInfo[]>>;
+  getAllToolVersions(): Promise<Record<VersionedTool, IVersionInfo[]>>;
 
   /**
    * Switch tool version using the appropriate manager
@@ -423,7 +722,7 @@ export interface IVersionManagementEngine {
     tool: VersionedTool,
     version: string,
     scope?: 'global' | 'local' | 'shell'
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Install tool version using the appropriate manager
@@ -432,7 +731,7 @@ export interface IVersionManagementEngine {
     tool: VersionedTool,
     version: VersionSpecifier,
     options?: VersionInstallOptions
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Get current workspace configuration
@@ -444,5 +743,5 @@ export interface IVersionManagementEngine {
    */
   applyWorkspaceConfig(
     config: ProjectVersionConfig
-  ): Promise<VersionOperationResult[]>;
+  ): Promise<IVersionOperationResult[]>;
 } 

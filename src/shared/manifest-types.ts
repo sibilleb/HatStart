@@ -185,6 +185,43 @@ export interface ToolDocumentation {
   troubleshooting?: string;
 }
 
+// IDE workspace template configuration
+export interface IDEWorkspaceTemplate {
+  /** Workspace-specific extensions beyond the main extension */
+  workspaceExtensions?: string[];
+  /** Workspace-specific settings */
+  workspaceSettings?: Record<string, ConfigValue>;
+  /** Linter configurations */
+  linters?: {
+    name: string;
+    configFile?: string;
+    settings?: Record<string, ConfigValue>;
+  }[];
+  /** Formatter configurations */
+  formatters?: {
+    name: string;
+    configFile?: string;
+    settings?: Record<string, ConfigValue>;
+  }[];
+  /** Debug configurations */
+  debugConfigs?: {
+    type: string;
+    request: string;
+    name: string;
+    [key: string]: unknown;
+  }[];
+  /** Task/build configurations */
+  tasks?: {
+    type: string;
+    label: string;
+    command: string;
+    args?: string[];
+    group?: string;
+  }[];
+  /** Environment variables */
+  environmentVariables?: Record<string, string>;
+}
+
 // IDE integration interface
 export interface IDEIntegration {
   /** VSCode extension ID */
@@ -192,22 +229,26 @@ export interface IDEIntegration {
     extensionId: string;
     settings?: Record<string, ConfigValue>;
     snippets?: string[];
+    workspaceTemplate?: IDEWorkspaceTemplate;
   };
   /** Cursor IDE integration */
   cursor?: {
     extensionId?: string;
     settings?: Record<string, ConfigValue>;
     rules?: string[];
+    workspaceTemplate?: IDEWorkspaceTemplate;
   };
   /** JetBrains IDE integration */
   jetbrains?: {
     pluginId?: string;
     settings?: Record<string, ConfigValue>;
+    workspaceTemplate?: IDEWorkspaceTemplate;
   };
   /** Vim/Neovim integration */
   vim?: {
     plugins?: string[];
     config?: string;
+    workspaceTemplate?: IDEWorkspaceTemplate;
   };
 }
 

@@ -5,9 +5,11 @@
 
 import { existsSync } from 'fs';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockedFunction } from 'vitest';
-import type { InstallationCommand } from '../../shared/manifest-types.js';
-import type { CommandExecutionResult, InstallationOptions } from '../installer-types.js';
+import type { InstallationCommand, InstallationMethod, Platform } from '../../shared/manifest-types.js';
+import type { CommandExecutionResult } from '../command-execution/types.js';
+import type { InstallationOptions, InstallationProgress } from '../installer-types.js';
 import { LinuxInstaller } from '../linux-installer.js';
+import { asTestableInstaller } from './test-types.js';
 
 // Mock dependencies
 vi.mock('child_process');
@@ -79,18 +81,18 @@ describe('LinuxInstaller', () => {
       const supportedMethods = ['apt', 'yum', 'snap', 'flatpak', 'direct-download', 'script', 'package-manager'];
       
       supportedMethods.forEach(method => {
-        const command = { ...mockCommand, method: method as any };
+        const command = { ...mockCommand, method: method as InstallationMethod };
         expect(installer.canHandle(command)).toBe(true);
       });
     });
 
     it('should not handle non-Linux commands', () => {
-      const windowsCommand = { ...mockCommand, platform: 'windows' as any };
+      const windowsCommand = { ...mockCommand, platform: 'windows' as Platform };
       expect(installer.canHandle(windowsCommand)).toBe(false);
     });
 
     it('should not handle unsupported methods', () => {
-      const unsupportedCommand = { ...mockCommand, method: 'unsupported' as any };
+      const unsupportedCommand = { ...mockCommand, method: 'unsupported' as InstallationMethod };
       expect(installer.canHandle(unsupportedCommand)).toBe(false);
     });
   });
@@ -102,9 +104,10 @@ describe('LinuxInstaller', () => {
 
     it('should install successfully via apt', async () => {
       // Mock the base installer methods
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const testableInstaller = asTestableInstaller(installer);
+      const mockExecuteCommand = vi.spyOn(testableInstaller, 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(testableInstaller, 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(testableInstaller, 'checkCommandExists');
 
       // Mock apt availability
       mockCheckCommandExists.mockResolvedValue(true);
@@ -136,9 +139,9 @@ describe('LinuxInstaller', () => {
     it('should handle apt with force flag', async () => {
       mockOptions.force = true;
       
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -151,12 +154,12 @@ describe('LinuxInstaller', () => {
         'sudo',
         expect.arrayContaining(['--reinstall']),
         expect.any(String),
-        expect.any(Object)
+        expect.objectContaining({})
       );
     });
 
     it('should fail when apt is not available', async () => {
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
       mockCheckCommandExists.mockResolvedValue(false);
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -168,9 +171,9 @@ describe('LinuxInstaller', () => {
     });
 
     it('should handle apt installation failure', async () => {
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -196,8 +199,8 @@ describe('LinuxInstaller', () => {
     });
 
     it('should install successfully via yum', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       // Mock yum availability (but not dnf)
       mockCheckCommandExists.mockImplementation((cmd: string) => {
@@ -219,8 +222,8 @@ describe('LinuxInstaller', () => {
     });
 
     it('should prefer dnf over yum when available', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       // Mock both dnf and yum availability
       mockCheckCommandExists.mockResolvedValue(true);
@@ -239,12 +242,12 @@ describe('LinuxInstaller', () => {
         'sudo',
         expect.arrayContaining(['dnf', 'install']),
         expect.any(String),
-        expect.any(Object)
+        expect.objectContaining({})
       );
     });
 
     it('should fail when neither yum nor dnf is available', async () => {
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
       mockCheckCommandExists.mockResolvedValue(false);
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -262,8 +265,8 @@ describe('LinuxInstaller', () => {
     });
 
     it('should install successfully via snap', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommandWithProgress.mockResolvedValue({
@@ -283,8 +286,8 @@ describe('LinuxInstaller', () => {
     it('should handle snap with force flag', async () => {
       mockOptions.force = true;
       
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommandWithProgress.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -295,12 +298,12 @@ describe('LinuxInstaller', () => {
         'sudo',
         expect.arrayContaining(['--dangerous']),
         expect.any(String),
-        expect.any(Object)
+        expect.objectContaining({})
       );
     });
 
     it('should fail when snap is not available', async () => {
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
       mockCheckCommandExists.mockResolvedValue(false);
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -318,8 +321,8 @@ describe('LinuxInstaller', () => {
     });
 
     it('should install successfully via flatpak', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommandWithProgress.mockResolvedValue({
@@ -339,8 +342,8 @@ describe('LinuxInstaller', () => {
     it('should handle flatpak with force flag', async () => {
       mockOptions.force = true;
       
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommandWithProgress.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -351,12 +354,12 @@ describe('LinuxInstaller', () => {
         'flatpak',
         expect.arrayContaining(['--reinstall']),
         expect.any(String),
-        expect.any(Object)
+        expect.objectContaining({})
       );
     });
 
     it('should fail when flatpak is not available', async () => {
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
       mockCheckCommandExists.mockResolvedValue(false);
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -375,9 +378,9 @@ describe('LinuxInstaller', () => {
     });
 
     it('should install DEB package successfully', async () => {
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
-      const mockDownloadFile = vi.spyOn(installer as any, 'downloadFile');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
+      const mockDownloadFile = vi.spyOn(asTestableInstaller(installer), 'downloadFile');
 
       mockDownloadFile.mockResolvedValue('/tmp/package.deb');
       mockCheckCommandExists.mockResolvedValue(true);
@@ -398,9 +401,9 @@ describe('LinuxInstaller', () => {
     it('should install RPM package successfully', async () => {
       mockCommand.downloadUrl = 'https://example.com/package.rpm';
       
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
-      const mockDownloadFile = vi.spyOn(installer as any, 'downloadFile');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
+      const mockDownloadFile = vi.spyOn(asTestableInstaller(installer), 'downloadFile');
 
       mockDownloadFile.mockResolvedValue('/tmp/package.rpm');
       mockCheckCommandExists.mockResolvedValue(true);
@@ -420,8 +423,8 @@ describe('LinuxInstaller', () => {
     it('should install TAR.GZ archive successfully', async () => {
       mockCommand.downloadUrl = 'https://example.com/package.tar.gz';
       
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockDownloadFile = vi.spyOn(installer as any, 'downloadFile');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockDownloadFile = vi.spyOn(asTestableInstaller(installer), 'downloadFile');
 
       mockDownloadFile.mockResolvedValue('/tmp/package.tar.gz');
       mockExecuteCommand.mockResolvedValue({
@@ -445,8 +448,8 @@ describe('LinuxInstaller', () => {
     it('should install AppImage successfully', async () => {
       mockCommand.downloadUrl = 'https://example.com/app.AppImage';
       
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockDownloadFile = vi.spyOn(installer as any, 'downloadFile');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockDownloadFile = vi.spyOn(asTestableInstaller(installer), 'downloadFile');
 
       mockDownloadFile.mockResolvedValue('/tmp/app.AppImage');
       mockExecuteCommand.mockResolvedValue({
@@ -476,7 +479,7 @@ describe('LinuxInstaller', () => {
     it('should fail for unsupported file types', async () => {
       mockCommand.downloadUrl = 'https://example.com/package.unknown';
       
-      const mockDownloadFile = vi.spyOn(installer as any, 'downloadFile');
+      const mockDownloadFile = vi.spyOn(asTestableInstaller(installer), 'downloadFile');
       mockDownloadFile.mockResolvedValue('/tmp/package.unknown');
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -495,7 +498,7 @@ describe('LinuxInstaller', () => {
     });
 
     it('should install successfully via script', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
 
       mockExecuteCommandWithProgress.mockResolvedValue({
         success: true,
@@ -512,7 +515,7 @@ describe('LinuxInstaller', () => {
     });
 
     it('should handle script installation failure', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
 
       mockExecuteCommandWithProgress.mockResolvedValue({
         success: false,
@@ -536,9 +539,9 @@ describe('LinuxInstaller', () => {
     });
 
     it('should fallback to apt when available', async () => {
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       // Mock apt availability
       mockCheckCommandExists.mockImplementation((cmd: string) => {
@@ -555,8 +558,8 @@ describe('LinuxInstaller', () => {
     });
 
     it('should fallback to dnf when apt is not available', async () => {
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       // Mock dnf availability but not apt
       mockCheckCommandExists.mockImplementation((cmd: string) => {
@@ -572,7 +575,7 @@ describe('LinuxInstaller', () => {
     });
 
     it('should fail when no package manager is available', async () => {
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
       mockCheckCommandExists.mockResolvedValue(false);
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -590,10 +593,10 @@ describe('LinuxInstaller', () => {
       // Don't skip verification for this test
       mockOptions.skipVerification = false;
       
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
-      const mockIsAlreadyInstalled = vi.spyOn(installer as any, 'isAlreadyInstalled');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
+      const mockIsAlreadyInstalled = vi.spyOn(asTestableInstaller(installer), 'isAlreadyInstalled');
 
       // Mock that tool is NOT already installed so installation proceeds
       mockIsAlreadyInstalled.mockResolvedValue(false);
@@ -630,10 +633,10 @@ describe('LinuxInstaller', () => {
       // Don't skip verification for this test
       mockOptions.skipVerification = false;
       
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
-      const mockIsAlreadyInstalled = vi.spyOn(installer as any, 'isAlreadyInstalled');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
+      const mockIsAlreadyInstalled = vi.spyOn(asTestableInstaller(installer), 'isAlreadyInstalled');
 
       // Mock that tool is NOT already installed so installation proceeds
       mockIsAlreadyInstalled.mockResolvedValue(false);
@@ -667,7 +670,7 @@ describe('LinuxInstaller', () => {
 
   describe('Error Handling', () => {
     it('should handle unsupported installation method', async () => {
-      const unsupportedCommand = { ...mockCommand, method: 'unsupported' as any };
+      const unsupportedCommand = { ...mockCommand, method: 'unsupported' as InstallationMethod };
 
       const result = await installer.install(unsupportedCommand, mockOptions);
       
@@ -681,7 +684,7 @@ describe('LinuxInstaller', () => {
       mockCommand.method = 'direct-download';
       mockCommand.downloadUrl = 'https://example.com/package.deb';
       
-      const mockDownloadFile = vi.spyOn(installer as any, 'downloadFile');
+      const mockDownloadFile = vi.spyOn(asTestableInstaller(installer), 'downloadFile');
       mockDownloadFile.mockRejectedValue(new Error('Network error'));
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -691,7 +694,7 @@ describe('LinuxInstaller', () => {
     });
 
     it('should handle missing dependencies', async () => {
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
       mockCheckCommandExists.mockResolvedValue(false);
 
       const result = await installer.install(mockCommand, mockOptions);
@@ -704,14 +707,14 @@ describe('LinuxInstaller', () => {
 
   describe('Progress Tracking', () => {
     it('should emit progress events during installation', async () => {
-      const progressEvents: any[] = [];
+      const progressEvents: InstallationProgress[] = [];
       installer.on('progress', (event) => {
         progressEvents.push(event);
       });
 
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -726,14 +729,14 @@ describe('LinuxInstaller', () => {
     });
 
     it('should track progress through installation steps', async () => {
-      const progressEvents: any[] = [];
+      const progressEvents: InstallationProgress[] = [];
       installer.on('progress', (event) => {
         progressEvents.push(event);
       });
 
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -767,17 +770,17 @@ describe('LinuxInstaller', () => {
 
   describe('Architecture Support', () => {
     it('should handle x64 architecture', async () => {
-      const x64Command = { ...mockCommand, architecture: 'x64' as any };
+      const x64Command = { ...mockCommand, architecture: 'x64' as Architecture };
       expect(installer.canHandle(x64Command)).toBe(true);
     });
 
     it('should handle arm64 architecture', async () => {
-      const arm64Command = { ...mockCommand, architecture: 'arm64' as any };
+      const arm64Command = { ...mockCommand, architecture: 'arm64' as Architecture };
       expect(installer.canHandle(arm64Command)).toBe(true);
     });
 
     it('should handle arm architecture', async () => {
-      const armCommand = { ...mockCommand, architecture: 'arm' as any };
+      const armCommand = { ...mockCommand, architecture: 'arm' as Architecture };
       expect(installer.canHandle(armCommand)).toBe(true);
     });
   });
@@ -786,9 +789,9 @@ describe('LinuxInstaller', () => {
     it('should handle interactive installation mode', async () => {
       mockOptions.interactive = true;
 
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -805,9 +808,9 @@ describe('LinuxInstaller', () => {
     it('should respect custom timeout values', async () => {
       mockOptions.timeout = 60000; // 1 minute
 
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });
@@ -834,9 +837,9 @@ describe('LinuxInstaller', () => {
         CUSTOM_VAR: 'test-value'
       };
 
-      const mockExecuteCommand = vi.spyOn(installer as any, 'executeCommand');
-      const mockExecuteCommandWithProgress = vi.spyOn(installer as any, 'executeCommandWithProgress');
-      const mockCheckCommandExists = vi.spyOn(installer as any, 'checkCommandExists');
+      const mockExecuteCommand = vi.spyOn(asTestableInstaller(installer), 'executeCommand');
+      const mockExecuteCommandWithProgress = vi.spyOn(asTestableInstaller(installer), 'executeCommandWithProgress');
+      const mockCheckCommandExists = vi.spyOn(asTestableInstaller(installer), 'checkCommandExists');
 
       mockCheckCommandExists.mockResolvedValue(true);
       mockExecuteCommand.mockResolvedValue({ success: true, exitCode: 0, stdout: '', stderr: '' });

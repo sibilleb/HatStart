@@ -119,6 +119,11 @@ export interface JobRoleConfig {
   categories: string[]; // Tool categories this role typically uses
   skillAreas: string[]; // Areas of expertise
   workflowTypes: string[]; // Types of work this role does
+  workspaceTemplates?: { // IDE workspace templates for this role
+    vscode?: string[]; // Template IDs for VSCode
+    cursor?: string[]; // Template IDs for Cursor
+    jetbrains?: string[]; // Template IDs for JetBrains
+  };
 }
 
 /**

@@ -73,21 +73,24 @@ class MockVersionManager implements IVersionManager {
   }
 
   async listInstalled(tool: VersionedTool): Promise<VersionInfo[]> {
-    return [
+    // Mock implementation - return different versions based on tool
+    const baseVersions = [
       {
         version: '18.17.0',
         isLTS: true,
         isInstalled: true,
         isActive: true,
-        installationPath: '/usr/local/bin/node'
+        installationPath: `/usr/local/bin/${tool}`
       },
       {
         version: '20.5.0',
         isInstalled: true,
         isActive: false,
-        installationPath: '/usr/local/bin/node-20'
+        installationPath: `/usr/local/bin/${tool}-20`
       }
     ];
+    
+    return baseVersions;
   }
 
   async listAvailable(): Promise<VersionInfo[]> {

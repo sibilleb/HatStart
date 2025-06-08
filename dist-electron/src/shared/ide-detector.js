@@ -192,7 +192,7 @@ class IDEDetector {
                 };
             }
         }
-        catch (error) {
+        catch {
             // Registry key not found or access denied
         }
         return {
@@ -347,7 +347,7 @@ class IDEDetector {
             });
             return stdout.trim().split('\n')[0];
         }
-        catch (error) {
+        catch {
             return undefined;
         }
     }
@@ -367,7 +367,7 @@ class IDEDetector {
                             const packageData = JSON.parse(content);
                             return packageData.version;
                         }
-                        catch (parseError) {
+                        catch {
                             continue;
                         }
                     }
@@ -381,7 +381,7 @@ class IDEDetector {
                 }
             }
         }
-        catch (error) {
+        catch {
             // Ignore file read errors
         }
         return undefined;
@@ -653,6 +653,60 @@ class IDEDetector {
                     {
                         name: 'Prettier',
                         pathPatterns: ['.vscode/extensions/esbenp.prettier-vscode*'],
+                        configPatterns: ['.prettierrc*']
+                    }
+                ]
+            },
+            {
+                name: 'Cursor',
+                category: 'editor',
+                essential: true,
+                commands: [
+                    {
+                        platform: 'windows',
+                        command: 'cursor --version',
+                        versionRegex: /(\d+\.\d+\.\d+)/,
+                        timeout: 10000,
+                        method: 'command'
+                    },
+                    {
+                        platform: 'macos',
+                        command: 'cursor --version',
+                        versionRegex: /(\d+\.\d+\.\d+)/,
+                        timeout: 10000,
+                        method: 'command'
+                    },
+                    {
+                        platform: 'linux',
+                        command: 'cursor --version',
+                        versionRegex: /(\d+\.\d+\.\d+)/,
+                        timeout: 10000,
+                        method: 'command'
+                    }
+                ],
+                installationPaths: {
+                    windows: [
+                        '%LOCALAPPDATA%\\Programs\\Cursor',
+                        'C:\\Program Files\\Cursor'
+                    ],
+                    macos: ['/Applications/Cursor.app'],
+                    linux: ['/usr/bin/cursor', '/snap/bin/cursor', '/usr/local/bin/cursor']
+                },
+                configFiles: ['.cursor', '.vscode'],
+                plugins: [
+                    {
+                        name: 'TypeScript',
+                        pathPatterns: ['.cursor/extensions/ms-vscode.vscode-typescript-next*'],
+                        configPatterns: ['.cursor/settings.json']
+                    },
+                    {
+                        name: 'ESLint',
+                        pathPatterns: ['.cursor/extensions/dbaeumer.vscode-eslint*'],
+                        configPatterns: ['.eslintrc*']
+                    },
+                    {
+                        name: 'Prettier',
+                        pathPatterns: ['.cursor/extensions/esbenp.prettier-vscode*'],
                         configPatterns: ['.prettierrc*']
                     }
                 ]
