@@ -93,6 +93,43 @@ export interface ElectronAPI {
   // Progress tracking APIs (to be implemented later)
   onInstallProgress: (callback: (progress: unknown) => void) => void;
   
+  // Version Management APIs - Minimal MVP implementation
+  versionManager: {
+    // Get list of supported version managers
+    list: () => Promise<{
+      success: boolean;
+      managers?: Array<{
+        type: string;
+        name: string;
+        description: string;
+        isInstalled: boolean;
+        supportedTools: string[];
+      }>;
+      error?: string;
+    }>;
+    
+    // Check if a version manager is installed
+    checkInstalled: (managerType: string) => Promise<{
+      success: boolean;
+      isInstalled?: boolean;
+      error?: string;
+    }>;
+    
+    // Get installed versions for a tool
+    listVersions: (tool: string) => Promise<{
+      success: boolean;
+      versions?: string[];
+      error?: string;
+    }>;
+    
+    // Get current active version for a tool
+    getCurrentVersion: (tool: string) => Promise<{
+      success: boolean;
+      version?: string;
+      error?: string;
+    }>;
+  };
+  
   // Clean up listeners
   removeAllListeners: (channel: string) => void;
 }

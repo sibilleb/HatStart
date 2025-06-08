@@ -7,6 +7,7 @@
 export { VersionManagerCard } from './VersionManagerCard.js';
 export { VersionManagerPanel } from './VersionManagerPanel.js';
 export { VersionSelector } from './VersionSelector.js';
+export { VersionManagerContainer } from './VersionManagerContainer.js';
 
 // Re-export types for convenience
 export type {

@@ -5,6 +5,7 @@ import { SearchFilterPanel } from './components/SearchFilterPanel';
 import { SelectionSummary } from './components/SelectionSummary';
 import { TabbedLayout } from './components/TabbedLayout';
 import { WorkspaceGenerationPanel } from './components/WorkspaceGenerationPanel';
+import { VersionManagerContainer } from './components/version-management/VersionManagerContainer';
 import './index.css';
 import { JobRoleConfigService } from './services/job-role-config-service';
 import { JobRoleRecommendationService } from './services/job-role-recommendation-service';
@@ -391,16 +392,7 @@ function App() {
                     }}
                   />
                 ),
-                version: (
-                  <div className="bg-gray-50 rounded-lg p-8 text-center">
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                      Version Management Coming Soon
-                    </h3>
-                    <p className="text-gray-600">
-                      Manage tool versions with popular version managers like asdf, mise, nvm, and more.
-                    </p>
-                  </div>
-                )
+                version: <VersionManagerContainer />
               }}
             </TabbedLayout>
           </div>

@@ -50,6 +50,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('install-progress', (_event, progress) => callback(progress));
   },
   
+  // Version Management APIs - Minimal MVP implementation
+  versionManager: {
+    // Get list of supported version managers
+    list: () => ipcRenderer.invoke('version-manager:list'),
+    
+    // Check if a version manager is installed
+    checkInstalled: (managerType: string) => 
+      ipcRenderer.invoke('version-manager:check-installed', managerType),
+    
+    // Get installed versions for a tool
+    listVersions: (tool: string) => 
+      ipcRenderer.invoke('version-manager:list-versions', tool),
+    
+    // Get current active version for a tool
+    getCurrentVersion: (tool: string) => 
+      ipcRenderer.invoke('version-manager:current-version', tool),
+  },
+  
   // Clean up listeners
   removeAllListeners: (channel: string) => {
     ipcRenderer.removeAllListeners(channel);

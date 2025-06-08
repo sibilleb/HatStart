@@ -486,4 +486,101 @@ export function setupFileOperationsIpcHandlers(): void {
       };
     }
   });
+
+  // Version Management APIs - Minimal implementation for MVP
+  // Start with just Mise support as recommended in feature-complexity-review.md
+  
+  // Get list of supported version managers
+  ipcMain.handle('version-manager:list', async () => {
+    try {
+      // For MVP, only support Mise
+      return {
+        success: true,
+        managers: [{
+          type: 'mise',
+          name: 'Mise',
+          description: 'Universal version manager',
+          isInstalled: false, // Will be checked dynamically
+          supportedTools: ['node', 'python', 'ruby', 'go', 'rust']
+        }]
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  });
+
+  // Check if a version manager is installed
+  ipcMain.handle('version-manager:check-installed', async (event, managerType: string) => {
+    try {
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+      
+      // For MVP, only check Mise
+      if (managerType !== 'mise') {
+        return { success: false, error: 'Only Mise is supported in MVP' };
+      }
+      
+      try {
+        await execAsync('mise --version');
+        return { success: true, isInstalled: true };
+      } catch {
+        return { success: true, isInstalled: false };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  });
+
+  // Get installed versions for a tool
+  ipcMain.handle('version-manager:list-versions', async (event, tool: string) => {
+    try {
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+      
+      // Check if mise is installed first
+      try {
+        await execAsync('mise --version');
+      } catch {
+        return { success: false, error: 'Mise is not installed' };
+      }
+      
+      // Get installed versions
+      const { stdout } = await execAsync(`mise list ${tool}`);
+      const versions = stdout.trim().split('\n').filter(Boolean);
+      
+      return { success: true, versions };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  });
+
+  // Get current active version for a tool
+  ipcMain.handle('version-manager:current-version', async (event, tool: string) => {
+    try {
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+      
+      const { stdout } = await execAsync(`mise current ${tool}`);
+      const version = stdout.trim();
+      
+      return { success: true, version };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  });
 }
