@@ -22,6 +22,153 @@ This file provides context and memory management for Claude Code when working on
 - ✅ **IDE Configuration**: Automated setup for VS Code, Cursor, and other IDEs
 - ✅ **Workspace Management**: Project-specific environment configuration
 
+## Product Vision & Core Principles
+
+### HatStart Mission Statement
+HatStart is a **local developer toolkit installer** that enables developers to set up their complete development environment with one click. It is:
+- **Developer-First**: Built by developers, for developers
+- **Community-Driven**: Open source with easy contribution paths
+- **Extensible**: Add new tools without touching core code
+- **Cross-Platform**: Works seamlessly on Windows, macOS, and Linux
+- **Offline-Capable**: No cloud dependencies for core functionality
+
+### What HatStart IS:
+- ✅ A local development environment setup tool
+- ✅ A cross-platform installer for development tools
+- ✅ A version manager orchestrator
+- ✅ An IDE configuration generator
+- ✅ A community-driven tool catalog
+- ✅ An open-source project
+
+### What HatStart is NOT:
+- ❌ A cloud IDE or remote development platform
+- ❌ A code generator or scaffolding tool
+- ❌ A project management system
+- ❌ A marketplace or paid service
+- ❌ A VDI (Virtual Desktop Infrastructure) solution
+- ❌ A continuous integration/deployment tool
+
+### User Flow
+
+#### 1. Initial Setup Flow
+```
+Launch HatStart → Job Role Selection (Optional) → Tool Recommendations → 
+Category Selection → Dependency Resolution → One-Click Install → 
+IDE Workspace Generation → Ready to Code!
+```
+
+**Detailed Steps**:
+1. **Launch**: User opens HatStart application
+2. **Job Role Questionnaire** (Optional):
+   - Select from predefined roles (Full-Stack, Data Scientist, DevOps, etc.)
+   - Or skip for manual selection
+3. **Tool Recommendations**:
+   - Based on job role, suggest relevant tools
+   - User can accept, modify, or ignore suggestions
+4. **Category Selection**:
+   - Programming Languages (Node.js, Python, Go, etc.)
+   - Development Tools (Git, Docker, Kubernetes tools)
+   - IDEs and Editors (VS Code, Cursor, JetBrains)
+   - Databases (PostgreSQL, MongoDB, Redis)
+5. **Dependency Resolution**:
+   - Automatically detect tool dependencies
+   - Resolve version conflicts
+   - Show clear dependency graph
+6. **One-Click Installation**:
+   - Progress tracking for each tool
+   - Error recovery and retry mechanisms
+   - Platform-specific package manager usage
+7. **IDE Workspace Generation**:
+   - Generate IDE-specific configuration
+   - Install recommended extensions
+   - Configure linters and formatters
+
+#### 2. Customization Flow
+- Browse complete tool catalog
+- Search and filter by category
+- Add/remove tools post-installation
+- Configure version managers
+- Export configuration for team sharing
+
+### Extensibility Principles
+
+#### 1. Manifest-Based Tool Addition
+Contributors can add new tools by creating simple YAML/JSON manifests:
+
+```yaml
+# Example: adding a new tool
+id: "terraform"
+name: "Terraform"
+category: "Infrastructure"
+description: "Infrastructure as Code tool"
+platforms:
+  windows:
+    installer: "chocolatey"
+    package: "terraform"
+  macos:
+    installer: "homebrew"
+    package: "terraform"
+  linux:
+    installer: "apt"
+    package: "terraform"
+```
+
+#### 2. No Code Required for Basic Tools
+- Add manifest file
+- Submit pull request
+- Tool available to all users after merge
+
+#### 3. Company Customization
+Organizations can:
+- Maintain private manifest repositories
+- Create custom job roles (e.g., "ACME Corp Backend Developer")
+- Include proprietary tools via private manifests
+- Set company-specific default configurations
+
+#### 4. Example: Custom Role for Ansible Developer
+```yaml
+id: "ansible-automation-developer"
+name: "Ansible Automation Developer"
+description: "Developer focused on Ansible automation for AWS and Azure"
+categories:
+  - languages: ["python"]
+  - tools: ["git", "ansible", "terraform", "aws-cli", "azure-cli"]
+  - editors: ["vscode"]
+  - extensions: ["ms-python.python", "redhat.ansible"]
+```
+
+### Open Source Collaboration Guidelines
+
+#### Contributing New Tools/Languages
+
+**Method 1: Via Manifest Files** (Recommended for most contributions)
+1. Create YAML/JSON manifest in `examples/workspace-manifests/`
+2. Follow existing manifest patterns
+3. Test on your platform
+4. Submit PR with:
+   - Manifest file
+   - Documentation update
+   - Test results
+
+**Method 2: Via Code** (For complex integrations)
+1. New version manager adapter in `src/services/version-managers/`
+2. Platform-specific installer logic
+3. Comprehensive tests
+4. Documentation
+
+#### Contribution Principles
+- **Keep It Simple**: Tools should install with minimal configuration
+- **Document Thoroughly**: Include examples and common use cases
+- **Test Cross-Platform**: Ensure Windows, macOS, Linux compatibility
+- **Respect User Choice**: No forced tool installation or telemetry
+- **Maintain Backward Compatibility**: Don't break existing manifests
+
+#### Code of Conduct
+- Be welcoming to newcomers
+- Provide constructive feedback
+- Focus on the tool's value to developers
+- Keep discussions technical and respectful
+
 ## Context Integration with Existing Workflow
 
 ### Your Existing Context Files

@@ -64,9 +64,92 @@ cat .hatstart_session         # Check last session state
 task-master show <task-id>
 ```
 
-**ALIGNMENT CHECK** - Verify task aligns with HatStart's mission:
-- ✅ **ALIGNED**: Tool installation, IDE config, version management, environment setup
-- ❌ **MISALIGNED**: Cloud features, marketplaces, VDI infrastructure, SaaS features
+**ALIGNMENT CHECK - Task Vision Validation**
+
+Before implementing ANY task, evaluate against HatStart's core principles:
+
+### ✅ ALIGNED Tasks (Proceed with implementation):
+1. **Tool Installation & Management**
+   - Installing development tools via package managers
+   - Version management for programming languages
+   - Dependency resolution between tools
+   - Tool catalog management
+   
+2. **Developer Environment Setup**
+   - IDE configuration and extensions
+   - Shell environment configuration
+   - Project workspace generation
+   - Development tool settings
+   
+3. **Extensibility Features**
+   - Manifest validation and loading
+   - Tool catalog browsing
+   - Job role configuration
+   - Configuration import/export
+   
+4. **User Experience Improvements**
+   - Installation progress tracking
+   - Error recovery mechanisms
+   - Cross-platform compatibility
+   - Offline installation support
+
+### ❌ MISALIGNED Tasks (STOP and discuss with user):
+1. **Cloud/SaaS Features**
+   - Cloud IDE integration (Codespaces, Gitpod)
+   - Subscription management
+   - Cloud storage or sync
+   - User authentication systems
+   
+2. **Marketplace Features**
+   - Plugin marketplaces
+   - Paid tool distribution
+   - User accounts/profiles
+   - Payment processing
+   
+3. **Scope Expansion**
+   - VDI infrastructure
+   - Remote development servers
+   - Container orchestration
+   - CI/CD pipelines
+   
+4. **Non-Installer Features**
+   - Code generation/scaffolding
+   - Project boilerplate creation
+   - Development workflow automation
+   - Build system management
+
+### 🤔 QUESTIONABLE Tasks (Verify before proceeding):
+- Features that might enable core functionality but seem complex
+- Integrations that expand beyond local machine setup
+- Features requiring ongoing maintenance or external services
+
+**If uncertain**: Ask user - "This task involves [feature]. Does this align with HatStart's vision as a local developer toolkit installer?"
+
+### Task Alignment Examples
+
+**Example 1: "Add Docker Desktop installation support"**
+✅ ALIGNED - Docker is a local development tool that developers need
+
+**Example 2: "Create cloud-based tool sync service"**
+❌ MISALIGNED - Involves cloud infrastructure beyond local installation
+
+**Example 3: "Add Ruby version management via rbenv"**
+✅ ALIGNED - Local version management for a programming language
+
+**Example 4: "Build plugin marketplace with payments"**
+❌ MISALIGNED - Marketplace and payments beyond core installer scope
+
+**Example 5: "Generate project boilerplate code"**
+❌ MISALIGNED - Code generation beyond environment setup
+
+**Example 6: "Add Rust toolchain installer"**
+✅ ALIGNED - Programming language toolchain installation
+
+**Example 7: "Create user profiles with tool preferences"**
+❌ MISALIGNED - User accounts beyond local configuration
+
+**Example 8: "Support private company tool manifests"**
+✅ ALIGNED - Enables extensibility without cloud dependencies
 
 If misaligned, STOP and notify user before proceeding.
 
