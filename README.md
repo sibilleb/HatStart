@@ -28,18 +28,19 @@ HatStart is an **open-source, cross-platform developer toolkit installer** that 
 ## 📊 Project Status
 
 **Current Version**: Development (Pre-release)  
-**Progress**: 12 of 25 planned features complete (48%)
+**Progress**: 13 of 25 planned features complete (52%)
 
 ### Recently Completed ✅
+- Conflict Resolution UI (MVP - warns about tool conflicts)
 - Tool Installation Detection (shows installed status & versions)
 - Version Management System (Mise, NVM, PyEnv, ASDF, RBenv)
 - IDE Workspace Generation (VS Code/Cursor configuration)
 - Job Role Assessment System
 - Cross-platform Installer Framework
 - MVP Simplification (removed 49,000+ lines of over-engineered code)
+- Expanded Tool Catalog (63 tools across 6 categories)
 
 ### In Progress 🔄
-- Conflict Resolution UI
 - Real-time Progress Tracking
 - Platform-specific Enhancements
 
@@ -72,6 +73,27 @@ HatStart can set up a complete full-stack environment including:
 - VS Code with relevant extensions
 - PostgreSQL and Redis
 - All configured and ready to use!
+
+### 📦 Available Tools (63 total)
+
+**IDEs** (2): VS Code, Cursor
+
+**Languages** (7): Node.js, Python, Go, Rust, Java, Ruby, PHP
+
+**Frameworks** (13): React, Vue.js, Angular, Next.js, Nuxt.js, SvelteKit, NestJS, Django, FastAPI, Flask, Laravel, Rails, Tailwind CSS, PostCSS
+
+**Databases** (5): PostgreSQL, MySQL, MongoDB, Redis, SQLite
+
+**DevOps & Infrastructure** (26): 
+- Containers: Docker, Podman, Kubernetes, Minikube
+- Cloud CLIs: AWS CLI, Azure CLI, Google Cloud SDK
+- HashiCorp: Terraform, Vault, Packer, Consul, Nomad
+- CI/CD: Helm, Ansible
+- Testing: Vitest, Jest, Playwright, Cypress, K6
+- Monitoring: Prometheus, Grafana
+- Security: Semgrep, Bandit, Checkov, SOPS, age
+
+**Productivity & Build Tools** (10): Git, GitHub CLI, Postman, Insomnia, HTTPie, Gradle, Maven, Yarn, pnpm, Composer
 
 ## 🤝 Contributing
 

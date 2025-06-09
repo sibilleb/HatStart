@@ -30,7 +30,7 @@
     {
       "id": "git",
       "name": "Git",
-      "category": "productivity",
+      "category": "developer-tools",
       "description": "Distributed version control system",
       "packageNames": {
         "darwin": "git",
@@ -42,7 +42,7 @@
     {
       "id": "docker",
       "name": "Docker",
-      "category": "devops",
+      "category": "containers",
       "description": "Container platform",
       "packageNames": {
         "darwin": "docker",
@@ -58,8 +58,8 @@
     {
       "id": "vscode",
       "name": "Visual Studio Code",
-      "category": "productivity",
-      "description": "Lightweight code editor",
+      "category": "ide",
+      "description": "Popular open-source code editor by Microsoft",
       "packageNames": {
         "darwin": "visual-studio-code",
         "win32": "vscode",
@@ -114,7 +114,7 @@
     {
       "id": "kubectl",
       "name": "Kubernetes CLI",
-      "category": "devops",
+      "category": "containers",
       "description": "Command line tool for Kubernetes",
       "packageNames": {
         "darwin": "kubernetes-cli",
@@ -127,7 +127,7 @@
     {
       "id": "terraform",
       "name": "Terraform",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Infrastructure as Code tool",
       "packageNames": {
         "darwin": "terraform",
@@ -136,6 +136,831 @@
       },
       "verification": "terraform --version",
       "recommendedFor": ["devops"]
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "category": "ide",
+      "description": "AI-powered code editor with built-in chat and MCP server support",
+      "packageNames": {
+        "darwin": "cursor",
+        "win32": "cursor",
+        "linux": "cursor"
+      },
+      "customInstall": {
+        "darwin": "brew install --cask cursor",
+        "win32": "winget install cursor.cursor",
+        "linux": "wget -O cursor.AppImage 'https://downloader.cursor.sh/linux/appImage/x64' && chmod +x cursor.AppImage"
+      },
+      "verification": "cursor --version",
+      "recommendedFor": ["frontend", "backend", "fullstack", "ai-development", "datascience"]
+    },
+    {
+      "id": "java",
+      "name": "Java (OpenJDK)",
+      "category": "language",
+      "description": "Java development kit (OpenJDK)",
+      "packageNames": {
+        "darwin": "openjdk",
+        "win32": "openjdk",
+        "linux": "openjdk-17-jdk"
+      },
+      "verification": "java --version",
+      "recommendedFor": ["backend", "enterprise"]
+    },
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "category": "language",
+      "description": "Dynamic programming language with focus on simplicity",
+      "packageNames": {
+        "darwin": "ruby",
+        "win32": "ruby",
+        "linux": "ruby-full"
+      },
+      "verification": "ruby --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "php",
+      "name": "PHP",
+      "category": "language",
+      "description": "Popular server-side scripting language",
+      "packageNames": {
+        "darwin": "php",
+        "win32": "php",
+        "linux": "php"
+      },
+      "verification": "php --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "category": "database",
+      "description": "Popular open-source relational database",
+      "packageNames": {
+        "darwin": "mysql",
+        "win32": "mysql",
+        "linux": "mysql-server"
+      },
+      "verification": "mysql --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "mariadb",
+      "name": "MariaDB",
+      "category": "database",
+      "description": "MySQL-compatible open-source database",
+      "packageNames": {
+        "darwin": "mariadb",
+        "win32": "mariadb",
+        "linux": "mariadb-server"
+      },
+      "verification": "mariadb --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "category": "database", 
+      "description": "NoSQL document database",
+      "packageNames": {
+        "darwin": "mongodb-community",
+        "win32": "mongodb",
+        "linux": "mongodb"
+      },
+      "customInstall": {
+        "darwin": "brew tap mongodb/brew && brew install mongodb-community"
+      },
+      "verification": "mongod --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "category": "database",
+      "description": "In-memory data structure store",
+      "packageNames": {
+        "darwin": "redis",
+        "win32": "redis",
+        "linux": "redis-server"
+      },
+      "verification": "redis-server --version",
+      "recommendedFor": ["backend", "fullstack", "devops"]
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "category": "database",
+      "description": "Lightweight embedded database",
+      "packageNames": {
+        "darwin": "sqlite",
+        "win32": "sqlite",
+        "linux": "sqlite3"
+      },
+      "verification": "sqlite3 --version",
+      "recommendedFor": ["backend", "mobile", "embedded"]
+    },
+    {
+      "id": "helm",
+      "name": "Helm",
+      "category": "containers",
+      "description": "Kubernetes package manager",
+      "packageNames": {
+        "darwin": "helm",
+        "win32": "kubernetes-helm",
+        "linux": "helm"
+      },
+      "verification": "helm version",
+      "recommendedFor": ["devops", "kubernetes"]
+    },
+    {
+      "id": "ansible",
+      "name": "Ansible",
+      "category": "infrastructure",
+      "description": "Automation and configuration management tool",
+      "packageNames": {
+        "darwin": "ansible",
+        "win32": "ansible",
+        "linux": "ansible"
+      },
+      "verification": "ansible --version",
+      "recommendedFor": ["devops", "sysadmin"]
+    },
+    {
+      "id": "vault",
+      "name": "HashiCorp Vault",
+      "category": "infrastructure",
+      "description": "Secrets management and data protection",
+      "packageNames": {
+        "darwin": "vault",
+        "win32": "vault",
+        "linux": "vault"
+      },
+      "verification": "vault --version",
+      "recommendedFor": ["devops", "security"]
+    },
+    {
+      "id": "vitest",
+      "name": "Vitest",
+      "category": "testing",
+      "description": "Fast Vite-native test framework",
+      "packageNames": {
+        "darwin": "vitest",
+        "win32": "vitest",
+        "linux": "vitest"
+      },
+      "customInstall": {
+        "darwin": "npm install -g vitest",
+        "win32": "npm install -g vitest",
+        "linux": "npm install -g vitest"
+      },
+      "verification": "vitest --version",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "jest",
+      "name": "Jest",
+      "category": "testing",
+      "description": "JavaScript testing framework",
+      "packageNames": {
+        "darwin": "jest",
+        "win32": "jest",
+        "linux": "jest"
+      },
+      "customInstall": {
+        "darwin": "npm install -g jest",
+        "win32": "npm install -g jest",
+        "linux": "npm install -g jest"
+      },
+      "verification": "jest --version",
+      "recommendedFor": ["frontend", "backend", "fullstack"]
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "category": "testing",
+      "description": "Cross-browser end-to-end testing",
+      "packageNames": {
+        "darwin": "playwright",
+        "win32": "playwright",
+        "linux": "playwright"
+      },
+      "customInstall": {
+        "darwin": "npm install -g @playwright/test && npx playwright install",
+        "win32": "npm install -g @playwright/test && npx playwright install",
+        "linux": "npm install -g @playwright/test && npx playwright install"
+      },
+      "verification": "npx playwright --version",
+      "recommendedFor": ["frontend", "fullstack", "qa"]
+    },
+    {
+      "id": "django",
+      "name": "Django",
+      "category": "web-frameworks",
+      "description": "High-level Python web framework",
+      "packageNames": {
+        "darwin": "django",
+        "win32": "django",
+        "linux": "django"
+      },
+      "customInstall": {
+        "darwin": "pip3 install django",
+        "win32": "pip install django",
+        "linux": "pip3 install django"
+      },
+      "verification": "django-admin --version",
+      "recommendedFor": ["backend", "fullstack", "python"]
+    },
+    {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "web-frameworks",
+      "description": "Modern, fast Python web framework for building APIs",
+      "packageNames": {
+        "darwin": "fastapi",
+        "win32": "fastapi",
+        "linux": "fastapi"
+      },
+      "customInstall": {
+        "darwin": "pip3 install fastapi uvicorn",
+        "win32": "pip install fastapi uvicorn",
+        "linux": "pip3 install fastapi uvicorn"
+      },
+      "verification": "pip3 show fastapi",
+      "recommendedFor": ["backend", "api", "python"]
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "category": "web-frameworks",
+      "description": "JavaScript library for building user interfaces",
+      "packageNames": {
+        "darwin": "react",
+        "win32": "react",
+        "linux": "react"
+      },
+      "customInstall": {
+        "darwin": "npm install -g create-react-app",
+        "win32": "npm install -g create-react-app",
+        "linux": "npm install -g create-react-app"
+      },
+      "verification": "npm list -g create-react-app",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "vue",
+      "name": "Vue.js",
+      "category": "web-frameworks",
+      "description": "Progressive JavaScript framework",
+      "packageNames": {
+        "darwin": "vue",
+        "win32": "vue",
+        "linux": "vue"
+      },
+      "customInstall": {
+        "darwin": "npm install -g @vue/cli",
+        "win32": "npm install -g @vue/cli",
+        "linux": "npm install -g @vue/cli"
+      },
+      "verification": "vue --version",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "laravel",
+      "name": "Laravel",
+      "category": "web-frameworks",
+      "description": "PHP web application framework",
+      "packageNames": {
+        "darwin": "laravel",
+        "win32": "laravel",
+        "linux": "laravel"
+      },
+      "customInstall": {
+        "darwin": "composer global require laravel/installer",
+        "win32": "composer global require laravel/installer",
+        "linux": "composer global require laravel/installer"
+      },
+      "verification": "laravel --version",
+      "recommendedFor": ["backend", "fullstack", "php"]
+    },
+    {
+      "id": "rails",
+      "name": "Ruby on Rails",
+      "category": "web-frameworks",
+      "description": "Full-stack web application framework for Ruby",
+      "packageNames": {
+        "darwin": "rails",
+        "win32": "rails",
+        "linux": "rails"
+      },
+      "customInstall": {
+        "darwin": "gem install rails",
+        "win32": "gem install rails",
+        "linux": "gem install rails"
+      },
+      "verification": "rails --version",
+      "recommendedFor": ["backend", "fullstack", "ruby"]
+    },
+    {
+      "id": "semgrep",
+      "name": "Semgrep",
+      "category": "testing",
+      "description": "Static analysis tool for finding bugs and security issues",
+      "packageNames": {
+        "darwin": "semgrep",
+        "win32": "semgrep",
+        "linux": "semgrep"
+      },
+      "customInstall": {
+        "darwin": "brew install semgrep",
+        "win32": "pip install semgrep",
+        "linux": "pip3 install semgrep"
+      },
+      "verification": "semgrep --version",
+      "recommendedFor": ["security", "devops", "backend"]
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "category": "testing",
+      "description": "Security linter for Python code",
+      "packageNames": {
+        "darwin": "bandit",
+        "win32": "bandit",
+        "linux": "bandit"
+      },
+      "customInstall": {
+        "darwin": "pip3 install bandit",
+        "win32": "pip install bandit",
+        "linux": "pip3 install bandit"
+      },
+      "verification": "bandit --version",
+      "recommendedFor": ["python", "security", "backend"]
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "web-frameworks",
+      "description": "React framework for production with SSR/SSG",
+      "packageNames": {
+        "darwin": "nextjs",
+        "win32": "nextjs",
+        "linux": "nextjs"
+      },
+      "customInstall": {
+        "darwin": "npm install -g create-next-app",
+        "win32": "npm install -g create-next-app",
+        "linux": "npm install -g create-next-app"
+      },
+      "verification": "npx next --version",
+      "recommendedFor": ["frontend", "fullstack", "react"]
+    },
+    {
+      "id": "angular",
+      "name": "Angular",
+      "category": "web-frameworks",
+      "description": "Platform for building mobile and desktop web applications",
+      "packageNames": {
+        "darwin": "angular-cli",
+        "win32": "angular-cli",
+        "linux": "angular-cli"
+      },
+      "customInstall": {
+        "darwin": "npm install -g @angular/cli",
+        "win32": "npm install -g @angular/cli",
+        "linux": "npm install -g @angular/cli"
+      },
+      "verification": "ng version",
+      "recommendedFor": ["frontend", "fullstack", "enterprise"]
+    },
+    {
+      "id": "svelte",
+      "name": "SvelteKit",
+      "category": "web-frameworks",
+      "description": "Cybernetically enhanced web apps",
+      "packageNames": {
+        "darwin": "svelte",
+        "win32": "svelte",
+        "linux": "svelte"
+      },
+      "customInstall": {
+        "darwin": "npm install -g create-svelte",
+        "win32": "npm install -g create-svelte",
+        "linux": "npm install -g create-svelte"
+      },
+      "verification": "npm list -g create-svelte",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "nestjs",
+      "name": "NestJS",
+      "category": "web-frameworks",
+      "description": "Progressive Node.js framework for scalable applications",
+      "packageNames": {
+        "darwin": "nestjs",
+        "win32": "nestjs",
+        "linux": "nestjs"
+      },
+      "customInstall": {
+        "darwin": "npm install -g @nestjs/cli",
+        "win32": "npm install -g @nestjs/cli",
+        "linux": "npm install -g @nestjs/cli"
+      },
+      "verification": "nest --version",
+      "recommendedFor": ["backend", "api", "enterprise"]
+    },
+    {
+      "id": "flask",
+      "name": "Flask",
+      "category": "web-frameworks",
+      "description": "Lightweight Python web framework",
+      "packageNames": {
+        "darwin": "flask",
+        "win32": "flask",
+        "linux": "flask"
+      },
+      "customInstall": {
+        "darwin": "pip3 install flask",
+        "win32": "pip install flask",
+        "linux": "pip3 install flask"
+      },
+      "verification": "python3 -m flask --version",
+      "recommendedFor": ["backend", "api", "python"]
+    },
+    {
+      "id": "tailwindcss",
+      "name": "Tailwind CSS",
+      "category": "developer-tools",
+      "description": "Utility-first CSS framework",
+      "packageNames": {
+        "darwin": "tailwindcss",
+        "win32": "tailwindcss",
+        "linux": "tailwindcss"
+      },
+      "customInstall": {
+        "darwin": "npm install -g tailwindcss",
+        "win32": "npm install -g tailwindcss",
+        "linux": "npm install -g tailwindcss"
+      },
+      "verification": "npx tailwindcss --version",
+      "recommendedFor": ["frontend", "fullstack", "design"]
+    },
+    {
+      "id": "postcss",
+      "name": "PostCSS",
+      "category": "developer-tools",
+      "description": "Tool for transforming CSS with JavaScript",
+      "packageNames": {
+        "darwin": "postcss",
+        "win32": "postcss",
+        "linux": "postcss"
+      },
+      "customInstall": {
+        "darwin": "npm install -g postcss postcss-cli",
+        "win32": "npm install -g postcss postcss-cli",
+        "linux": "npm install -g postcss postcss-cli"
+      },
+      "verification": "npx postcss --version",
+      "recommendedFor": ["frontend", "css"]
+    },
+    {
+      "id": "awscli",
+      "name": "AWS CLI",
+      "category": "cloud",
+      "description": "Amazon Web Services command line interface",
+      "packageNames": {
+        "darwin": "awscli",
+        "win32": "awscli",
+        "linux": "awscli"
+      },
+      "verification": "aws --version",
+      "recommendedFor": ["devops", "cloud", "backend"]
+    },
+    {
+      "id": "azure-cli",
+      "name": "Azure CLI",
+      "category": "cloud",
+      "description": "Microsoft Azure command line interface",
+      "packageNames": {
+        "darwin": "azure-cli",
+        "win32": "azure-cli",
+        "linux": "azure-cli"
+      },
+      "verification": "az --version",
+      "recommendedFor": ["devops", "cloud", "backend"]
+    },
+    {
+      "id": "gcloud",
+      "name": "Google Cloud SDK",
+      "category": "cloud",
+      "description": "Google Cloud Platform command line tools",
+      "packageNames": {
+        "darwin": "google-cloud-sdk",
+        "win32": "gcloudsdk",
+        "linux": "google-cloud-sdk"
+      },
+      "customInstall": {
+        "darwin": "brew install --cask google-cloud-sdk"
+      },
+      "verification": "gcloud --version",
+      "recommendedFor": ["devops", "cloud", "backend"]
+    },
+    {
+      "id": "gh",
+      "name": "GitHub CLI",
+      "category": "developer-tools",
+      "description": "GitHub's official command line tool",
+      "packageNames": {
+        "darwin": "gh",
+        "win32": "gh",
+        "linux": "gh"
+      },
+      "verification": "gh --version",
+      "recommendedFor": ["frontend", "backend", "fullstack", "devops"]
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "category": "developer-tools",
+      "description": "API platform for building and testing APIs",
+      "packageNames": {
+        "darwin": "postman",
+        "win32": "postman",
+        "linux": "postman"
+      },
+      "customInstall": {
+        "darwin": "brew install --cask postman"
+      },
+      "verification": "test -d /Applications/Postman.app || which postman",
+      "recommendedFor": ["backend", "api", "fullstack"]
+    },
+    {
+      "id": "insomnia",
+      "name": "Insomnia",
+      "category": "developer-tools",
+      "description": "Open source API client",
+      "packageNames": {
+        "darwin": "insomnia",
+        "win32": "insomnia",
+        "linux": "insomnia"
+      },
+      "customInstall": {
+        "darwin": "brew install --cask insomnia",
+        "win32": "winget install Kong.Insomnia"
+      },
+      "verification": "test -d /Applications/Insomnia.app || which insomnia",
+      "recommendedFor": ["backend", "api", "fullstack"]
+    },
+    {
+      "id": "httpie",
+      "name": "HTTPie",
+      "category": "developer-tools",
+      "description": "Modern command-line HTTP client",
+      "packageNames": {
+        "darwin": "httpie",
+        "win32": "httpie",
+        "linux": "httpie"
+      },
+      "verification": "http --version",
+      "recommendedFor": ["backend", "api", "devops"]
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "category": "monitoring",
+      "description": "Monitoring system and time series database",
+      "packageNames": {
+        "darwin": "prometheus",
+        "win32": "prometheus",
+        "linux": "prometheus"
+      },
+      "verification": "prometheus --version",
+      "recommendedFor": ["devops", "monitoring", "kubernetes"]
+    },
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "category": "monitoring",
+      "description": "Open source analytics and monitoring solution",
+      "packageNames": {
+        "darwin": "grafana",
+        "win32": "grafana",
+        "linux": "grafana"
+      },
+      "verification": "grafana-server --version",
+      "recommendedFor": ["devops", "monitoring", "data"]
+    },
+    {
+      "id": "packer",
+      "name": "HashiCorp Packer",
+      "category": "infrastructure",
+      "description": "Build automated machine images",
+      "packageNames": {
+        "darwin": "packer",
+        "win32": "packer",
+        "linux": "packer"
+      },
+      "verification": "packer --version",
+      "recommendedFor": ["devops", "infrastructure"]
+    },
+    {
+      "id": "consul",
+      "name": "HashiCorp Consul",
+      "category": "containers",
+      "description": "Service mesh and service discovery",
+      "packageNames": {
+        "darwin": "consul",
+        "win32": "consul",
+        "linux": "consul"
+      },
+      "verification": "consul --version",
+      "recommendedFor": ["devops", "microservices"]
+    },
+    {
+      "id": "nomad",
+      "name": "HashiCorp Nomad",
+      "category": "containers",
+      "description": "Simple and flexible workload orchestrator",
+      "packageNames": {
+        "darwin": "nomad",
+        "win32": "nomad",
+        "linux": "nomad"
+      },
+      "verification": "nomad --version",
+      "recommendedFor": ["devops", "orchestration"]
+    },
+    {
+      "id": "cypress",
+      "name": "Cypress",
+      "category": "testing",
+      "description": "Fast, easy and reliable testing for anything that runs in a browser",
+      "packageNames": {
+        "darwin": "cypress",
+        "win32": "cypress",
+        "linux": "cypress"
+      },
+      "customInstall": {
+        "darwin": "npm install -g cypress",
+        "win32": "npm install -g cypress",
+        "linux": "npm install -g cypress"
+      },
+      "verification": "npx cypress --version",
+      "recommendedFor": ["frontend", "qa", "e2e"]
+    },
+    {
+      "id": "k6",
+      "name": "K6",
+      "category": "testing",
+      "description": "Modern load testing tool",
+      "packageNames": {
+        "darwin": "k6",
+        "win32": "k6",
+        "linux": "k6"
+      },
+      "verification": "k6 version",
+      "recommendedFor": ["devops", "performance", "testing"]
+    },
+    {
+      "id": "gradle",
+      "name": "Gradle",
+      "category": "package-managers",
+      "description": "Build automation tool for Java and more",
+      "packageNames": {
+        "darwin": "gradle",
+        "win32": "gradle",
+        "linux": "gradle"
+      },
+      "verification": "gradle --version",
+      "recommendedFor": ["java", "android", "backend"]
+    },
+    {
+      "id": "maven",
+      "name": "Apache Maven",
+      "category": "package-managers",
+      "description": "Software project management tool for Java",
+      "packageNames": {
+        "darwin": "maven",
+        "win32": "maven",
+        "linux": "maven"
+      },
+      "verification": "mvn --version",
+      "recommendedFor": ["java", "backend", "enterprise"]
+    },
+    {
+      "id": "yarn",
+      "name": "Yarn",
+      "category": "package-managers",
+      "description": "Fast, reliable, and secure dependency management",
+      "packageNames": {
+        "darwin": "yarn",
+        "win32": "yarn",
+        "linux": "yarn"
+      },
+      "verification": "yarn --version",
+      "recommendedFor": ["frontend", "backend", "fullstack"]
+    },
+    {
+      "id": "pnpm",
+      "name": "pnpm",
+      "category": "package-managers",
+      "description": "Fast, disk space efficient package manager",
+      "packageNames": {
+        "darwin": "pnpm",
+        "win32": "pnpm",
+        "linux": "pnpm"
+      },
+      "customInstall": {
+        "darwin": "npm install -g pnpm",
+        "win32": "npm install -g pnpm",
+        "linux": "npm install -g pnpm"
+      },
+      "verification": "pnpm --version",
+      "recommendedFor": ["frontend", "backend", "fullstack"]
+    },
+    {
+      "id": "composer",
+      "name": "Composer",
+      "category": "package-managers",
+      "description": "Dependency manager for PHP",
+      "packageNames": {
+        "darwin": "composer",
+        "win32": "composer",
+        "linux": "composer"
+      },
+      "verification": "composer --version",
+      "recommendedFor": ["php", "backend", "fullstack"]
+    },
+    {
+      "id": "podman",
+      "name": "Podman",
+      "category": "containers",
+      "description": "Daemonless container engine",
+      "packageNames": {
+        "darwin": "podman",
+        "win32": "podman-desktop",
+        "linux": "podman"
+      },
+      "verification": "podman --version",
+      "recommendedFor": ["devops", "containers", "kubernetes"]
+    },
+    {
+      "id": "minikube",
+      "name": "Minikube",
+      "category": "containers",
+      "description": "Local Kubernetes for easy development",
+      "packageNames": {
+        "darwin": "minikube",
+        "win32": "minikube",
+        "linux": "minikube"
+      },
+      "verification": "minikube version",
+      "recommendedFor": ["devops", "kubernetes", "backend"]
+    },
+    {
+      "id": "checkov",
+      "name": "Checkov",
+      "category": "infrastructure",
+      "description": "Static analysis for infrastructure as code",
+      "packageNames": {
+        "darwin": "checkov",
+        "win32": "checkov",
+        "linux": "checkov"
+      },
+      "customInstall": {
+        "darwin": "pip3 install checkov",
+        "win32": "pip install checkov",
+        "linux": "pip3 install checkov"
+      },
+      "verification": "checkov --version",
+      "recommendedFor": ["devops", "security", "infrastructure"]
+    },
+    {
+      "id": "sops",
+      "name": "SOPS",
+      "category": "infrastructure",
+      "description": "Simple and flexible tool for managing secrets",
+      "packageNames": {
+        "darwin": "sops",
+        "win32": "sops",
+        "linux": "sops"
+      },
+      "verification": "sops --version",
+      "recommendedFor": ["devops", "security", "gitops"]
+    },
+    {
+      "id": "age",
+      "name": "age",
+      "category": "testing",
+      "description": "Simple, modern and secure file encryption tool",
+      "packageNames": {
+        "darwin": "age",
+        "win32": "age",
+        "linux": "age"
+      },
+      "verification": "age --version",
+      "recommendedFor": ["security", "devops", "encryption"]
     }
   ]
 }

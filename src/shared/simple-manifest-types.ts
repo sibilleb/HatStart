@@ -26,14 +26,20 @@ export interface SimpleTool {
 }
 
 /**
- * Tool categories - keep it simple
+ * Tool categories - organized for better UI clarity
  */
 export type ToolCategory = 
   | 'language'
-  | 'framework' 
+  | 'ide'
   | 'database'
-  | 'devops'
-  | 'productivity'
+  | 'web-frameworks'
+  | 'containers'
+  | 'infrastructure'
+  | 'cloud'
+  | 'testing'
+  | 'monitoring'
+  | 'package-managers'
+  | 'developer-tools'
   | 'other';
 
 /**

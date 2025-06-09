@@ -32,6 +32,10 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     // Installation APIs
     installTools: (toolIds) => electron_1.ipcRenderer.invoke('install-tools', toolIds),
     checkPrerequisites: () => electron_1.ipcRenderer.invoke('check-prerequisites'),
+    // Tool detection APIs
+    detectTools: (toolIds) => electron_1.ipcRenderer.invoke('detect-tools', toolIds),
+    detectSingleTool: (toolId) => electron_1.ipcRenderer.invoke('detect-tool', toolId),
+    clearDetectionCache: (toolId) => electron_1.ipcRenderer.invoke('clear-detection-cache', toolId),
     // Progress tracking APIs
     onInstallationProgress: (callback) => {
         const listener = (_event, progress) => callback(progress);
