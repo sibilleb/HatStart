@@ -1,11 +1,15 @@
-# HatStart 🎩
-
-> One-click developer environment setup for Windows, macOS, and Linux
-
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Electron](https://img.shields.io/badge/Electron-36-9FEAF9)](https://www.electronjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB)](https://reactjs.org/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+<div align="center">
+  <img src="docs/assets/hatstart-logo.png" alt="HatStart Logo" width="300" />
+  
+  # HatStart
+  
+  > One-click developer environment setup for Windows, macOS, and Linux
+  
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+  [![Electron](https://img.shields.io/badge/Electron-36-9FEAF9)](https://www.electronjs.org/)
+  [![React](https://img.shields.io/badge/React-19-61DAFB)](https://reactjs.org/)
+  [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+</div>
 
 ## 🚀 What is HatStart?
 
