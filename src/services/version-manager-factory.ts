@@ -34,9 +34,9 @@ export class VersionManagerFactory implements IVersionManagerFactory {
     const platform = os.platform();
     switch (platform) {
       case 'darwin':
-        return 'macos';
+        return 'darwin';
       case 'win32':
-        return 'windows';
+        return 'win32';
       case 'linux':
         return 'linux';
       default:
@@ -52,7 +52,7 @@ export class VersionManagerFactory implements IVersionManagerFactory {
       case 'arm64':
         return 'arm64';
       case 'ia32':
-        return 'x86';
+        return 'x64'; // Map 32-bit to x64 as fallback
       case 'arm':
         return 'arm64'; // Map ARM to ARM64 as closest match
       default:
@@ -139,7 +139,7 @@ export class VersionManagerFactory implements IVersionManagerFactory {
    */
   public getRecommendedManager(tool: VersionedTool): VersionManagerType {
     // Platform-specific recommendations
-    if (this.platform === 'windows') {
+    if (this.platform === 'win32') {
       switch (tool) {
         case 'node':
           return 'nvm'; // nvm-windows
@@ -190,19 +190,19 @@ export class VersionManagerFactory implements IVersionManagerFactory {
     
     // Platform-specific support matrix
     const supportMatrix: Record<VersionManagerType, Platform[]> = {
-      mise: ['macos', 'linux', 'windows'],
-      asdf: ['macos', 'linux'], // Unix only
-      proto: ['macos', 'linux', 'windows'],
-      nvm: ['macos', 'linux', 'windows'], // Different implementations
-      pyenv: ['macos', 'linux', 'windows'], // pyenv-win for Windows
-      rbenv: ['macos', 'linux'], // Unix only
-      jenv: ['macos', 'linux'], // Unix only
-      rustup: ['macos', 'linux', 'windows'],
-      gvm: ['macos', 'linux'], // Unix only
-      volta: ['macos', 'linux', 'windows'],
-      fnm: ['macos', 'linux', 'windows'],
-      jabba: ['macos', 'linux', 'windows'],
-      sdkman: ['macos', 'linux'], // Unix only (requires bash/zsh)
+      mise: ['darwin', 'linux', 'win32'],
+      asdf: ['darwin', 'linux'], // Unix only
+      proto: ['darwin', 'linux', 'win32'],
+      nvm: ['darwin', 'linux', 'win32'], // Different implementations
+      pyenv: ['darwin', 'linux', 'win32'], // pyenv-win for Windows
+      rbenv: ['darwin', 'linux'], // Unix only
+      jenv: ['darwin', 'linux'], // Unix only
+      rustup: ['darwin', 'linux', 'win32'],
+      gvm: ['darwin', 'linux'], // Unix only
+      volta: ['darwin', 'linux', 'win32'],
+      fnm: ['darwin', 'linux', 'win32'],
+      jabba: ['darwin', 'linux', 'win32'],
+      sdkman: ['darwin', 'linux'], // Unix only (requires bash/zsh)
     };
 
     const supportedPlatforms = supportMatrix[type];

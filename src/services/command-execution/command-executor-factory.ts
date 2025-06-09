@@ -75,10 +75,10 @@ export class CommandExecutorFactory implements ICommandExecutorFactory {
     let executor: ICommandExecutor;
 
     switch (targetPlatform) {
-      case 'windows':
+      case 'win32':
         executor = new WindowsCommandExecutor();
         break;
-      case 'macos':
+      case 'darwin':
       case 'linux':
         executor = new UnixCommandExecutor();
         break;
@@ -110,7 +110,7 @@ export class CommandExecutorFactory implements ICommandExecutorFactory {
    * Get available platforms
    */
   public getAvailablePlatforms(): Platform[] {
-    return ['windows', 'macos', 'linux'];
+    return ['win32', 'darwin', 'linux'];
   }
 
   /**
@@ -166,9 +166,9 @@ export class CommandExecutorFactory implements ICommandExecutorFactory {
     
     switch (osPlatform) {
       case 'win32':
-        return 'windows';
+        return 'win32';
       case 'darwin':
-        return 'macos';
+        return 'darwin';
       case 'linux':
         return 'linux';
       default:

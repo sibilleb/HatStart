@@ -19,6 +19,23 @@ import type {
 // Import the shared ElectronAPI type
 import '../types/electron.d.ts';
 
+// Map detection categories to UI categories
+const categoryMap: Record<string, UIToolCategory> = {
+    'programming-languages': 'programming-languages',
+    'web-frameworks': 'frameworks',
+    'mobile-frameworks': 'frameworks',
+    'backend-frameworks': 'frameworks',
+    'databases': 'databases',
+    'version-control': 'version-control',
+    'containers': 'containerization',
+    'cloud-tools': 'cloud-tools',
+    'ides-editors': 'code-editors',
+    'testing-tools': 'frameworks',
+    'security-tools': 'security',
+    'build-tools': 'frameworks',
+    'package-managers': 'frameworks'
+};
+
 /**
  * System Detection Service
  * Provides interface to system detection functionality for the UI via Electron IPC
@@ -149,7 +166,7 @@ export class SystemDetectionService {
         );
 
         return {
-            id: uiCategory.id,
+            id: uiCategory.id as ToolCategory,
             name: uiCategory.name,
             description: uiCategory.description,
             icon: uiCategory.icon,
@@ -176,9 +193,9 @@ export class SystemDetectionService {
             description: description,
             isInstalled: result.found,
             isRecommended: false, // Simple MVP - no recommendations yet
-            category: category,
+            category: categoryMap[category] || 'frameworks',
             version: result.version,
-            tags: [category],
+            tags: [categoryMap[category] || 'frameworks'],
             size: '50MB', // Default estimate
             installationTime: '1 min', // Default 1 minute as string
             dependencies: [],
@@ -274,7 +291,7 @@ export class SystemDetectionService {
     /**
      * Determine if a tool should be recommended
      */
-    private isToolRecommended(toolName: string, category: ToolCategory, isInstalled: boolean): boolean {
+    /* private isToolRecommended(toolName: string, category: ToolCategory, isInstalled: boolean): boolean {
         // If already installed, it's not a recommendation
         if (isInstalled) {
             return false;
@@ -297,12 +314,12 @@ export class SystemDetectionService {
         return categoryRecommendations.some(rec => 
             toolName.toLowerCase().includes(rec.toLowerCase())
         );
-    }
+    } */
 
     /**
      * Get additional tools that might not be detected but are popular options
      */
-    private getAdditionalToolsForCategory(category: ToolCategory): Tool[] {
+    /* private getAdditionalToolsForCategory(category: ToolCategory): Tool[] {
         const additionalTools: Partial<Record<ToolCategory, Partial<Tool>[]>> = {
             'programming-languages': [
                 { name: 'Rust', description: 'Systems programming language focused on safety and performance' },
@@ -362,7 +379,7 @@ export class SystemDetectionService {
             dependencies: [],
             platforms: ['windows', 'macos', 'linux'] as const,
         }));
-    }
+    } */
 
     /**
      * Generate unique tool ID
@@ -377,7 +394,7 @@ export class SystemDetectionService {
     /**
      * Get tool description based on name and category
      */
-    private getToolDescription(toolName: string, category: ToolCategory): string {
+    /* private getToolDescription(toolName: string, category: ToolCategory): string {
         const descriptions: Record<string, string> = {
             // Programming Languages
             'node': 'JavaScript runtime built on Chrome\'s V8 JavaScript engine',
@@ -402,7 +419,7 @@ export class SystemDetectionService {
         };
 
         return descriptions[toolName.toLowerCase()] || `${toolName} - A ${category.replace('-', ' ')} tool`;
-    }
+    } */
 
     /**
      * Get tool tags based on name and category

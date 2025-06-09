@@ -1,6 +1,5 @@
 import type {
-    SimpleManifest,
-    SimpleTool
+    SimpleManifest
 } from '../shared/simple-manifest-types';
 
 /**

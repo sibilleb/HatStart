@@ -35,7 +35,7 @@ export class JobRoleStorageService {
     options: StorageOptions = DEFAULT_STORAGE_OPTIONS
   ): Promise<boolean> {
     try {
-      const { fileName = DEFAULT_STORAGE_OPTIONS.fileName } = options;
+      const { fileName = DEFAULT_STORAGE_OPTIONS.fileName! } = options;
       const configsJson = JSON.stringify(configs, null, 2);
       
       // Use Electron IPC to save to file system

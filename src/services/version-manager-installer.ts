@@ -6,9 +6,8 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import type { Platform, Architecture, InstallationMethod } from '../shared/simple-manifest-types';
-import { SimpleInstaller } from './simple-installer';
 import type { CommandExecutionResult, InstallationOptions } from './installer-types';
-import type { VersionManagerType, VersionOperationResult, VersionedTool } from './version-manager-types';
+import type { VersionManagerType, IVersionOperationResult, VersionedTool } from './version-manager-types';
 
 const execAsync = promisify(exec);
 
@@ -68,7 +67,7 @@ export interface VersionManagerInstallConfig {
 /**
  * Version manager installation result
  */
-export interface VersionManagerInstallResult extends VersionOperationResult {
+export interface VersionManagerInstallResult extends IVersionOperationResult {
   /** Installation path */
   installationPath?: string;
   /** Configuration file path */
@@ -85,12 +84,12 @@ export interface VersionManagerInstallResult extends VersionOperationResult {
  * Version manager installer service
  */
 export class VersionManagerInstaller {
-  private categoryInstaller: CategoryInstaller;
+  // private categoryInstaller: CategoryInstaller;
   private platform: Platform;
   private architecture: Architecture;
 
   constructor(platform: Platform, architecture: Architecture) {
-    this.categoryInstaller = new CategoryInstaller();
+    // this.categoryInstaller = new CategoryInstaller();
     this.platform = platform;
     this.architecture = architecture;
   }
@@ -146,7 +145,7 @@ export class VersionManagerInstaller {
 
       // Collect warnings
       const warnings: string[] = [];
-      warnings.push(...setupResults.filter(r => !r.success).map(r => `Setup command failed: ${r.command}`));
+      warnings.push(...setupResults.filter(r => !r.success).map(r => `Setup command failed`));
       
       if (config.shellIntegration.required && !shellIntegrationResult) {
         warnings.push('shell integration setup failed');
@@ -158,13 +157,12 @@ export class VersionManagerInstaller {
         tool: type as VersionedTool,
         message: installResult.success ? `${type} installed successfully` : `Failed to install ${type}`,
         error: installResult.success ? undefined : installResult.stderr || 'Installation failed',
-        output: installResult.stdout,
         duration: Date.now() - startTime,
         timestamp: new Date(),
         installationPath: await this.getInstallationPath(type),
         configPath: await this.getConfigPath(type),
         shellIntegrationSetup: shellIntegrationResult,
-        setupCommandsExecuted: setupResults.map(r => r.command),
+        setupCommandsExecuted: [],
         warnings
       };
 
@@ -202,7 +200,7 @@ export class VersionManagerInstaller {
       );
       
       if (verificationConfig.expectedOutput) {
-        return result.success && result.stdout.includes(verificationConfig.expectedOutput);
+        return result.success && result.stdout?.includes(verificationConfig.expectedOutput) || false;
       }
       
       return result.success;

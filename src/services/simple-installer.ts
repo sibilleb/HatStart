@@ -7,8 +7,6 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { promises as fs } from 'fs';
-import * as path from 'path';
-import * as os from 'os';
 
 const execAsync = promisify(exec);
 
@@ -98,7 +96,7 @@ export class SimpleInstaller {
       return {
         success: false,
         tool: tool.id,
-        message: `Failed to install ${tool.name}: ${error.message}`,
+        message: `Failed to install ${tool.name}: ${error instanceof Error ? error.message : String(error)}`,
         error: error as Error
       };
     }
@@ -268,6 +266,6 @@ export async function installFromManifest(
 
     return installer.installMultiple(tools, onProgress);
   } catch (error) {
-    throw new Error(`Failed to load manifest: ${error.message}`);
+    throw new Error(`Failed to load manifest: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

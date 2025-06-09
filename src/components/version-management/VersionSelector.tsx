@@ -235,9 +235,6 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
                       
                       {/* Additional Info */}
                       <div className="flex items-center space-x-4 text-xs text-secondary-500 mt-1">
-                        {undefined && (
-                          <span>Released {undefined.toLocaleDateString()}</span>
-                        )}
                         {version.size && <span>{version.size}</span>}
                         {version.estimatedInstallTime && <span>~{version.estimatedInstallTime} to install</span>}
                       </div>
@@ -312,12 +309,6 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
                             <div className="flex justify-between">
                               <dt className="text-secondary-500">Path:</dt>
                               <dd className="text-secondary-900 font-mono text-xs truncate">{version.installPath}</dd>
-                            </div>
-                          )}
-                          {undefined && (
-                            <div className="flex justify-between">
-                              <dt className="text-secondary-500">End of Life:</dt>
-                              <dd className="text-secondary-900">{undefined.toLocaleDateString()}</dd>
                             </div>
                           )}
                         </dl>

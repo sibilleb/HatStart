@@ -208,7 +208,7 @@ export abstract class BaseCommandExecutor implements ICommandExecutor {
     options: CommandExecutionOptions,
     startTime: Date
   ): Promise<CommandExecutionResult> {
-    const fullCommand = this.buildFullCommand(command, args, options);
+    const fullCommand = this.buildFullCommand(command, args);
     const execOptions = this.buildExecOptions(options);
 
     try {
@@ -392,7 +392,7 @@ export abstract class BaseCommandExecutor implements ICommandExecutor {
   ): Promise<CommandExecutionResult> {
     const shell = options.shell === true ? this.getCurrentShell() : (options.shell as ShellType);
     const shellCommand = this.platformAdapter.getShellCommand(shell);
-    const fullCommand = this.buildFullCommand(command, args, options);
+    const fullCommand = this.buildFullCommand(command, args);
     
     const shellArgs = [...shellCommand.args, fullCommand];
     
@@ -431,7 +431,7 @@ export abstract class BaseCommandExecutor implements ICommandExecutor {
       return this.createErrorResult(error, command, args, startTime, endTime);
     }
 
-    const fullCommand = this.buildFullCommand(command, args, options);
+    const fullCommand = this.buildFullCommand(command, args);
     const elevatedArgs = [...elevationCommand.args, fullCommand];
     
     return this.executeWithSpawn(elevationCommand.command, elevatedArgs, options, startTime);

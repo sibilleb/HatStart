@@ -20,7 +20,7 @@ const execAsync = promisify(exec);
  * Windows platform adapter for command execution
  */
 export class WindowsPlatformAdapter implements IPlatformCommandAdapter {
-  public readonly platform: Platform = 'windows';
+  public readonly platform: Platform = 'win32';
   public readonly supportedShells: ShellType[] = ['powershell', 'cmd'];
   public readonly defaultShell: ShellType = 'powershell';
 

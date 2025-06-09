@@ -4,9 +4,9 @@
  * Replaces the complex CategoryInstaller with straightforward logic
  */
 
-import { SimpleInstaller, Tool, InstallResult, ProgressCallback } from './simple-installer';
-import type { SimpleManifest, SimpleTool } from '../shared/simple-manifest';
-import type { DetectionResult } from '../shared/detection-types';
+import { SimpleInstaller } from './simple-installer';
+import type { Tool, InstallResult, ProgressCallback } from './simple-installer';
+import type { SimpleManifest } from '../shared/simple-manifest';
 
 export interface InstallOptions {
   dryRun?: boolean;

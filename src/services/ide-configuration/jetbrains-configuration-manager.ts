@@ -130,16 +130,16 @@ export class JetBrainsConfigurationManager extends BaseIDEConfigurationManager {
 
     // Handle user settings
     if ('workbench' in settings && settings.workbench) {
-      Object.assign(result, this.convertToJetBrainsFormat(settings.workbench, 'ui'));
+      Object.assign(result, this.convertToJetBrainsFormat(settings.workbench as Record<string, ConfigValue>, 'ui'));
     }
     if ('files' in settings && settings.files) {
-      Object.assign(result, this.convertToJetBrainsFormat(settings.files, 'files'));
+      Object.assign(result, this.convertToJetBrainsFormat(settings.files as Record<string, ConfigValue>, 'files'));
     }
     if ('git' in settings && settings.git) {
-      Object.assign(result, this.convertToJetBrainsFormat(settings.git, 'vcs'));
+      Object.assign(result, this.convertToJetBrainsFormat(settings.git as Record<string, ConfigValue>, 'vcs'));
     }
     if ('search' in settings && settings.search) {
-      Object.assign(result, this.convertToJetBrainsFormat(settings.search, 'search'));
+      Object.assign(result, this.convertToJetBrainsFormat(settings.search as Record<string, ConfigValue>, 'search'));
     }
 
     return result;
