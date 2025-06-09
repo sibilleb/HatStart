@@ -28,7 +28,7 @@ describe('JobRoleRecommendationService', () => {
       name: 'Tool 1',
       description: 'Description for tool 1',
       category: 'code-editors' as ToolCategory,
-      platforms: ['windows', 'macos'],
+      platforms: ['win32', 'darwin'],
       isInstalled: false,
       isRecommended: false,
       installationStatus: 'not-installed'
@@ -38,7 +38,7 @@ describe('JobRoleRecommendationService', () => {
       name: 'Tool 2',
       description: 'Description for tool 2',
       category: 'dev-utilities' as ToolCategory,
-      platforms: ['macos'],
+      platforms: ['darwin'],
       isInstalled: true,
       isRecommended: true,
       installationStatus: 'installed'

@@ -7,11 +7,11 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
   VersionedTool,
-  VersionInfo,
+  IVersionInfo,
   VersionInstallOptions,
   VersionManagerCapabilities,
   VersionManagerType,
-  VersionOperationResult,
+  IVersionOperationResult,
   VersionSpecifier,
 } from '../version-manager-types';
 import { BaseVersionManagerAdapter } from './base-adapter';
@@ -39,7 +39,7 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
     supportsLTS: false, // ASDF doesn't have built-in LTS support
     supportsRemoteList: true,
     requiresShellIntegration: true,
-    supportedPlatforms: ['macos', 'linux'],
+    supportedPlatforms: ['darwin', 'linux'],
     supportedArchitectures: ['x64', 'arm64']
   };
 
@@ -54,13 +54,13 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
 
   constructor(platform: Platform, architecture: Architecture) {
     super(platform, architecture);
-    this.installer = new VersionManagerInstaller(platform, architecture);
+    this.installer = new VersionManagerInstaller(platform);
   }
 
   /**
    * Install ASDF itself
    */
-  public async installManager(): Promise<VersionOperationResult> {
+  public async installManager(): Promise<IVersionOperationResult> {
     const result = await this.installer.installVersionManager('asdf');
     
     if (result.success) {
@@ -73,7 +73,6 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
       tool: 'asdf' as VersionedTool,
       message: result.message,
       error: result.error,
-      output: result.output,
       duration: result.duration,
       timestamp: result.timestamp
     };
@@ -182,7 +181,7 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
     tool: VersionedTool,
     version: VersionSpecifier,
     options?: VersionInstallOptions
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     try {
       await this.ensurePluginInstalled(tool);
       return super.installVersion(tool, version, options);
@@ -192,19 +191,19 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
   }
 
   // Override list methods to ensure plugin is installed first
-  public async listInstalled(tool: VersionedTool): Promise<VersionInfo[]> {
+  public async listInstalled(tool: VersionedTool): Promise<IVersionInfo[]> {
     await this.ensurePluginInstalled(tool);
     return super.listInstalled(tool);
   }
 
-  public async listAvailable(tool: VersionedTool): Promise<VersionInfo[]> {
+  public async listAvailable(tool: VersionedTool): Promise<IVersionInfo[]> {
     await this.ensurePluginInstalled(tool);
     return super.listAvailable(tool);
   }
 
   // Output parsing methods
-  protected parseInstalledVersions(tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseInstalledVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
@@ -212,33 +211,27 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
       const version = line.trim().replace(/^\*\s*/, '').trim();
       
       if (version && !version.includes('No version')) {
-        versions.push({
-          version,
+        versions.push(this.createVersionInfo(tool, version, {
           isInstalled: true,
-          isActive: line.trim().startsWith('*'),
-          isLTS: this.isLTSVersion(tool, version),
-          isPrerelease: this.isPrereleaseVersion(version)
-        });
+          isActive: line.trim().startsWith('*')
+        }));
       }
     }
     
     return versions;
   }
 
-  protected parseAvailableVersions(tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseAvailableVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
       const version = line.trim();
       if (version && !version.includes('No versions') && !version.includes('plugin')) {
-        versions.push({
-          version,
+        versions.push(this.createVersionInfo(tool, version, {
           isInstalled: false,
-          isActive: false,
-          isLTS: this.isLTSVersion(tool, version),
-          isPrerelease: this.isPrereleaseVersion(version)
-        });
+          isActive: false
+        }));
       }
     }
     
@@ -248,7 +241,7 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseCurrentVersion(tool: VersionedTool, output: string): VersionInfo | null {
+  protected parseCurrentVersion(tool: VersionedTool, output: string): IVersionInfo | null {
     // ASDF format: "nodejs 18.17.0 /path/to/.tool-versions"
     const lines = output.split('\n').filter(line => line.trim());
     
@@ -258,13 +251,10 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
         const parts = trimmed.split(/\s+/);
         if (parts.length >= 2) {
           const version = parts[1];
-          return {
-            version,
+          return this.createVersionInfo(tool, version, {
             isInstalled: true,
-            isActive: true,
-            isLTS: this.isLTSVersion(tool, version),
-            isPrerelease: this.isPrereleaseVersion(version)
-          };
+            isActive: true
+          });
         }
       }
     }
@@ -335,24 +325,6 @@ export class AsdfAdapter extends BaseVersionManagerAdapter {
     return this.capabilities.supportedTools.includes(tool as VersionedTool);
   }
 
-  private isLTSVersion(tool: VersionedTool, version: string): boolean {
-    // Node.js LTS versions
-    if (tool === 'node') {
-      const major = parseInt(version.split('.')[0]);
-      return major % 2 === 0 && major >= 14; // Even major versions >= 14 are LTS
-    }
-    
-    return false;
-  }
-
-  private isPrereleaseVersion(version: string): boolean {
-    return /[a-zA-Z]/.test(version) && 
-           (version.includes('alpha') || 
-            version.includes('beta') || 
-            version.includes('rc') ||
-            version.includes('dev') ||
-            version.includes('preview'));
-  }
 
   private compareVersions(a: string, b: string): number {
     const aParts = a.split('.').map(p => parseInt(p) || 0);

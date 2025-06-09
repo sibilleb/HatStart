@@ -166,7 +166,7 @@ export interface IVersionOperationResult {
   /** 
    * Type of operation that was performed
    */
-  readonly operation: 'install' | 'uninstall' | 'switch' | 'list' | 'detect' | 'configure';
+  readonly operation: 'install' | 'uninstall' | 'switch' | 'list' | 'detect' | 'configure' | 'shell' | 'local' | 'remove';
   
   /** 
    * Tool that was operated on

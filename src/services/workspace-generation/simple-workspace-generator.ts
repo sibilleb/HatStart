@@ -6,7 +6,6 @@
 
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import type { ToolSelection } from '../../types/ui-types';
 import type { SimpleTool } from '../../shared/simple-manifest-types';
 
 export type IDEType = 'vscode' | 'cursor' | 'jetbrains';
@@ -29,7 +28,7 @@ export interface WorkspaceResult {
 /**
  * Maps tool categories to IDE extensions
  */
-const CATEGORY_EXTENSIONS: Record<string, string[]> = {
+const CATEGORY_EXTENSIONS: Record<string, Record<string, string[]>> = {
   language: {
     nodejs: [
       'dbaeumer.vscode-eslint',
@@ -53,24 +52,30 @@ const CATEGORY_EXTENSIONS: Record<string, string[]> = {
       'vscjava.vscode-java-debug'
     ]
   },
-  database: [
-    'mtxr.sqltools',
-    'mongodb.mongodb-vscode'
-  ],
-  devops: [
-    'ms-kubernetes-tools.vscode-kubernetes-tools',
-    'ms-azuretools.vscode-docker'
-  ],
-  productivity: [
-    'eamodio.gitlens',
-    'wayou.vscode-todo-highlight'
-  ]
+  database: {
+    all: [
+      'mtxr.sqltools',
+      'mongodb.mongodb-vscode'
+    ]
+  },
+  devops: {
+    all: [
+      'ms-kubernetes-tools.vscode-kubernetes-tools',
+      'ms-azuretools.vscode-docker'
+    ]
+  },
+  productivity: {
+    all: [
+      'eamodio.gitlens',
+      'wayou.vscode-todo-highlight'
+    ]
+  }
 };
 
 /**
  * Basic VSCode settings for different languages
  */
-const LANGUAGE_SETTINGS: Record<string, any> = {
+const LANGUAGE_SETTINGS: Record<string, Record<string, unknown>> = {
   nodejs: {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -171,15 +176,16 @@ export class SimpleWorkspaceGenerator {
       if (!tool) continue;
       
       // Language-specific extensions
-      const langExtensions = CATEGORY_EXTENSIONS.language[toolId];
+      const langExtensions = CATEGORY_EXTENSIONS.language?.[toolId];
       if (langExtensions) {
         langExtensions.forEach(ext => extensions.add(ext));
       }
       
       // Category-based extensions
       const categoryExtensions = CATEGORY_EXTENSIONS[tool.category];
-      if (categoryExtensions) {
-        categoryExtensions.forEach(ext => extensions.add(ext));
+      if (categoryExtensions && typeof categoryExtensions === 'object') {
+        const allExtensions = categoryExtensions.all || Object.values(categoryExtensions).flat();
+        allExtensions.forEach(ext => extensions.add(ext));
       }
     }
     
@@ -192,8 +198,8 @@ export class SimpleWorkspaceGenerator {
   /**
    * Get IDE settings based on selected tools
    */
-  private getSettingsForTools(selectedTools: string[], toolsMetadata: SimpleTool[]): Record<string, any> {
-    let settings: Record<string, any> = {
+  private getSettingsForTools(selectedTools: string[], _toolsMetadata: SimpleTool[]): Record<string, unknown> {
+    let settings: Record<string, unknown> = {
       "editor.tabSize": 2,
       "editor.insertSpaces": true,
       "files.trimTrailingWhitespace": true,

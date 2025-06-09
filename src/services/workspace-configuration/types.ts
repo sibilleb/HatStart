@@ -8,7 +8,7 @@ import type {
   ProjectVersionConfig,
   VersionedTool,
   VersionManagerType,
-  VersionOperationResult,
+  IVersionOperationResult,
   VersionSpecifier,
 } from '../version-manager-types';
 
@@ -143,25 +143,25 @@ export interface WorkspaceConfiguration {
    * Tool configurations for this workspace
    * Defines which tools are available and their version requirements
    */
-  tools: readonly WorkspaceToolConfig[];
+  tools: WorkspaceToolConfig[];
   
   /** 
    * Global environment variables for the workspace
    * These variables will be set for all projects within the workspace
    */
-  environment: readonly EnvironmentVariable[];
+  environment: EnvironmentVariable[];
   
   /** 
    * Global PATH configuration for the workspace
    * Defines additional directories to include in the PATH
    */
-  pathConfiguration: readonly PathEntry[];
+  pathConfiguration: PathEntry[];
   
   /** 
    * Shell integrations for the workspace
    * Configures how the workspace integrates with different shell environments
    */
-  shellIntegrations: readonly ShellIntegration[];
+  shellIntegrations: ShellIntegration[];
   
   /** 
    * Project configurations for nested projects
@@ -173,7 +173,7 @@ export interface WorkspaceConfiguration {
    * Configuration metadata
    * Information about when and how this configuration was created
    */
-  readonly metadata: {
+  metadata: {
     /** 
      * Configuration schema version
      * Used for migration and compatibility checking
@@ -184,7 +184,7 @@ export interface WorkspaceConfiguration {
     /** 
      * When this configuration was last updated
      */
-    readonly lastUpdated: Date;
+    lastUpdated: Date;
     
     /** 
      * Platform this configuration was created on
@@ -313,7 +313,7 @@ export interface IWorkspaceConfigurationService {
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Add tool to workspace
@@ -323,7 +323,7 @@ export interface IWorkspaceConfigurationService {
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Remove tool from workspace
@@ -331,7 +331,7 @@ export interface IWorkspaceConfigurationService {
   removeTool(
     tool: VersionedTool,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult>;
+  ): Promise<IVersionOperationResult>;
 
   /**
    * Get current workspace configuration

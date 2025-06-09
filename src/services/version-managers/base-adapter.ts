@@ -12,13 +12,13 @@ import type {
   IVersionManager,
   ProjectVersionConfig,
   VersionedTool,
-  VersionInfo,
+  IVersionInfo,
   VersionInstallOptions,
   VersionManagerCapabilities,
   VersionManagerConfig,
   VersionManagerStatus,
   VersionManagerType,
-  VersionOperationResult,
+  IVersionOperationResult,
   VersionSpecifier,
 } from '../version-manager-types';
 import {
@@ -96,12 +96,12 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * Install the version manager itself
    */
-  public abstract installManager(): Promise<VersionOperationResult>;
+  public abstract installManager(): Promise<IVersionOperationResult>;
 
   /**
    * Configure the version manager (shell integration, etc.)
    */
-  public async configure(config: Partial<VersionManagerConfig>): Promise<VersionOperationResult> {
+  public async configure(config: Partial<VersionManagerConfig>): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -131,7 +131,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * List installed versions for a tool
    */
-  public async listInstalled(tool: VersionedTool): Promise<VersionInfo[]> {
+  public async listInstalled(tool: VersionedTool): Promise<IVersionInfo[]> {
     const command = this.getListInstalledCommand(tool);
     const result = await this.executeCommand(command.command, command.args);
     
@@ -145,7 +145,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * List available versions for a tool (remote)
    */
-  public async listAvailable(tool: VersionedTool): Promise<VersionInfo[]> {
+  public async listAvailable(tool: VersionedTool): Promise<IVersionInfo[]> {
     if (!this.capabilities.supportsRemoteList) {
       throw new Error(`${this.type} does not support listing remote versions`);
     }
@@ -163,7 +163,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * Get currently active version for a tool
    */
-  public async getCurrentVersion(tool: VersionedTool): Promise<VersionInfo | null> {
+  public async getCurrentVersion(tool: VersionedTool): Promise<IVersionInfo | null> {
     const command = this.getCurrentVersionCommand(tool);
     const result = await this.executeCommand(command.command, command.args);
     
@@ -181,7 +181,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     tool: VersionedTool,
     version: VersionSpecifier,
     options?: VersionInstallOptions
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -254,7 +254,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   public async uninstallVersion(
     tool: VersionedTool,
     version: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -288,7 +288,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     tool: VersionedTool,
     version: string,
     scope: 'global' | 'local' | 'shell' = 'global'
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -328,7 +328,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   public async setGlobalVersion(
     tool: VersionedTool,
     version: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     return this.switchVersion(tool, version, 'global');
   }
 
@@ -339,7 +339,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     tool: VersionedTool,
     version: string,
     projectRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -388,7 +388,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
    */
   public async setProjectConfig(
     config: ProjectVersionConfig
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -412,7 +412,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * Refresh environment (reload shell integration)
    */
-  public async refreshEnvironment(): Promise<VersionOperationResult> {
+  public async refreshEnvironment(): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     
     try {
@@ -464,7 +464,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * Update version manager configuration
    */
-  public async updateConfig(config: Partial<VersionManagerConfig>): Promise<VersionOperationResult> {
+  public async updateConfig(config: Partial<VersionManagerConfig>): Promise<IVersionOperationResult> {
     return this.configure(config);
   }
 
@@ -477,9 +477,9 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   protected abstract getUninstallCommand(tool: VersionedTool, version: string): { command: string; args: string[] };
   protected abstract getSwitchCommand(tool: VersionedTool, version: string, scope: 'global' | 'local' | 'shell'): { command: string; args: string[] };
   protected abstract getInitCommand(): { command: string; args: string[] };
-  protected abstract parseInstalledVersions(tool: VersionedTool, output: string): VersionInfo[];
-  protected abstract parseAvailableVersions(tool: VersionedTool, output: string): VersionInfo[];
-  protected abstract parseCurrentVersion(tool: VersionedTool, output: string): VersionInfo | null;
+  protected abstract parseInstalledVersions(tool: VersionedTool, output: string): IVersionInfo[];
+  protected abstract parseAvailableVersions(tool: VersionedTool, output: string): IVersionInfo[];
+  protected abstract parseCurrentVersion(tool: VersionedTool, output: string): IVersionInfo | null;
   protected abstract getProjectConfigFileName(): string;
   protected abstract parseProjectConfig(content: string): Record<VersionedTool, VersionSpecifier>;
   protected abstract formatProjectConfig(versions: Record<VersionedTool, VersionSpecifier>): string;
@@ -599,17 +599,16 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   }
 
   protected createSuccessResult(
-    operation: VersionOperationResult['operation'],
+    operation: IVersionOperationResult['operation'],
     tool?: VersionedTool,
     message?: string,
     startTime?: number,
-    version?: string
-  ): VersionOperationResult {
+    _version?: string
+  ): IVersionOperationResult {
     return {
       success: true,
       operation,
       tool: tool || ('' as VersionedTool),
-      version,
       message: message || 'Operation completed successfully',
       duration: Date.now() - (startTime || Date.now()),
       timestamp: new Date()
@@ -617,11 +616,11 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   }
 
   protected createErrorResult(
-    operation: VersionOperationResult['operation'],
+    operation: IVersionOperationResult['operation'],
     tool?: VersionedTool,
     error?: unknown,
     startTime?: number
-  ): VersionOperationResult {
+  ): IVersionOperationResult {
     const errorMessage = this.formatErrorMessage(error);
     const operationMessage = tool 
       ? `${operation} operation failed for ${tool}` 
@@ -674,7 +673,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   }
 
   protected detectShellType(): string {
-    if (this.platform === 'windows') {
+    if (this.platform === 'win32') {
       return 'powershell';
     }
     
@@ -817,14 +816,14 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
     if (typeof version === 'string') {
       if (version === 'latest') {
         const available = await this.listAvailable(tool);
-        const stable = available.filter(v => !v.isPrerelease);
+        const stable = available.filter(v => !v.prerelease);
         if (stable.length === 0) {
           throw new Error('No stable versions available');
         }
         return stable[0].version;
       } else if (version === 'lts' && this.capabilities.supportsLTS) {
         const available = await this.listAvailable(tool);
-        const lts = available.filter(v => v.isLTS);
+        const lts = available.filter(v => v.metadata?.isLts);
         if (lts.length === 0) {
           throw new Error('No LTS versions available');
         }
@@ -861,7 +860,7 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * Parse version output from command execution with type safety
    */
-  protected parseVersionOutput(output: string, tool: VersionedTool): VersionInfo | null {
+  protected parseVersionOutput(output: string, tool: VersionedTool): IVersionInfo | null {
     // Use the safe parser with the abstract parseCurrentVersion method
     return safeParseVersionOutput(output, (out) => this.parseCurrentVersion(tool, out));
   }
@@ -869,8 +868,47 @@ export abstract class BaseVersionManagerAdapter implements IVersionManager {
   /**
    * Parse version list output from command execution with type safety
    */
-  protected parseVersionListOutput(output: string, tool: VersionedTool): VersionInfo[] {
+  protected parseVersionListOutput(output: string, tool: VersionedTool): IVersionInfo[] {
     // Use the safe parser with the abstract parseInstalledVersions method
     return safeParseVersionListOutput(output, (out) => this.parseInstalledVersions(tool, out));
+  }
+
+  /**
+   * Helper method to create a complete IVersionInfo object from a version string
+   */
+  protected createVersionInfo(
+    tool: VersionedTool,
+    version: string,
+    options?: {
+      isInstalled?: boolean;
+      isActive?: boolean;
+      installPath?: string;
+      metadata?: IVersionInfo['metadata'];
+    }
+  ): IVersionInfo {
+    const normalizedVersion = version.replace(/^v/, '');
+    
+    // Parse semantic version components
+    const versionMatch = normalizedVersion.match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([^+]+))?(?:\+(.+))?$/);
+    
+    const major = versionMatch ? parseInt(versionMatch[1], 10) : 0;
+    const minor = versionMatch ? parseInt(versionMatch[2] || '0', 10) : 0;
+    const patch = versionMatch ? parseInt(versionMatch[3] || '0', 10) : 0;
+    const prerelease = versionMatch?.[4];
+    const build = versionMatch?.[5];
+    
+    return {
+      tool,
+      version: normalizedVersion,
+      major,
+      minor,
+      patch,
+      prerelease,
+      build,
+      isActive: options?.isActive ?? false,
+      isInstalled: options?.isInstalled ?? true,
+      installPath: options?.installPath,
+      metadata: options?.metadata
+    };
   }
 } 

@@ -13,10 +13,10 @@ export { RbenvAdapter } from './rbenv-adapter';
 // Re-export types from version-manager-types for convenience
 export type {
     IVersionManagementEngine, IVersionManager,
-    IVersionManagerFactory, ProjectVersionConfig, VersionInfo, VersionInstallOptions,
+    IVersionManagerFactory, ProjectVersionConfig, IVersionInfo, VersionInstallOptions,
     VersionInstallProgress, VersionManagerCapabilities,
     VersionManagerConfig,
-    VersionManagerStatus, VersionManagerType, VersionOperationResult,
+    VersionManagerStatus, VersionManagerType, IVersionOperationResult,
     VersionSpecifier, VersionedTool
 } from '../version-manager-types';
 

@@ -7,10 +7,10 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     VersionedTool,
-    VersionInfo,
+    IVersionInfo,
     VersionManagerCapabilities,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier,
 } from '../version-manager-types';
 import { BaseVersionManagerAdapter } from './base-adapter';
@@ -38,7 +38,7 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
     supportsLTS: true,
     supportsRemoteList: true,
     requiresShellIntegration: true,
-    supportedPlatforms: ['macos', 'linux', 'windows'],
+    supportedPlatforms: ['darwin', 'linux', 'win32'],
     supportedArchitectures: ['x64', 'arm64']
   };
 
@@ -46,13 +46,13 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
 
   constructor(platform: Platform, architecture: Architecture) {
     super(platform, architecture);
-    this.installer = new VersionManagerInstaller(platform, architecture);
+    this.installer = new VersionManagerInstaller(platform);
   }
 
   /**
    * Install Mise itself
    */
-  public async installManager(): Promise<VersionOperationResult> {
+  public async installManager(): Promise<IVersionOperationResult> {
     const result = await this.installer.installVersionManager('mise');
     
     if (result.success) {
@@ -65,7 +65,6 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
       tool: 'mise' as VersionedTool,
       message: result.message,
       error: result.error,
-      output: result.output,
       duration: result.duration,
       timestamp: result.timestamp
     };
@@ -127,8 +126,8 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
   }
 
   // Output parsing methods
-  protected parseInstalledVersions(tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseInstalledVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
@@ -138,34 +137,28 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
         const version = parts[1];
         const installPath = parts[2] || undefined;
         
-        versions.push({
-          version,
+        versions.push(this.createVersionInfo(tool, version, {
           isInstalled: true,
           isActive: false, // Will be determined separately
-          installationPath: installPath,
-          isLTS: this.isLTSVersion(tool, version),
-          isPrerelease: this.isPrereleaseVersion(version)
-        });
+          installPath: installPath
+        }));
       }
     }
     
     return versions;
   }
 
-  protected parseAvailableVersions(tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseAvailableVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
       const version = line.trim();
       if (version && !version.startsWith('#')) {
-        versions.push({
-          version,
+        versions.push(this.createVersionInfo(tool, version, {
           isInstalled: false,
-          isActive: false,
-          isLTS: this.isLTSVersion(tool, version),
-          isPrerelease: this.isPrereleaseVersion(version)
-        });
+          isActive: false
+        }));
       }
     }
     
@@ -175,7 +168,7 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseCurrentVersion(tool: VersionedTool, output: string): VersionInfo | null {
+  protected parseCurrentVersion(tool: VersionedTool, output: string): IVersionInfo | null {
     // Mise format: "python  3.11.4  ~/.local/share/mise/installs/python/3.11.4"
     const lines = output.split('\n').filter(line => line.trim());
     
@@ -185,14 +178,11 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
         const version = parts[1];
         const installPath = parts[2] || undefined;
         
-        return {
-          version,
+        return this.createVersionInfo(tool, version, {
           isInstalled: true,
           isActive: true,
-          installationPath: installPath,
-          isLTS: this.isLTSVersion(tool, version),
-          isPrerelease: this.isPrereleaseVersion(version)
-        };
+          installPath: installPath
+        });
       }
     }
     
@@ -234,7 +224,7 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
   }
 
   protected async getInstallationPath(): Promise<string | undefined> {
-    if (this.platform === 'windows') {
+    if (this.platform === 'win32') {
       return process.env.MISE_ROOT || `${this.homeDir}\\.local\\bin\\mise.exe`;
     }
     return process.env.MISE_ROOT || `${this.homeDir}/.local/bin/mise`;
@@ -308,29 +298,6 @@ export class MiseAdapter extends BaseVersionManagerAdapter {
     return this.capabilities.supportedTools.includes(tool as VersionedTool);
   }
 
-  private isLTSVersion(tool: VersionedTool, version: string): boolean {
-    // Node.js LTS versions
-    if (tool === 'node') {
-      const major = parseInt(version.split('.')[0]);
-      return major % 2 === 0 && major >= 14; // Even major versions >= 14 are LTS
-    }
-    
-    // Python LTS-like versions (stable releases)
-    if (tool === 'python') {
-      return !version.includes('a') && !version.includes('b') && !version.includes('rc');
-    }
-    
-    return false;
-  }
-
-  private isPrereleaseVersion(version: string): boolean {
-    return /[a-zA-Z]/.test(version) && 
-           (version.includes('alpha') || 
-            version.includes('beta') || 
-            version.includes('rc') ||
-            version.includes('dev') ||
-            version.includes('preview'));
-  }
 
   private compareVersions(a: string, b: string): number {
     const aParts = a.split('.').map(p => parseInt(p) || 0);

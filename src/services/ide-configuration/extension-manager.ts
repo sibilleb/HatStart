@@ -7,7 +7,6 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import type {
-    IDEConfigurationError,
     IDEConfigurationResult,
     IDEExtension,
     IDEType
@@ -303,17 +302,14 @@ export class ExtensionManager {
       
       return {
         success: failedUpdates.length === 0,
-        data: {
-          totalExtensions: installedExtensions.length,
-          successfulUpdates: updateResults.length - failedUpdates.length,
-          failedUpdates: failedUpdates.length,
-          results: updateResults
+        configured: {
+          extensions: installedExtensions.map(ext => ext.id)
         }
       };
     } catch (error) {
       return {
         success: false,
-        error: this.createError('EXTENSION_UPDATE_ERROR', 'Error updating extensions', error)
+        error: `Error updating extensions: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -330,8 +326,7 @@ export class ExtensionManager {
         extensions: extensions.map(ext => ({
           id: ext.id,
           name: ext.name,
-          version: ext.version,
-          enabled: ext.enabled
+          version: ext.version
         }))
       };
       
@@ -339,15 +334,14 @@ export class ExtensionManager {
       
       return {
         success: true,
-        data: {
-          filePath,
-          extensionCount: extensions.length
+        configured: {
+          extensions: extensions.map(ext => ext.id)
         }
       };
     } catch (error) {
       return {
         success: false,
-        error: this.createError('EXTENSION_EXPORT_ERROR', 'Error exporting extension list', error)
+        error: `Error exporting extension list: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -363,10 +357,7 @@ export class ExtensionManager {
       if (!importData.extensions || !Array.isArray(importData.extensions)) {
         return {
           success: false,
-          error: {
-            code: 'INVALID_IMPORT_FILE',
-            message: 'Invalid extension list file format'
-          }
+          error: 'Invalid extension list file format'
         };
       }
       
@@ -377,17 +368,14 @@ export class ExtensionManager {
       
       return {
         success: failedInstalls.length === 0,
-        data: {
-          totalExtensions: extensionIds.length,
-          successfulInstalls: results.length - failedInstalls.length,
-          failedInstalls: failedInstalls.length,
-          results
+        configured: {
+          extensions: extensionIds
         }
       };
     } catch (error) {
       return {
         success: false,
-        error: this.createError('EXTENSION_IMPORT_ERROR', 'Error importing extension list', error)
+        error: `Error importing extension list: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -436,20 +424,6 @@ export class ExtensionManager {
     return extensions;
   }
 
-  /**
-   * Create standardized error object
-   */
-  private createError(code: string, message: string, originalError?: unknown): IDEConfigurationError {
-    return {
-      code,
-      message,
-      details: originalError instanceof Error ? {
-        name: originalError.name,
-        message: originalError.message,
-        stack: originalError.stack
-      } : originalError
-    };
-  }
 }
 
 /**
@@ -492,7 +466,6 @@ export class ExtensionRecommendationEngine {
           id: 'ms-vscode.vscode-typescript-next',
           name: 'TypeScript Importer',
           version: 'latest',
-          enabled: true,
           publisher: 'microsoft'
         }
       ],
@@ -501,14 +474,12 @@ export class ExtensionRecommendationEngine {
           id: 'bradlc.vscode-tailwindcss',
           name: 'Tailwind CSS IntelliSense',
           version: 'latest',
-          enabled: true,
           publisher: 'bradlc'
         },
         {
           id: 'esbenp.prettier-vscode',
           name: 'Prettier',
           version: 'latest',
-          enabled: true,
           publisher: 'esbenp'
         }
       ],
@@ -517,7 +488,6 @@ export class ExtensionRecommendationEngine {
           id: 'vue.volar',
           name: 'Vue Language Features',
           version: 'latest',
-          enabled: true,
           publisher: 'vue'
         }
       ],
@@ -526,7 +496,6 @@ export class ExtensionRecommendationEngine {
           id: 'ms-python.python',
           name: 'Python',
           version: 'latest',
-          enabled: true,
           publisher: 'microsoft'
         }
       ]
@@ -545,14 +514,12 @@ export class ExtensionRecommendationEngine {
           id: 'ms-vscode.vscode-eslint',
           name: 'ESLint',
           version: 'latest',
-          enabled: true,
           publisher: 'microsoft'
         },
         {
           id: 'esbenp.prettier-vscode',
           name: 'Prettier',
           version: 'latest',
-          enabled: true,
           publisher: 'esbenp'
         }
       ],
@@ -561,7 +528,6 @@ export class ExtensionRecommendationEngine {
           id: 'ms-vscode.vscode-eslint',
           name: 'ESLint',
           version: 'latest',
-          enabled: true,
           publisher: 'microsoft'
         }
       ],

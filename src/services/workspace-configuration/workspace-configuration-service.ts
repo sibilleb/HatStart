@@ -10,7 +10,7 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import type {
     VersionedTool,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier
 } from '../version-manager-types';
 import { EnvironmentManager } from './environment-manager';
@@ -106,16 +106,22 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
   public async saveConfiguration(config: WorkspaceConfiguration): Promise<void> {
     const configPath = join(config.workspaceRoot, this.configFileName);
     
-    // Update metadata
-    config.metadata.lastUpdated = new Date();
-    config.metadata.platform = this.platform;
-    config.metadata.architecture = this.architecture;
+    // Create updated configuration with new metadata
+    const updatedConfig: WorkspaceConfiguration = {
+      ...config,
+      metadata: {
+        ...config.metadata,
+        lastUpdated: new Date(),
+        platform: this.platform,
+        architecture: this.architecture
+      }
+    };
     
     // Ensure directory exists
     await mkdir(dirname(configPath), { recursive: true });
     
     // Save configuration
-    await writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8');
+    await writeFile(configPath, JSON.stringify(updatedConfig, null, 2), 'utf-8');
   }
 
   /**
@@ -151,7 +157,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
 
       // Apply PATH configuration
       if (config.pathConfiguration.length > 0) {
-        const pathSuccess = await this.environmentManager.updatePath(config.pathConfiguration);
+        const pathSuccess = await this.environmentManager.updatePath([...config.pathConfiguration]);
         if (pathSuccess) {
           result.modifiedPaths = config.pathConfiguration.map(p => p.path);
         } else {
@@ -207,7 +213,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     const root = workspaceRoot || process.cwd();
 
@@ -247,7 +253,6 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
          success: true,
          operation: 'switch',
          tool,
-         version: typeof version === 'string' ? version : `${version.major}.${version.minor || 0}.${version.patch || 0}`,
          message: `Updated ${tool} to version ${version}`,
          duration: Date.now() - startTime,
          timestamp: new Date(),
@@ -257,9 +262,10 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
         success: false,
         operation: 'switch',
         tool,
-        version,
+        message: `Failed to update ${tool} to version ${version}`,
         error: error instanceof Error ? error.message : 'Unknown error',
         duration: Date.now() - startTime,
+        timestamp: new Date(),
       };
     }
   }
@@ -272,7 +278,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     return this.updateToolVersion(tool, version, manager, workspaceRoot);
   }
 
@@ -282,7 +288,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
   public async removeTool(
     tool: VersionedTool,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     const root = workspaceRoot || process.cwd();
 
@@ -294,8 +300,10 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
           success: false,
           operation: 'remove',
           tool,
+          message: 'No workspace configuration found',
           error: 'No workspace configuration found',
           duration: Date.now() - startTime,
+          timestamp: new Date(),
         };
       }
 
@@ -308,8 +316,10 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
           success: false,
           operation: 'remove',
           tool,
+          message: `Tool ${tool} not found in workspace configuration`,
           error: `Tool ${tool} not found in workspace configuration`,
           duration: Date.now() - startTime,
+          timestamp: new Date(),
         };
       }
 
@@ -325,14 +335,17 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
         tool,
         message: `Removed ${tool} from workspace`,
         duration: Date.now() - startTime,
+        timestamp: new Date(),
       };
     } catch (error) {
       return {
         success: false,
         operation: 'remove',
         tool,
+        message: `Failed to remove ${tool} from workspace`,
         error: error instanceof Error ? error.message : 'Unknown error',
         duration: Date.now() - startTime,
+        timestamp: new Date(),
       };
     }
   }
@@ -452,9 +465,9 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
     const osPlatform = platform();
     switch (osPlatform) {
       case 'win32':
-        return 'windows';
+        return 'win32';
       case 'darwin':
-        return 'macos';
+        return 'darwin';
       case 'linux':
         return 'linux';
       default:
@@ -646,7 +659,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
    * Create default configuration
    */
   private async createDefaultConfiguration(workspaceRoot: string): Promise<WorkspaceConfiguration> {
-          const _detection = await this.detectWorkspace(workspaceRoot);
+          await this.detectWorkspace(workspaceRoot);
     
     return {
       workspaceRoot,

@@ -13,6 +13,7 @@ import type {
   CategoryInfo,
   FilterOptions,
   InstallationProgress,
+  ToolCategory,
   ToolSelection,
   ToolWithStatus
 } from './types/ui-types';
@@ -51,7 +52,7 @@ function App() {
   });
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [conflicts, setConflicts] = useState<ConflictRule[]>([]);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<ToolCategory>>(new Set());
 
   // Load system detection data on mount
   useEffect(() => {
@@ -131,7 +132,7 @@ function App() {
       });
       setCategories(updatedCategories);
     }
-  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole]);
+  }, [filterOptions.selectedJobRole, filterOptions.filterByJobRole, categories]);
 
   const handleSelectionChange = (newSelection: ToolSelection) => {
     setSelection(newSelection);
@@ -276,7 +277,7 @@ function App() {
     setConflicts([]);
   };
 
-  const handleCategoryToggle = (categoryId: string) => {
+  const handleCategoryToggle = (categoryId: ToolCategory) => {
     const newExpanded = new Set(expandedCategories);
     if (newExpanded.has(categoryId)) {
       newExpanded.delete(categoryId);

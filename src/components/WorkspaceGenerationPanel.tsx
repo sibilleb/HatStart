@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { ToolSelection } from '../types/ui-types';
+import type { SimpleTool } from '../shared/simple-manifest-types';
 import { workspaceGenerator, type IDEType, type WorkspaceResult } from '../services/workspace-generation/simple-workspace-generator';
 
 interface WorkspaceGenerationPanelProps {
@@ -55,7 +56,7 @@ export const WorkspaceGenerationPanel: React.FC<WorkspaceGenerationPanelProps> =
       }
 
       // Load tool metadata from manifest
-      const manifestResult = await window.electronAPI.invoke('load-manifest') as { error?: string; tools?: any[] };
+      const manifestResult = await window.electronAPI.invoke('load-manifest') as { error?: string; tools?: SimpleTool[] };
       if (manifestResult.error) {
         throw new Error(manifestResult.error);
       }

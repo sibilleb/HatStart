@@ -432,7 +432,7 @@ export class SettingsGenerator {
   /**
    * Generate NPM tasks
    */
-  private generateNpmTasks(context: SettingsGenerationContext): IDETask[] {
+  private generateNpmTasks(_context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'npm: install',
@@ -470,7 +470,7 @@ export class SettingsGenerator {
   /**
    * Generate Yarn tasks
    */
-  private generateYarnTasks(context: SettingsGenerationContext): IDETask[] {
+  private generateYarnTasks(_context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'yarn: install',
@@ -507,7 +507,7 @@ export class SettingsGenerator {
   /**
    * Generate Vite tasks
    */
-  private generateViteTasks(context: SettingsGenerationContext): IDETask[] {
+  private generateViteTasks(_context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'vite: dev',
@@ -537,7 +537,7 @@ export class SettingsGenerator {
   /**
    * Generate Webpack tasks
    */
-  private generateWebpackTasks(context: SettingsGenerationContext): IDETask[] {
+  private generateWebpackTasks(_context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'webpack: dev',
@@ -589,7 +589,7 @@ export class SettingsGenerator {
   /**
    * Generate Node.js launch configurations
    */
-  private generateNodeLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generateNodeLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Launch Program',
@@ -613,7 +613,7 @@ export class SettingsGenerator {
   /**
    * Generate Python launch configurations
    */
-  private generatePythonLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generatePythonLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Python: Current File',
@@ -635,7 +635,7 @@ export class SettingsGenerator {
   /**
    * Generate Java launch configurations
    */
-  private generateJavaLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generateJavaLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Launch Java Program',
@@ -650,7 +650,7 @@ export class SettingsGenerator {
   /**
    * Generate .NET launch configurations
    */
-  private generateDotNetLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generateDotNetLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Launch .NET Core',
@@ -665,7 +665,7 @@ export class SettingsGenerator {
   /**
    * Generate language-specific snippets
    */
-  private generateLanguageSnippets(language: string, context: SettingsGenerationContext): IDESnippet[] {
+  private generateLanguageSnippets(language: string, _context: SettingsGenerationContext): IDESnippet[] {
     const snippets: IDESnippet[] = [];
 
     switch (language) {

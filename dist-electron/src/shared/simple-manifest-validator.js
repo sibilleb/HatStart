@@ -11,7 +11,6 @@ const VALID_CATEGORIES = [
     'infrastructure', 'cloud', 'testing', 'monitoring',
     'package-managers', 'developer-tools', 'other'
 ];
-const VALID_PLATFORMS = ['darwin', 'win32', 'linux'];
 /**
  * Validate a manifest and return errors if any
  */

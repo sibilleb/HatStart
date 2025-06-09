@@ -28,24 +28,23 @@ export interface Tool {
  * Tool categories that organize tools into logical groups
  */
 export type ToolCategory = 
-  | 'programming-languages'
-  | 'code-editors'
-  | 'version-control'
-  | 'databases'
-  | 'containerization'
-  | 'cloud-tools'
-  | 'api-tools'
-  | 'terminal'
-  | 'browsers'
-  | 'design-tools'
-  | 'productivity'
-  | 'security'
-  | 'frameworks';
+  | 'language'
+  | 'ide'
+  | 'database'
+  | 'web-frameworks'
+  | 'containers'
+  | 'infrastructure'
+  | 'cloud'
+  | 'testing'
+  | 'monitoring'
+  | 'package-managers'
+  | 'developer-tools'
+  | 'other';
 
 /**
  * Platform types supported by the application
  */
-export type Platform = 'windows' | 'macos' | 'linux';
+export type Platform = 'darwin' | 'win32' | 'linux';
 
 /**
  * Category information with display metadata

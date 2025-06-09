@@ -133,9 +133,9 @@ export class EnvironmentManager implements IEnvironmentManager {
     const osPlatform = platform();
     switch (osPlatform) {
       case 'win32':
-        return 'windows';
+        return 'win32';
       case 'darwin':
-        return 'macos';
+        return 'darwin';
       case 'linux':
         return 'linux';
       default:
@@ -152,10 +152,10 @@ export class EnvironmentManager implements IEnvironmentManager {
     scope: WorkspaceScope
   ): Promise<void> {
     switch (this.platform) {
-      case 'windows':
+      case 'win32':
         await this.persistWindowsEnvironmentVariable(name, value, scope);
         break;
-      case 'macos':
+      case 'darwin':
       case 'linux':
         await this.persistUnixEnvironmentVariable(name, value, scope);
         break;
@@ -170,10 +170,10 @@ export class EnvironmentManager implements IEnvironmentManager {
     scope: WorkspaceScope
   ): Promise<void> {
     switch (this.platform) {
-      case 'windows':
+      case 'win32':
         await this.removeWindowsEnvironmentVariable(name, scope);
         break;
-      case 'macos':
+      case 'darwin':
       case 'linux':
         await this.removeUnixEnvironmentVariable(name, scope);
         break;
@@ -336,10 +336,10 @@ export class EnvironmentManager implements IEnvironmentManager {
     
     if (globalEntries.length > 0) {
       switch (this.platform) {
-        case 'windows':
+        case 'win32':
           await this.persistWindowsPath(globalEntries);
           break;
-        case 'macos':
+        case 'darwin':
         case 'linux':
           await this.persistUnixPath(globalEntries);
           break;
