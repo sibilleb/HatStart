@@ -42,6 +42,9 @@ CLAUDE_CODE_WORKFLOW.md
 # Documentation directory (contains internal docs)
 /docs/
 
+# Setup scripts (one-time use)
+setup-branch-protection*.sh
+
 # Added by Task Master AI
 dev-debug.log
 # Dependency directories
