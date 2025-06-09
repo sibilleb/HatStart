@@ -377,9 +377,9 @@ export class WorkspaceCLI {
     
     if (typedData.tools) {
       output += '\nTools:\n';
-      typedData.tools.forEach((tool: any) => {
-        const status = tool.active ? '✅' : '❌';
-        output += `  ${status} ${tool.tool}@${tool.version} (${tool.manager})\n`;
+      typedData.tools.forEach((toolName: VersionedTool) => {
+        // This appears to be just the tool name, not a full tool object
+        output += `  📦 ${toolName}\n`;
       });
     }
     
