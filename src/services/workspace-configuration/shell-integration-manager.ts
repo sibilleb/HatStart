@@ -46,7 +46,7 @@ export class ShellIntegrationManager implements IShellIntegrationManager {
       '.fish/config.fish'
     ];
 
-    if (this.platform === 'windows') {
+    if (this.platform === 'win32') {
       possibleProfiles.push('Microsoft.PowerShell_profile.ps1', 'cmd_autorun');
     }
 
@@ -68,7 +68,7 @@ export class ShellIntegrationManager implements IShellIntegrationManager {
    */
   async getCurrentShell(): Promise<string> {
     try {
-      if (this.platform === 'windows') {
+      if (this.platform === 'win32') {
         return 'powershell';
       }
 

@@ -10,7 +10,7 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import type {
     VersionedTool,
     VersionManagerType,
-    IVersionOperationResult as VersionOperationResult,
+    IIVersionOperationResult as IVersionOperationResult,
     VersionSpecifier
 } from '../version-manager-types';
 import { EnvironmentManager } from './environment-manager';
@@ -213,7 +213,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     const root = workspaceRoot || process.cwd();
 
@@ -278,7 +278,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     return this.updateToolVersion(tool, version, manager, workspaceRoot);
   }
 
@@ -288,7 +288,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
   public async removeTool(
     tool: VersionedTool,
     workspaceRoot?: string
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
     const root = workspaceRoot || process.cwd();
 

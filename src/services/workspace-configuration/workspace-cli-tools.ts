@@ -113,7 +113,7 @@ interface TeamConfiguration {
  */
 export class WorkspaceCLITools {
   private workspaceService: WorkspaceConfigurationService;
-  private configFileName = '.hatstart-workspace.json';
+  private _configFileName = '.hatstart-workspace.json';
   private teamConfigFileName = '.hatstart-team.json';
   private gitIgnoreEntries = [
     '.hatstart-workspace.local.json',

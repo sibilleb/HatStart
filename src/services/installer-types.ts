@@ -6,6 +6,7 @@ export interface InstallationOptions {
   force?: boolean;
   silent?: boolean;
   timeout?: number;
+  workingDirectory?: string;
 }
 
 export interface CommandExecutionResult {
@@ -13,6 +14,7 @@ export interface CommandExecutionResult {
   stdout?: string;
   stderr?: string;
   error?: Error;
+  exitCode?: number;
 }
 
 // Re-export types from simple-installer

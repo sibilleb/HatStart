@@ -10,7 +10,7 @@ import type {
     IVersionManager,
     VersionedTool,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier
 } from '../version-manager-types';
 import type {
@@ -26,7 +26,7 @@ import type {
  * Version manager integration service
  */
 export class VersionManagerIntegration {
-  private installer: VersionManagerInstaller;
+  private _installer: VersionManagerInstaller;
   private workspaceService: IWorkspaceConfigurationService;
   private versionManagers: Map<VersionManagerType, IVersionManager> = new Map();
 
@@ -34,7 +34,7 @@ export class VersionManagerIntegration {
     installer: VersionManagerInstaller,
     workspaceService: IWorkspaceConfigurationService,
   ) {
-    this.installer = installer;
+    this._installer = installer;
     this.workspaceService = workspaceService;
   }
 
@@ -64,7 +64,7 @@ export class VersionManagerIntegration {
     version: VersionSpecifier,
     manager: VersionManagerType,
     workspaceRoot?: string,
-  ): Promise<VersionOperationResult> {
+  ): Promise<IVersionOperationResult> {
     const startTime = Date.now();
 
     try {
@@ -235,7 +235,7 @@ export class VersionManagerIntegration {
    */
   private async getToolPathEntries(
     tool: VersionedTool,
-    version: VersionSpecifier,
+    _version: VersionSpecifier,
     manager: VersionManagerType,
   ): Promise<PathEntry[]> {
     try {
@@ -280,7 +280,7 @@ export class VersionManagerIntegration {
         }
         case 'python': {
           // Add Scripts directory for Windows
-          if (this.detectPlatform() === 'windows') {
+          if (this.detectPlatform() === 'win32') {
             pathEntries.push({
               path: join(installPath, 'Scripts'),
               priority: 2,
@@ -413,9 +413,9 @@ export class VersionManagerIntegration {
     const platformName = process.platform;
     switch (platformName) {
       case 'darwin':
-        return 'macos';
+        return 'darwin';
       case 'win32':
-        return 'windows';
+        return 'win32';
       case 'linux':
         return 'linux';
       default:

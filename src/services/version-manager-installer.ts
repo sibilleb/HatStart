@@ -277,22 +277,18 @@ export class VersionManagerInstaller {
       type: 'mise',
       packages: {
         darwin: {
-          homebrew: 'mise'
+          packageManager: 'mise'
         },
         linux: {
-          apt: 'mise',
-          yum: 'mise',
-          snap: 'mise'
+          packageManager: 'mise'
         },
         win32: {
-          winget: 'jdx.mise',
-          chocolatey: 'mise',
-          scoop: 'mise'
+          packageManager: 'mise'
         }
       },
       installCommands: {
         darwin: {
-          homebrew: {
+          packageManager: {
             command: 'brew',
             args: ['install', 'mise']
           }
@@ -304,7 +300,7 @@ export class VersionManagerInstaller {
           }
         },
         win32: {
-          winget: {
+          packageManager: {
             command: 'winget',
             args: ['install', 'jdx.mise']
           }
@@ -342,11 +338,13 @@ export class VersionManagerInstaller {
       type: 'nvm',
       packages: {
         darwin: {
-          homebrew: 'nvm'
+          script: 'nvm'
+        },
+        linux: {
+          script: 'nvm'
         },
         win32: {
-          chocolatey: 'nvm',
-          winget: 'CoreyButler.NVMforWindows'
+          packageManager: 'CoreyButler.NVMforWindows'
         }
       },
       installCommands: {
@@ -363,7 +361,7 @@ export class VersionManagerInstaller {
           }
         },
         win32: {
-          winget: {
+          packageManager: {
             command: 'winget',
             args: ['install', 'CoreyButler.NVMforWindows']
           }
@@ -401,20 +399,18 @@ export class VersionManagerInstaller {
       type: 'pyenv',
       packages: {
         darwin: {
-          homebrew: 'pyenv'
+          packageManager: 'pyenv'
         },
         linux: {
-          apt: 'pyenv',
-          yum: 'pyenv'
+          script: 'pyenv'
         },
         win32: {
-          chocolatey: 'pyenv-win',
-          scoop: 'pyenv'
+          packageManager: 'pyenv-win'
         }
       },
       installCommands: {
         darwin: {
-          homebrew: {
+          packageManager: {
             command: 'brew',
             args: ['install', 'pyenv']
           }
@@ -426,7 +422,7 @@ export class VersionManagerInstaller {
           }
         },
         win32: {
-          chocolatey: {
+          packageManager: {
             command: 'choco',
             args: ['install', 'pyenv-win']
           }
