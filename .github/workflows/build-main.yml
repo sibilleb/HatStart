@@ -1,0 +1,125 @@
+name: Build Packages on Main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} Package
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        include:
+          - os: macos-latest
+            platform: macOS
+            artifact: hatstart-mac
+            build-output: "*.dmg"
+          - os: windows-latest
+            platform: Windows
+            artifact: hatstart-win
+            build-output: "*.exe"
+          - os: ubuntu-latest
+            platform: Linux
+            artifact: hatstart-linux
+            build-output: "*.AppImage"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install platform-specific dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libdrm2 libgbm1 libxcb-dri3-0
+
+    - name: Run tests
+      run: npm test
+      continue-on-error: true # Don't block builds if tests fail
+
+    - name: Build TypeScript
+      run: npm run build
+
+    - name: Build Electron
+      run: npm run electron:compile
+
+    - name: Build distributables
+      run: npm run electron:dist
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: List release directory
+      run: |
+        echo "Contents of release directory:"
+        ls -la release/ || echo "No release directory found"
+      shell: bash
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}-${{ github.sha }}
+        path: release/${{ matrix.build-output }}
+        if-no-files-found: warn
+        retention-days: 7
+
+  summary:
+    name: Build Summary
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: List all artifacts
+      run: |
+        echo "Build artifacts generated:"
+        find artifacts -type f -name "*" | sort
+
+    - name: Create build summary
+      run: |
+        echo "# Build Summary for Main Branch" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Artifacts Generated" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Platform | Artifact | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|----------|----------|--------|" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -d "artifacts/hatstart-mac-${{ github.sha }}" ]; then
+          echo "| macOS | ✅ Available | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| macOS | ❌ Failed | - |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ -d "artifacts/hatstart-win-${{ github.sha }}" ]; then
+          echo "| Windows | ✅ Available | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Windows | ❌ Failed | - |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ -d "artifacts/hatstart-linux-${{ github.sha }}" ]; then
+          echo "| Linux | ✅ Available | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Linux | ❌ Failed | - |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📦 [View all artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

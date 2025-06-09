@@ -74,11 +74,10 @@ describe('JobRoleFilterPanel', () => {
     );
     
     // Should have a title
-    expect(screen.getByText(/job role/i)).toBeInTheDocument();
+    expect(screen.getByText('Job Role Filters')).toBeInTheDocument();
     
-    // Should display job roles
-    expect(screen.getByText('Frontend Developer')).toBeInTheDocument();
-    expect(screen.getByText('Backend Developer')).toBeInTheDocument();
+    // Should have the checkbox for enabling job role filtering
+    expect(screen.getByLabelText('Filter by job role')).toBeInTheDocument();
     
     // Should call getAllConfigs
     expect(mockGetAllConfigs).toHaveBeenCalled();
@@ -92,17 +91,35 @@ describe('JobRoleFilterPanel', () => {
       />
     );
     
-    // Click on a job role
-    fireEvent.click(screen.getByText('Frontend Developer'));
+    // First enable job role filtering
+    const checkbox = screen.getByLabelText('Filter by job role');
+    fireEvent.click(checkbox);
     
     // Should call onFilterChange with updated filters
     expect(mockOnFilterChange).toHaveBeenCalledTimes(1);
     expect(mockOnFilterChange).toHaveBeenCalledWith(
       expect.objectContaining({ 
         filterByJobRole: true,
-        selectedJobRole: 'frontend-developer'
+        selectedJobRole: 'frontend-developer' // First role in the list
       })
     );
+    
+    // Re-render with the filter enabled to see the select
+    const { rerender } = render(
+      <JobRoleFilterPanel 
+        filterOptions={{
+          ...defaultFilterOptions,
+          filterByJobRole: true,
+          selectedJobRole: 'frontend-developer'
+        }} 
+        onFilterChange={mockOnFilterChange} 
+      />
+    );
+    
+    // Now the select should be visible
+    const select = screen.getByLabelText('Select job role');
+    expect(select).toBeInTheDocument();
+    expect(select).toHaveValue('frontend-developer');
   });
   
   it('allows changing priority level filter', () => {
@@ -120,8 +137,8 @@ describe('JobRoleFilterPanel', () => {
       />
     );
     
-    // Find and click the "Essential only" option
-    const essentialOption = screen.getByLabelText(/essential only/i);
+    // Find and click the "Essential tools only" option
+    const essentialOption = screen.getByLabelText('Show only essential tools');
     fireEvent.click(essentialOption);
     
     // Should call onFilterChange with updated priority level
@@ -147,15 +164,16 @@ describe('JobRoleFilterPanel', () => {
       />
     );
     
-    // Find and click the "Clear" button
-    const clearButton = screen.getByRole('button', { name: /clear/i });
-    fireEvent.click(clearButton);
+    // Find and uncheck the checkbox to disable filtering
+    const checkbox = screen.getByLabelText('Filter by job role');
+    expect(checkbox).toBeChecked();
+    fireEvent.click(checkbox);
     
     // Should call onFilterChange with filterByJobRole set to false
     expect(mockOnFilterChange).toHaveBeenCalledWith(
       expect.objectContaining({ 
         filterByJobRole: false,
-        selectedJobRole: undefined
+        selectedJobRole: 'frontend-developer' // Keeps the previous selection
       })
     );
   });
