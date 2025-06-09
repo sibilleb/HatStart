@@ -173,23 +173,50 @@ export class ToolDetectionService {
    * Extract version number from command output
    */
   private extractVersion(output: string): string | undefined {
+    // Clean the output
+    const cleanOutput = output.trim();
+    
     // Common version patterns
     const patterns = [
-      /(\d+\.\d+\.\d+)/,           // 1.2.3
-      /v?(\d+\.\d+)/,              // v1.2 or 1.2
-      /version\s+(\d+\.\d+\.\d+)/i, // version 1.2.3
-      /(\d+\.\d+\.\d+\.\d+)/       // 1.2.3.4
+      /v?(\d+\.\d+\.\d+(?:\.\d+)?)/,    // v1.2.3 or 1.2.3.4
+      /version\s+(\d+\.\d+\.\d+)/i,      // version 1.2.3
+      /(\d+\.\d+\.\d+)/,                 // 1.2.3
+      /v?(\d+\.\d+)/,                    // v1.2 or 1.2
     ];
 
     for (const pattern of patterns) {
-      const match = output.match(pattern);
+      const match = cleanOutput.match(pattern);
       if (match) {
         return match[1];
       }
     }
 
+    // Special cases for specific tools
+    // Node.js: "v24.1.0" -> "24.1.0"
+    if (cleanOutput.startsWith('v') && /^\d+\.\d+/.test(cleanOutput.substring(1))) {
+      return cleanOutput.substring(1);
+    }
+    
+    // Python: "Python 3.13.4" -> "3.13.4"
+    const pythonMatch = cleanOutput.match(/Python\s+(\d+\.\d+\.\d+)/);
+    if (pythonMatch) {
+      return pythonMatch[1];
+    }
+    
+    // Git: "git version 2.49.0" -> "2.49.0"
+    const gitMatch = cleanOutput.match(/git\s+version\s+(\d+\.\d+\.\d+)/);
+    if (gitMatch) {
+      return gitMatch[1];
+    }
+    
+    // Docker: "Docker version 28.2.2, build e6534b4eb7" -> "28.2.2"
+    const dockerMatch = cleanOutput.match(/Docker\s+version\s+(\d+\.\d+\.\d+)/);
+    if (dockerMatch) {
+      return dockerMatch[1];
+    }
+
     // If no pattern matches, return the first line (cleaned)
-    return output.split('\n')[0].trim();
+    return cleanOutput.split('\n')[0];
   }
 }
 
