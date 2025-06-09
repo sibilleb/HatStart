@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/hatstart-logo.png" alt="HatStart Logo" width="300" />
+  <img src="docs/assets/HatStart Logo.png" alt="HatStart Logo" width="300" />
   
   # HatStart
   
