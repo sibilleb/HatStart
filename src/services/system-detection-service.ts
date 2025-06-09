@@ -20,19 +20,30 @@ import '../types/electron.d.ts';
 
 // Map detection categories to UI categories
 const categoryMap: Record<string, UIToolCategory> = {
-    'programming-languages': 'language',
+    // Direct mappings from detection to UI categories
+    'language': 'language',
+    'developer-tools': 'developer-tools', 
+    'ide': 'ide',
+    'database': 'database',
+    'infrastructure': 'infrastructure',
+    'testing': 'testing',
     'web-frameworks': 'web-frameworks',
+    'cloud': 'cloud',
+    'monitoring': 'monitoring',
+    'containers': 'containers',
+    'package-managers': 'package-managers',
+    
+    // Legacy mappings for backward compatibility
+    'programming-languages': 'language',
     'mobile-frameworks': 'web-frameworks',
     'backend-frameworks': 'web-frameworks',
     'databases': 'database',
     'version-control': 'developer-tools',
-    'containers': 'containers',
     'cloud-tools': 'cloud',
     'ides-editors': 'ide',
     'testing-tools': 'testing',
-    'security-tools': 'testing', // Security tools go in testing category
-    'build-tools': 'developer-tools',
-    'package-managers': 'package-managers'
+    'security-tools': 'testing',
+    'build-tools': 'developer-tools'
 };
 
 /**
@@ -231,12 +242,15 @@ export class SystemDetectionService {
             return null;
         }
 
+        // Get the mapped UI category ID
+        const mappedCategoryId = categoryMap[categoryResult.category] || categoryResult.category;
+        
         const tools: Tool[] = categoryResult.tools.map(detectionResult => 
-            this.convertDetectionResultToTool(detectionResult, categoryMap[categoryResult.category] || 'developer-tools')
+            this.convertDetectionResultToTool(detectionResult, mappedCategoryId)
         );
 
         return {
-            id: categoryMap[categoryResult.category] || 'developer-tools',
+            id: mappedCategoryId,
             name: uiCategory.name,
             description: uiCategory.description,
             icon: uiCategory.icon,
@@ -248,7 +262,7 @@ export class SystemDetectionService {
     /**
      * Convert detection result to UI Tool format
      */
-    private convertDetectionResultToTool(result: DetectionResult, category: UIToolCategory): Tool {
+    private convertDetectionResultToTool(result: DetectionResult, categoryId: UIToolCategory): Tool {
         // Simple conversion for MVP - use metadata if available
         const toolId = result.name; // This is actually the tool ID from manifest (e.g., "nodejs")
         const displayName = result.metadata?.displayName as string || result.name;
@@ -263,9 +277,9 @@ export class SystemDetectionService {
             description: description,
             isInstalled: result.found,
             isRecommended: false, // Simple MVP - no recommendations yet
-            category: categoryMap[category] || 'developer-tools',
+            category: categoryId,
             version: result.version,
-            tags: [categoryMap[category] || 'developer-tools'],
+            tags: [categoryId],
             size: '50MB', // Default estimate
             installationTime: '1 min', // Default 1 minute as string
             dependencies: [],
