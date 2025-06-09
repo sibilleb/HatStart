@@ -163,26 +163,52 @@ function App() {
       if (result.success) {
         const { summary } = result;
         
-        // Update tool states
-        setCategories(prevCategories => 
-          prevCategories.map(category => ({
-            ...category,
-            tools: category.tools.map(tool => ({
+        // Clear detection cache to force refresh
+        await window.electronAPI.clearDetectionCache();
+        
+        // Refresh system detection to get updated installation status
+        await systemDetectionService.refreshDetection();
+        const updatedCategories = await systemDetectionService.getCategoriesForUI();
+        
+        // Apply job role recommendations if active
+        if (filterOptions.filterByJobRole && filterOptions.selectedJobRole) {
+          const categoriesWithRoleRecommendations = updatedCategories.map(category => {
+            const toolsWithStatus = category.tools.map(tool => ({
               ...tool,
-              isInstalled: result.results?.some((r: any) => 
-                r.tool === tool.id && r.success
-              ) || tool.isInstalled,
-            })),
-          }))
-        );
+              installationStatus: tool.isInstalled ? 'installed' : 'not-installed'
+            })) as ToolWithStatus[];
+            
+            const updatedTools = jobRoleRecommendationService.applyRoleRecommendations(
+              toolsWithStatus,
+              filterOptions.selectedJobRole!
+            );
+            
+            return {
+              ...category,
+              tools: updatedTools,
+            };
+          });
+          setCategories(categoriesWithRoleRecommendations);
+        } else {
+          setCategories(updatedCategories);
+        }
 
         // Show summary
         if (summary && summary.failed && summary.failed > 0) {
           setError(`Installation completed with errors. ${summary.successful} succeeded, ${summary.failed} failed.`);
+        } else if (summary && summary.alreadyInstalled > 0) {
+          console.log(`Successfully installed ${summary.successful - summary.alreadyInstalled} tools. ${summary.alreadyInstalled} were already installed.`);
         } else if (summary && summary.successful > 0) {
           // Show success message
           console.log(`Successfully installed ${summary.successful} tools`);
         }
+        
+        // Clear selection after successful installation
+        setSelection({
+          selectedTools: new Set(),
+          deselectedRecommendations: new Set(),
+          customSelections: new Set(),
+        });
       } else {
         setError(result.error || 'Installation failed');
       }
