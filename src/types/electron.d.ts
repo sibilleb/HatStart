@@ -111,6 +111,29 @@ export interface ElectronAPI {
     available: boolean;
   }>;
   
+  // Tool detection APIs
+  detectTools: (toolIds?: string[]) => Promise<{
+    success: boolean;
+    results?: Array<{
+      toolId: string;
+      installed: boolean;
+      version?: string;
+      lastChecked: Date;
+    }>;
+    error?: string;
+  }>;
+  detectSingleTool: (toolId: string) => Promise<{
+    success: boolean;
+    result?: {
+      toolId: string;
+      installed: boolean;
+      version?: string;
+      lastChecked: Date;
+    };
+    error?: string;
+  }>;
+  clearDetectionCache: (toolId?: string) => Promise<{ success: boolean }>;
+  
   // Progress tracking APIs
   onInstallationProgress: (callback: (progress: { message: string; progress: number }) => void) => () => void;
   
