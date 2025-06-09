@@ -1,4 +1,3 @@
-import type { InstallProgress } from '@shared/types';
 import { contextBridge, ipcRenderer } from 'electron';
 import type { FileOperationOptions, SaveFileOptions } from '../src/types/electron';
 
@@ -46,9 +45,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   installTools: (toolIds: string[]) => ipcRenderer.invoke('install-tools', toolIds),
   checkPrerequisites: () => ipcRenderer.invoke('check-prerequisites'),
   
+  // Tool detection APIs
+  detectTools: (toolIds?: string[]) => ipcRenderer.invoke('detect-tools', toolIds),
+  detectSingleTool: (toolId: string) => ipcRenderer.invoke('detect-tool', toolId),
+  clearDetectionCache: (toolId?: string) => ipcRenderer.invoke('clear-detection-cache', toolId),
+  
   // Progress tracking APIs
   onInstallationProgress: (callback: (progress: { message: string; progress: number }) => void) => {
-    const listener = (_event: any, progress: { message: string; progress: number }) => callback(progress);
+    const listener = (_event: Electron.IpcRendererEvent, progress: { message: string; progress: number }) => callback(progress);
     ipcRenderer.on('installation-progress', listener);
     // Return cleanup function
     return () => ipcRenderer.removeListener('installation-progress', listener);

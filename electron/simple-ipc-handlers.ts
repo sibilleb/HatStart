@@ -3,12 +3,13 @@
  * Replaces 489 lines of over-engineered IPC with straightforward handlers
  */
 
-import { ipcMain, IpcMainInvokeEvent, BrowserWindow } from 'electron';
+import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import type { SimpleTool, SimpleManifest } from '../src/shared/simple-manifest-types';
+import { toolDetectionService } from '../src/services/tool-detection-service';
 
 const execAsync = promisify(exec);
 
@@ -67,6 +68,10 @@ export function registerSimpleHandlers(): void {
         return manifestResult;
       }
       
+      // Detect all tools
+      const detectionResults = await toolDetectionService.detectMultipleTools(manifestResult.tools);
+      const detectionMap = new Map(detectionResults.map(r => [r.toolId, r]));
+      
       // Group tools by category
       const categories = Array.from(new Set(manifestResult.tools.map(t => t.category)));
       const categorizedTools = categories.map(cat => ({
@@ -87,11 +92,12 @@ export function registerSimpleHandlers(): void {
           categories: categorizedTools.map(cat => ({
             category: cat.id,
             tools: cat.tools.map(tool => {
-              console.log(`system-detection:detect - Tool: ${tool.id} (${tool.name})`);
+              const detection = detectionMap.get(tool.id);
+              console.log(`system-detection:detect - Tool: ${tool.id} (${tool.name}) - Installed: ${detection?.installed}`);
               return {
                 name: tool.id, // Use tool.id so it matches when installing
-                found: false, // Simple manifest doesn't track installed status
-                version: tool.verification ? 'Unknown' : undefined,
+                found: detection?.installed || false,
+                version: detection?.version || (tool.verification ? 'Unknown' : undefined),
                 path: '',
                 detectionMethod: 'command' as const,
                 error: null,
@@ -150,14 +156,35 @@ export function registerSimpleHandlers(): void {
       }
 
       // Install each tool
+      let alreadyInstalled = 0;
+      
       for (let i = 0; i < toolsToInstall.length; i++) {
         const tool = toolsToInstall[i];
         const progress = ((i + 1) / toolsToInstall.length) * 100;
         
         // Send progress update
         event.sender.send('installation-progress', {
+          message: `Checking ${tool.name}...`,
+          progress: progress * 0.3 // 30% for checking
+        });
+
+        // Check if already installed
+        const detection = await toolDetectionService.detectTool(tool);
+        if (detection.installed) {
+          console.log(`install-tools: ${tool.name} is already installed (version: ${detection.version})`);
+          alreadyInstalled++;
+          results.push({
+            success: true,
+            tool: tool.id,
+            message: `${tool.name} is already installed${detection.version ? ` (version ${detection.version})` : ''}`
+          });
+          continue;
+        }
+
+        // Send progress update
+        event.sender.send('installation-progress', {
           message: `Installing ${tool.name}...`,
-          progress: progress
+          progress: progress * 0.6 + 30 // 60% for installing + 30% from checking
         });
 
         try {
@@ -175,6 +202,9 @@ export function registerSimpleHandlers(): void {
 
           // Execute installation
           await execAsync(command);
+          
+          // Clear cache for this tool so next detection is fresh
+          toolDetectionService.clearCache(tool.id);
           
           results.push({
             success: true,
@@ -195,7 +225,7 @@ export function registerSimpleHandlers(): void {
         total: toolIds.length, // Use requested count, not found count
         successful: results.filter(r => r.success).length,
         failed: results.filter(r => !r.success).length,
-        alreadyInstalled: 0,
+        alreadyInstalled: alreadyInstalled,
         failures: results.filter(r => !r.success).map(r => ({
           tool: r.tool,
           error: r.message
@@ -234,6 +264,70 @@ export function registerSimpleHandlers(): void {
           available: false
         };
       }
+    } catch (error) {
+      return handleError(error);
+    }
+  });
+
+  // Detect installed tools
+  ipcMain.handle('detect-tools', async (
+    _event: IpcMainInvokeEvent,
+    toolIds?: string[]
+  ) => {
+    try {
+      const manifestResult = await loadManifestData();
+      if ('error' in manifestResult) {
+        return manifestResult;
+      }
+
+      // Filter tools if specific IDs provided
+      const toolsToCheck = toolIds 
+        ? manifestResult.tools.filter(tool => toolIds.includes(tool.id))
+        : manifestResult.tools;
+
+      // Detect tools
+      const detectionResults = await toolDetectionService.detectMultipleTools(toolsToCheck);
+      
+      return { 
+        success: true, 
+        results: detectionResults 
+      };
+    } catch (error) {
+      return handleError(error);
+    }
+  });
+
+  // Detect single tool
+  ipcMain.handle('detect-tool', async (
+    _event: IpcMainInvokeEvent,
+    toolId: string
+  ) => {
+    try {
+      const manifestResult = await loadManifestData();
+      if ('error' in manifestResult) {
+        return manifestResult;
+      }
+
+      const tool = manifestResult.tools.find(t => t.id === toolId);
+      if (!tool) {
+        return { error: `Tool ${toolId} not found in manifest` };
+      }
+
+      const result = await toolDetectionService.detectTool(tool);
+      return { success: true, result };
+    } catch (error) {
+      return handleError(error);
+    }
+  });
+
+  // Clear detection cache
+  ipcMain.handle('clear-detection-cache', async (
+    _event: IpcMainInvokeEvent,
+    toolId?: string
+  ) => {
+    try {
+      toolDetectionService.clearCache(toolId);
+      return { success: true };
     } catch (error) {
       return handleError(error);
     }
