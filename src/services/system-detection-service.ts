@@ -123,7 +123,7 @@ export class SystemDetectionService {
      * Convert a single category detection result to UI format
      */
     private convertCategoryResult(categoryResult: CategoryDetectionResult): CategoryInfo | null {
-        // Simple mapping for MVP
+        // Category mappings with expanded organization
         const categoryMappings: Record<string, { id: string; name: string; description: string; icon: string; color: string }> = {
             'language': {
                 id: 'programming-languages',
@@ -132,19 +132,12 @@ export class SystemDetectionService {
                 icon: '💻',
                 color: '#3B82F6'
             },
-            'productivity': {
-                id: 'productivity',
-                name: 'Productivity Tools',
-                description: 'Version control, editors, and development utilities',
-                icon: '🔧',
-                color: '#10B981'
-            },
-            'devops': {
-                id: 'containerization',
-                name: 'DevOps & Containerization',
-                description: 'Containers, orchestration, and deployment tools',
-                icon: '🚀',
-                color: '#F59E0B'
+            'ide': {
+                id: 'code-editors',
+                name: 'Code Editors & IDEs',
+                description: 'Integrated Development Environments and code editors',
+                icon: '📝',
+                color: '#8B5CF6'
             },
             'database': {
                 id: 'databases',
@@ -153,17 +146,81 @@ export class SystemDetectionService {
                 icon: '🗄️',
                 color: '#059669'
             },
-            'ide': {
-                id: 'code-editors',
-                name: 'Code Editors & IDEs',
-                description: 'Integrated Development Environments and code editors',
-                icon: '📝',
-                color: '#8B5CF6'
+            'web-frameworks': {
+                id: 'frameworks',
+                name: 'Web Frameworks',
+                description: 'Frontend and backend web frameworks',
+                icon: '🏗️',
+                color: '#EC4899'
+            },
+            'containers': {
+                id: 'containerization',
+                name: 'Containers & Orchestration',
+                description: 'Container platforms and orchestration tools',
+                icon: '📦',
+                color: '#0EA5E9'
+            },
+            'infrastructure': {
+                id: 'infrastructure',
+                name: 'Infrastructure as Code',
+                description: 'Infrastructure automation and configuration tools',
+                icon: '🏛️',
+                color: '#7C3AED'
+            },
+            'cloud': {
+                id: 'cloud-tools',
+                name: 'Cloud Tools',
+                description: 'Cloud platform CLIs and SDKs',
+                icon: '☁️',
+                color: '#6366F1'
+            },
+            'testing': {
+                id: 'testing',
+                name: 'Testing & Quality',
+                description: 'Testing frameworks and code quality tools',
+                icon: '🧪',
+                color: '#EF4444'
+            },
+            'monitoring': {
+                id: 'monitoring',
+                name: 'Monitoring & Observability',
+                description: 'Application and infrastructure monitoring',
+                icon: '📊',
+                color: '#14B8A6'
+            },
+            'package-managers': {
+                id: 'package-managers',
+                name: 'Package Managers',
+                description: 'Language-specific package management tools',
+                icon: '📦',
+                color: '#F97316'
+            },
+            'developer-tools': {
+                id: 'developer-tools',
+                name: 'Developer Tools',
+                description: 'Version control, API tools, and utilities',
+                icon: '🔧',
+                color: '#10B981'
+            },
+            // Legacy mappings for backward compatibility
+            'productivity': {
+                id: 'developer-tools',
+                name: 'Developer Tools',
+                description: 'Version control, API tools, and utilities',
+                icon: '🔧',
+                color: '#10B981'
+            },
+            'devops': {
+                id: 'containerization',
+                name: 'DevOps Tools',
+                description: 'DevOps and deployment tools',
+                icon: '🚀',
+                color: '#F59E0B'
             },
             'framework': {
                 id: 'frameworks',
                 name: 'Frameworks',
-                description: 'Web frameworks and application development tools',
+                description: 'Web frameworks and libraries',
                 icon: '🏗️',
                 color: '#EC4899'
             }

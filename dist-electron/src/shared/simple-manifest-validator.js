@@ -7,7 +7,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateManifest = validateManifest;
 exports.isValidManifest = isValidManifest;
 const VALID_CATEGORIES = [
-    'language', 'framework', 'database', 'devops', 'productivity', 'other'
+    'language', 'ide', 'database', 'web-frameworks', 'containers',
+    'infrastructure', 'cloud', 'testing', 'monitoring',
+    'package-managers', 'developer-tools', 'other'
 ];
 const VALID_PLATFORMS = ['darwin', 'win32', 'linux'];
 /**

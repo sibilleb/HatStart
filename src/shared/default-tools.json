@@ -30,7 +30,7 @@
     {
       "id": "git",
       "name": "Git",
-      "category": "productivity",
+      "category": "developer-tools",
       "description": "Distributed version control system",
       "packageNames": {
         "darwin": "git",
@@ -42,7 +42,7 @@
     {
       "id": "docker",
       "name": "Docker",
-      "category": "devops",
+      "category": "containers",
       "description": "Container platform",
       "packageNames": {
         "darwin": "docker",
@@ -114,7 +114,7 @@
     {
       "id": "kubectl",
       "name": "Kubernetes CLI",
-      "category": "devops",
+      "category": "containers",
       "description": "Command line tool for Kubernetes",
       "packageNames": {
         "darwin": "kubernetes-cli",
@@ -127,7 +127,7 @@
     {
       "id": "terraform",
       "name": "Terraform",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Infrastructure as Code tool",
       "packageNames": {
         "darwin": "terraform",
@@ -208,6 +208,19 @@
       "recommendedFor": ["backend", "fullstack"]
     },
     {
+      "id": "mariadb",
+      "name": "MariaDB",
+      "category": "database",
+      "description": "MySQL-compatible open-source database",
+      "packageNames": {
+        "darwin": "mariadb",
+        "win32": "mariadb",
+        "linux": "mariadb-server"
+      },
+      "verification": "mariadb --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
       "id": "mongodb",
       "name": "MongoDB",
       "category": "database", 
@@ -252,7 +265,7 @@
     {
       "id": "helm",
       "name": "Helm",
-      "category": "devops",
+      "category": "containers",
       "description": "Kubernetes package manager",
       "packageNames": {
         "darwin": "helm",
@@ -265,7 +278,7 @@
     {
       "id": "ansible",
       "name": "Ansible",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Automation and configuration management tool",
       "packageNames": {
         "darwin": "ansible",
@@ -278,7 +291,7 @@
     {
       "id": "vault",
       "name": "HashiCorp Vault",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Secrets management and data protection",
       "packageNames": {
         "darwin": "vault",
@@ -291,7 +304,7 @@
     {
       "id": "vitest",
       "name": "Vitest",
-      "category": "devops",
+      "category": "testing",
       "description": "Fast Vite-native test framework",
       "packageNames": {
         "darwin": "vitest",
@@ -309,7 +322,7 @@
     {
       "id": "jest",
       "name": "Jest",
-      "category": "devops",
+      "category": "testing",
       "description": "JavaScript testing framework",
       "packageNames": {
         "darwin": "jest",
@@ -327,7 +340,7 @@
     {
       "id": "playwright",
       "name": "Playwright",
-      "category": "devops",
+      "category": "testing",
       "description": "Cross-browser end-to-end testing",
       "packageNames": {
         "darwin": "playwright",
@@ -345,7 +358,7 @@
     {
       "id": "django",
       "name": "Django",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "High-level Python web framework",
       "packageNames": {
         "darwin": "django",
@@ -363,7 +376,7 @@
     {
       "id": "fastapi",
       "name": "FastAPI",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Modern, fast Python web framework for building APIs",
       "packageNames": {
         "darwin": "fastapi",
@@ -381,7 +394,7 @@
     {
       "id": "react",
       "name": "React",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "JavaScript library for building user interfaces",
       "packageNames": {
         "darwin": "react",
@@ -399,7 +412,7 @@
     {
       "id": "vue",
       "name": "Vue.js",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Progressive JavaScript framework",
       "packageNames": {
         "darwin": "vue",
@@ -417,7 +430,7 @@
     {
       "id": "laravel",
       "name": "Laravel",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "PHP web application framework",
       "packageNames": {
         "darwin": "laravel",
@@ -435,7 +448,7 @@
     {
       "id": "rails",
       "name": "Ruby on Rails",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Full-stack web application framework for Ruby",
       "packageNames": {
         "darwin": "rails",
@@ -453,7 +466,7 @@
     {
       "id": "semgrep",
       "name": "Semgrep",
-      "category": "devops",
+      "category": "testing",
       "description": "Static analysis tool for finding bugs and security issues",
       "packageNames": {
         "darwin": "semgrep",
@@ -471,7 +484,7 @@
     {
       "id": "bandit",
       "name": "Bandit",
-      "category": "devops",
+      "category": "testing",
       "description": "Security linter for Python code",
       "packageNames": {
         "darwin": "bandit",
@@ -489,7 +502,7 @@
     {
       "id": "nextjs",
       "name": "Next.js",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "React framework for production with SSR/SSG",
       "packageNames": {
         "darwin": "nextjs",
@@ -507,7 +520,7 @@
     {
       "id": "angular",
       "name": "Angular",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Platform for building mobile and desktop web applications",
       "packageNames": {
         "darwin": "angular-cli",
@@ -525,7 +538,7 @@
     {
       "id": "svelte",
       "name": "SvelteKit",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Cybernetically enhanced web apps",
       "packageNames": {
         "darwin": "svelte",
@@ -543,7 +556,7 @@
     {
       "id": "nestjs",
       "name": "NestJS",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Progressive Node.js framework for scalable applications",
       "packageNames": {
         "darwin": "nestjs",
@@ -561,7 +574,7 @@
     {
       "id": "flask",
       "name": "Flask",
-      "category": "framework",
+      "category": "web-frameworks",
       "description": "Lightweight Python web framework",
       "packageNames": {
         "darwin": "flask",
@@ -579,7 +592,7 @@
     {
       "id": "tailwindcss",
       "name": "Tailwind CSS",
-      "category": "framework",
+      "category": "developer-tools",
       "description": "Utility-first CSS framework",
       "packageNames": {
         "darwin": "tailwindcss",
@@ -597,7 +610,7 @@
     {
       "id": "postcss",
       "name": "PostCSS",
-      "category": "framework",
+      "category": "developer-tools",
       "description": "Tool for transforming CSS with JavaScript",
       "packageNames": {
         "darwin": "postcss",
@@ -615,7 +628,7 @@
     {
       "id": "awscli",
       "name": "AWS CLI",
-      "category": "devops",
+      "category": "cloud",
       "description": "Amazon Web Services command line interface",
       "packageNames": {
         "darwin": "awscli",
@@ -628,7 +641,7 @@
     {
       "id": "azure-cli",
       "name": "Azure CLI",
-      "category": "devops",
+      "category": "cloud",
       "description": "Microsoft Azure command line interface",
       "packageNames": {
         "darwin": "azure-cli",
@@ -641,7 +654,7 @@
     {
       "id": "gcloud",
       "name": "Google Cloud SDK",
-      "category": "devops",
+      "category": "cloud",
       "description": "Google Cloud Platform command line tools",
       "packageNames": {
         "darwin": "google-cloud-sdk",
@@ -657,7 +670,7 @@
     {
       "id": "gh",
       "name": "GitHub CLI",
-      "category": "productivity",
+      "category": "developer-tools",
       "description": "GitHub's official command line tool",
       "packageNames": {
         "darwin": "gh",
@@ -670,7 +683,7 @@
     {
       "id": "postman",
       "name": "Postman",
-      "category": "productivity",
+      "category": "developer-tools",
       "description": "API platform for building and testing APIs",
       "packageNames": {
         "darwin": "postman",
@@ -686,7 +699,7 @@
     {
       "id": "insomnia",
       "name": "Insomnia",
-      "category": "productivity",
+      "category": "developer-tools",
       "description": "Open source API client",
       "packageNames": {
         "darwin": "insomnia",
@@ -703,7 +716,7 @@
     {
       "id": "httpie",
       "name": "HTTPie",
-      "category": "productivity",
+      "category": "developer-tools",
       "description": "Modern command-line HTTP client",
       "packageNames": {
         "darwin": "httpie",
@@ -716,7 +729,7 @@
     {
       "id": "prometheus",
       "name": "Prometheus",
-      "category": "devops",
+      "category": "monitoring",
       "description": "Monitoring system and time series database",
       "packageNames": {
         "darwin": "prometheus",
@@ -729,7 +742,7 @@
     {
       "id": "grafana",
       "name": "Grafana",
-      "category": "devops",
+      "category": "monitoring",
       "description": "Open source analytics and monitoring solution",
       "packageNames": {
         "darwin": "grafana",
@@ -742,7 +755,7 @@
     {
       "id": "packer",
       "name": "HashiCorp Packer",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Build automated machine images",
       "packageNames": {
         "darwin": "packer",
@@ -755,7 +768,7 @@
     {
       "id": "consul",
       "name": "HashiCorp Consul",
-      "category": "devops",
+      "category": "containers",
       "description": "Service mesh and service discovery",
       "packageNames": {
         "darwin": "consul",
@@ -768,7 +781,7 @@
     {
       "id": "nomad",
       "name": "HashiCorp Nomad",
-      "category": "devops",
+      "category": "containers",
       "description": "Simple and flexible workload orchestrator",
       "packageNames": {
         "darwin": "nomad",
@@ -781,7 +794,7 @@
     {
       "id": "cypress",
       "name": "Cypress",
-      "category": "devops",
+      "category": "testing",
       "description": "Fast, easy and reliable testing for anything that runs in a browser",
       "packageNames": {
         "darwin": "cypress",
@@ -799,7 +812,7 @@
     {
       "id": "k6",
       "name": "K6",
-      "category": "devops",
+      "category": "testing",
       "description": "Modern load testing tool",
       "packageNames": {
         "darwin": "k6",
@@ -812,7 +825,7 @@
     {
       "id": "gradle",
       "name": "Gradle",
-      "category": "productivity",
+      "category": "package-managers",
       "description": "Build automation tool for Java and more",
       "packageNames": {
         "darwin": "gradle",
@@ -825,7 +838,7 @@
     {
       "id": "maven",
       "name": "Apache Maven",
-      "category": "productivity",
+      "category": "package-managers",
       "description": "Software project management tool for Java",
       "packageNames": {
         "darwin": "maven",
@@ -838,7 +851,7 @@
     {
       "id": "yarn",
       "name": "Yarn",
-      "category": "productivity",
+      "category": "package-managers",
       "description": "Fast, reliable, and secure dependency management",
       "packageNames": {
         "darwin": "yarn",
@@ -851,7 +864,7 @@
     {
       "id": "pnpm",
       "name": "pnpm",
-      "category": "productivity",
+      "category": "package-managers",
       "description": "Fast, disk space efficient package manager",
       "packageNames": {
         "darwin": "pnpm",
@@ -869,7 +882,7 @@
     {
       "id": "composer",
       "name": "Composer",
-      "category": "productivity",
+      "category": "package-managers",
       "description": "Dependency manager for PHP",
       "packageNames": {
         "darwin": "composer",
@@ -882,7 +895,7 @@
     {
       "id": "podman",
       "name": "Podman",
-      "category": "devops",
+      "category": "containers",
       "description": "Daemonless container engine",
       "packageNames": {
         "darwin": "podman",
@@ -895,7 +908,7 @@
     {
       "id": "minikube",
       "name": "Minikube",
-      "category": "devops",
+      "category": "containers",
       "description": "Local Kubernetes for easy development",
       "packageNames": {
         "darwin": "minikube",
@@ -908,7 +921,7 @@
     {
       "id": "checkov",
       "name": "Checkov",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Static analysis for infrastructure as code",
       "packageNames": {
         "darwin": "checkov",
@@ -926,7 +939,7 @@
     {
       "id": "sops",
       "name": "SOPS",
-      "category": "devops",
+      "category": "infrastructure",
       "description": "Simple and flexible tool for managing secrets",
       "packageNames": {
         "darwin": "sops",
@@ -939,7 +952,7 @@
     {
       "id": "age",
       "name": "age",
-      "category": "devops",
+      "category": "testing",
       "description": "Simple, modern and secure file encryption tool",
       "packageNames": {
         "darwin": "age",

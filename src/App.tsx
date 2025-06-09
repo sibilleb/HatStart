@@ -51,6 +51,7 @@ function App() {
   });
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [conflicts, setConflicts] = useState<ConflictRule[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Load system detection data on mount
   useEffect(() => {
@@ -275,6 +276,16 @@ function App() {
     setConflicts([]);
   };
 
+  const handleCategoryToggle = (categoryId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
   // Get all tools for recommendations
   const allTools = categories.flatMap(cat => cat.tools);
 
@@ -329,8 +340,8 @@ function App() {
               <div className="lg:w-3/4">
                 <CategoryGrid
                   categories={categories}
-                  expandedCategories={new Set(categories.map(c => c.id))}
-                  onCategoryToggle={() => {}}
+                  expandedCategories={expandedCategories}
+                  onCategoryToggle={handleCategoryToggle}
                   selection={selection}
                   onSelectionChange={handleSelectionChange}
                   filterOptions={filterOptions}

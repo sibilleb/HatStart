@@ -6,7 +6,9 @@
 import type { SimpleManifest, SimpleTool, ToolCategory } from './simple-manifest-types';
 
 const VALID_CATEGORIES: ToolCategory[] = [
-  'language', 'framework', 'database', 'devops', 'productivity', 'other'
+  'language', 'ide', 'database', 'web-frameworks', 'containers', 
+  'infrastructure', 'cloud', 'testing', 'monitoring', 
+  'package-managers', 'developer-tools', 'other'
 ];
 
 const VALID_PLATFORMS = ['darwin', 'win32', 'linux'];
