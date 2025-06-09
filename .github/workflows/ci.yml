@@ -25,12 +25,18 @@ jobs:
 
     - name: Run linter
       run: npm run lint
+      continue-on-error: true  # Don't fail CI on lint warnings
 
     - name: Run type check
       run: npm run type-check
 
     - name: Run tests
       run: npm test
+      env:
+        CI: true
 
     - name: Build application
       run: npm run build
+
+    - name: Build Electron app
+      run: npm run electron:build

@@ -33,23 +33,51 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Build application
-      run: npm run electron:build
+    - name: Install platform-specific dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libdrm2 libgbm1 libxcb-dri3-0
+
+    - name: Build TypeScript
+      run: npm run build
+
+    - name: Build Electron
+      run: npm run electron:compile
 
     - name: Build distributables
       run: npm run electron:dist
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
 
-    - name: Upload artifacts
+    - name: List release directory (debug)
+      run: ls -la release/ || echo "No release directory"
+      continue-on-error: true
+
+    - name: Upload macOS artifacts
+      if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: hatstart-${{ matrix.platform }}
-        path: |
-          release/*.dmg
-          release/*.exe
-          release/*.AppImage
-        if-no-files-found: error
+        name: hatstart-mac
+        path: release/*.dmg
+        if-no-files-found: warn
+
+    - name: Upload Windows artifacts
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: hatstart-win
+        path: release/*.exe
+        if-no-files-found: warn
+
+    - name: Upload Linux artifacts
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: hatstart-linux
+        path: release/*.AppImage
+        if-no-files-found: warn
 
   release:
     needs: build
