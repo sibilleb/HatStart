@@ -5,14 +5,14 @@
 
 import { homedir } from 'os';
 import { join } from 'path';
-import { BaseIDEConfigurationManager } from './base-ide-configuration-manager.js';
+import { BaseIDEConfigurationManager } from './base-ide-configuration-manager';
 import type {
     ConfigValue,
     IDEExtension,
     IDEType,
     IDEUserSettings,
     IDEWorkspaceSettings
-} from './types.js';
+} from './types';
 
 /**
  * VSCode-specific configuration manager

@@ -21,7 +21,7 @@ import type {
   IDEUserSettings,
   IDEWorkspaceSettings,
   IIDEConfigurationManager
-} from './types.js';
+} from './types';
 
 const execAsync = promisify(exec);
 

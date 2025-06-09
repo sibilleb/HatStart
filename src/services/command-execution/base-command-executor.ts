@@ -5,7 +5,7 @@
 
 import { ChildProcess, exec, spawn } from 'child_process';
 import { promisify } from 'util';
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
 import type {
   CommandExecutionError,
   CommandExecutionErrorType,
@@ -15,7 +15,7 @@ import type {
   ICommandExecutor,
   IPlatformCommandAdapter,
   ShellType
-} from './types.js';
+} from './types';
 
 const execAsync = promisify(exec);
 

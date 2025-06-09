@@ -11,7 +11,7 @@ import type {
     IDEConfigurationResult,
     IDEExtension,
     IDEType
-} from './types.js';
+} from './types';
 
 const execAsync = promisify(exec);
 

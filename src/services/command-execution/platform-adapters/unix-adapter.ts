@@ -5,14 +5,14 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import type { Platform } from '../../../shared/manifest-types.js';
+import type { Platform } from '../../../shared/simple-manifest-types';
 import type {
     CommandExecutionOptions,
     CommandExecutionResult,
     CommandValidationResult,
     IPlatformCommandAdapter,
     ShellType,
-} from '../types.js';
+} from '../types';
 
 const execAsync = promisify(exec);
 

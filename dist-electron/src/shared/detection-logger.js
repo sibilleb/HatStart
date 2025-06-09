@@ -5,7 +5,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.log = exports.detectionLogger = exports.DetectionLogger = exports.MemoryLogOutput = exports.ConsoleLogOutput = exports.LogLevel = void 0;
-const detection_errors_js_1 = require("./detection-errors.js");
+const detection_errors_1 = require("./detection-errors");
 exports.LogLevel = {
     DEBUG: 0,
     INFO: 1,
@@ -200,7 +200,7 @@ class DetectionLogger {
      */
     error(component, operation, message, error, metadata) {
         let errorDetails;
-        if (error instanceof detection_errors_js_1.DetectionError) {
+        if (error instanceof detection_errors_1.DetectionError) {
             errorDetails = {
                 name: error.name,
                 message: error.message,

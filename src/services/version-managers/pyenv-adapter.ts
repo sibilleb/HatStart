@@ -4,8 +4,8 @@
  * Handles both Unix (pyenv) and Windows (pyenv-win) variants
  */
 
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
-import { VersionManagerInstaller } from '../version-manager-installer.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
+import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     VersionedTool,
     VersionInfo,
@@ -13,8 +13,8 @@ import type {
     VersionManagerType,
     VersionOperationResult,
     VersionSpecifier,
-} from '../version-manager-types.js';
-import { BaseVersionManagerAdapter } from './base-adapter.js';
+} from '../version-manager-types';
+import { BaseVersionManagerAdapter } from './base-adapter';
 
 /**
  * PyEnv adapter implementation

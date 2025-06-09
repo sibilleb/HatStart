@@ -6,14 +6,14 @@
 import { access, mkdir, readFile, writeFile } from 'fs/promises';
 import { arch, platform } from 'os';
 import { dirname, join } from 'path';
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
 import type {
     VersionedTool,
     VersionManagerType,
     VersionOperationResult,
     VersionSpecifier
-} from '../version-manager-types.js';
-import { EnvironmentManager } from './environment-manager.js';
+} from '../version-manager-types';
+import { EnvironmentManager } from './environment-manager';
 import type {
     ConfigurationBackup,
     EnvironmentSyncResult,
@@ -22,7 +22,7 @@ import type {
     WorkspaceConfiguration,
     WorkspaceDetectionResult,
     WorkspaceToolConfig
-} from './types.js';
+} from './types';
 
 /**
  * Workspace configuration service implementation

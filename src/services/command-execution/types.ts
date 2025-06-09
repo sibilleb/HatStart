@@ -3,7 +3,7 @@
  * Unified interfaces for cross-platform command execution
  */
 
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
 
 /**
  * Command execution modes

@@ -186,7 +186,7 @@ class SystemDetector extends events_1.EventEmitter {
     initializeProgrammingLanguageRules() {
         const rules = [
             {
-                name: 'Node.js',
+                name: 'Node',
                 category: 'programming-languages',
                 essential: true,
                 strategies: [

@@ -5,10 +5,10 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import type { Architecture, InstallationMethod, Platform } from '../shared/manifest-types.js';
-import { CategoryInstaller } from './category-installer.js';
-import type { CommandExecutionResult, InstallationOptions } from './installer-types.js';
-import type { VersionManagerType, VersionOperationResult, VersionedTool } from './version-manager-types.js';
+import type { Platform, Architecture, InstallationMethod } from '../shared/simple-manifest-types';
+import { SimpleInstaller } from './simple-installer';
+import type { CommandExecutionResult, InstallationOptions } from './installer-types';
+import type { VersionManagerType, VersionOperationResult, VersionedTool } from './version-manager-types';
 
 const execAsync = promisify(exec);
 

@@ -6,13 +6,13 @@
 import { access, mkdir, readFile, writeFile } from 'fs/promises';
 import { homedir, platform } from 'os';
 import { delimiter, join } from 'path';
-import type { Platform } from '../../shared/manifest-types.js';
-import { createCommandExecutor } from '../command-execution/index.js';
+import type { Platform } from '../../shared/simple-manifest-types';
+import { createCommandExecutor } from '../command-execution/index';
 import type {
   IEnvironmentManager,
   PathEntry,
   WorkspaceScope,
-} from './types.js';
+} from './types';
 
 /**
  * Environment manager implementation

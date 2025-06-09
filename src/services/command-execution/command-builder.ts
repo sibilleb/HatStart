@@ -12,7 +12,7 @@ import type {
     ICommandBuilder,
     ICommandExecutor,
     ShellType,
-} from './types.js';
+} from './types';
 
 /**
  * Fluent command builder implementation

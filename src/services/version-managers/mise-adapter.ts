@@ -3,8 +3,8 @@
  * Implements the unified interface for Mise (formerly rtx) - a modern, cross-platform version manager
  */
 
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
-import { VersionManagerInstaller } from '../version-manager-installer.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
+import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     VersionedTool,
     VersionInfo,
@@ -12,8 +12,8 @@ import type {
     VersionManagerType,
     VersionOperationResult,
     VersionSpecifier,
-} from '../version-manager-types.js';
-import { BaseVersionManagerAdapter } from './base-adapter.js';
+} from '../version-manager-types';
+import { BaseVersionManagerAdapter } from './base-adapter';
 
 /**
  * Mise adapter implementation

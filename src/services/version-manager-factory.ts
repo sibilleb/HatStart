@@ -4,18 +4,18 @@
  */
 
 import * as os from 'os';
-import type { Architecture, Platform } from '../shared/manifest-types.js';
+import type { Architecture, Platform } from '../shared/simple-manifest-types';
 import type {
     IVersionManager,
     IVersionManagerFactory,
     VersionManagerType,
     VersionedTool,
-} from './version-manager-types.js';
+} from './version-manager-types';
 import {
     MiseAdapter,
     NvmAdapter,
     PyenvAdapter,
-} from './version-managers/index.js';
+} from './version-managers/index';
 
 /**
  * Factory for creating version manager instances

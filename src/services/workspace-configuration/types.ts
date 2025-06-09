@@ -3,14 +3,14 @@
  * Interfaces and types for managing workspace-level configuration and environment
  */
 
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
 import type {
   ProjectVersionConfig,
   VersionedTool,
   VersionManagerType,
   VersionOperationResult,
   VersionSpecifier,
-} from '../version-manager-types.js';
+} from '../version-manager-types';
 
 /**
  * Workspace configuration scope

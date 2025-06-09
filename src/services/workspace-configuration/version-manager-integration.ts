@@ -4,15 +4,15 @@
  */
 
 import { join } from 'path';
-import type { Platform } from '../../shared/manifest-types.js';
-import { VersionManagerInstaller } from '../version-manager-installer.js';
+import type { Platform } from '../../shared/simple-manifest-types';
+import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     IVersionManager,
     VersionedTool,
     VersionManagerType,
     VersionOperationResult,
     VersionSpecifier
-} from '../version-manager-types.js';
+} from '../version-manager-types';
 import type {
     EnvironmentSyncResult,
     IWorkspaceConfigurationService,
@@ -20,7 +20,7 @@ import type {
     ShellIntegration,
     WorkspaceConfiguration,
     WorkspaceToolConfig
-} from './types.js';
+} from './types';
 
 /**
  * Version manager integration service

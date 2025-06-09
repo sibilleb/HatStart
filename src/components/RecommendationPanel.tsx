@@ -49,7 +49,7 @@ export const RecommendationPanel: React.FC<RecommendationPanelProps> = ({
         recommendations.push({
           ...npmTool,
           recommendationReason: 'suggested',
-          suggestedFor: 'Works great with Node.js',
+          suggestedFor: 'Works great with Node',
         });
       }
       
@@ -57,7 +57,7 @@ export const RecommendationPanel: React.FC<RecommendationPanelProps> = ({
         recommendations.push({
           ...yarnTool,
           recommendationReason: 'suggested',
-          suggestedFor: 'Alternative package manager for Node.js',
+          suggestedFor: 'Alternative package manager for Node',
         });
       }
     }

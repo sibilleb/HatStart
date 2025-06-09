@@ -19,4 +19,4 @@ export interface IpcResponse<T = unknown> {
 }
 
 // Re-export manifest types for convenience
-export * from './manifest-types';
+export * from './simple-manifest-types';

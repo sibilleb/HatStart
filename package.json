@@ -2,9 +2,8 @@
   "name": "hatstart",
   "private": true,
   "version": "0.1.0",
-  "type": "module",
   "description": "HatStart - The Automated Developer Toolkit Installer",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "homepage": "./",
   "author": "HatStart Team",
   "scripts": {

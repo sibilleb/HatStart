@@ -16,5 +16,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Re-export manifest types for convenience
-__exportStar(require("./manifest-types"), exports);
+__exportStar(require("./simple-manifest-types"), exports);
 //# sourceMappingURL=types.js.map

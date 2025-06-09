@@ -7,7 +7,7 @@ import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
 import type {
   IVersionManager,
   ProjectVersionConfig,
@@ -20,11 +20,11 @@ import type {
   VersionManagerType,
   VersionOperationResult,
   VersionSpecifier,
-} from '../version-manager-types.js';
+} from '../version-manager-types';
 import {
   safeParseVersionListOutput,
   safeParseVersionOutput
-} from './type-guards.js';
+} from './type-guards';
 
 /**
  * Base adapter for version managers

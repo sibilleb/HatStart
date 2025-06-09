@@ -6,8 +6,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parallelDetector = exports.ParallelDetector = void 0;
 const events_1 = require("events");
-const detection_errors_js_1 = require("./detection-errors.js");
-const detection_logger_js_1 = require("./detection-logger.js");
+const detection_errors_1 = require("./detection-errors");
+const detection_logger_1 = require("./detection-logger");
 // Simple cache implementation for detection results
 class SimpleCache {
     constructor() {
@@ -52,7 +52,7 @@ class ParallelDetector extends events_1.EventEmitter {
             ...config
         };
         this.cache = new SimpleCache();
-        this.logger = new detection_logger_js_1.DetectionLogger();
+        this.logger = new detection_logger_1.DetectionLogger();
         // Auto-adjust concurrency based on system capabilities
         this.adjustConcurrencyBasedOnSystem();
     }
@@ -110,8 +110,8 @@ class ParallelDetector extends events_1.EventEmitter {
             }
         }
         catch (err) {
-            error = err instanceof detection_errors_js_1.DetectionError ? err :
-                new detection_errors_js_1.DetectionError(err instanceof Error ? err.message : String(err), 'unknown', 'medium', {
+            error = err instanceof detection_errors_1.DetectionError ? err :
+                new detection_errors_1.DetectionError(err instanceof Error ? err.message : String(err), 'unknown', 'medium', {
                     component: 'ParallelDetector',
                     operation: 'executeDetection',
                     timestamp: new Date()
@@ -172,7 +172,7 @@ class ParallelDetector extends events_1.EventEmitter {
         const timeout = task.timeout || this.config.globalTimeout;
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
-                reject(detection_errors_js_1.DetectionError.timeout('executeWithTimeout', 'ParallelDetector', timeout, `Task ${task.id}`));
+                reject(detection_errors_1.DetectionError.timeout('executeWithTimeout', 'ParallelDetector', timeout, `Task ${task.id}`));
             }, timeout);
             task.detector()
                 .then(result => {

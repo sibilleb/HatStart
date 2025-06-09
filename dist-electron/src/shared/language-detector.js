@@ -19,7 +19,7 @@ class LanguageDetector {
     initializeLanguages() {
         this.languages = [
             {
-                name: 'Node.js',
+                name: 'Node',
                 essential: true,
                 commands: [
                     {

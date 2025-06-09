@@ -6,7 +6,7 @@ import type {
     MasterManifest,
     ToolManifest,
     ValidationResult
-} from './shared/manifest-types';
+} from './shared/simple-manifest-types';
 
 // Electron API interface for the renderer process
 interface ElectronAPI {

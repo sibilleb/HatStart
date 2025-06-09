@@ -17,7 +17,7 @@ import type {
     SystemDetectionReport,
     SystemInfo,
     ToolCategory
-} from './detection-types.js';
+} from './detection-types';
 
 export class SystemDetector extends EventEmitter {
   private config: DetectionConfig;
@@ -199,7 +199,7 @@ export class SystemDetector extends EventEmitter {
   private initializeProgrammingLanguageRules(): void {
     const rules: DetectionRule[] = [
       {
-        name: 'Node.js',
+        name: 'Node',
         category: 'programming-languages',
         essential: true,
         strategies: [

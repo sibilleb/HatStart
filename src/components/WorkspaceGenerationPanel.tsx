@@ -55,8 +55,8 @@ export const WorkspaceGenerationPanel: React.FC<WorkspaceGenerationPanelProps> =
       }
 
       // Load tool metadata from manifest
-      const manifestResult = await window.electronAPI.invoke('load-manifest');
-      if ('error' in manifestResult) {
+      const manifestResult = await window.electronAPI.invoke('load-manifest') as { error?: string; tools?: any[] };
+      if (manifestResult.error) {
         throw new Error(manifestResult.error);
       }
       

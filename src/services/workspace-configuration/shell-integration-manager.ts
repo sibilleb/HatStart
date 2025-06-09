@@ -6,14 +6,14 @@
 import { access, mkdir, readFile, writeFile } from 'fs/promises';
 import { homedir, platform } from 'os';
 import { dirname, join } from 'path';
-import type { Platform } from '../../shared/manifest-types.js';
-import { createCommandExecutor } from '../command-execution/index.js';
-import type { ICommandExecutor } from '../command-execution/types.js';
+import type { Platform } from '../../shared/simple-manifest-types';
+import { createCommandExecutor } from '../command-execution/index';
+import type { ICommandExecutor } from '../command-execution/types';
 import type {
     IShellIntegrationManager,
     ShellIntegration,
     ShellProfile
-} from './types.js';
+} from './types';
 
 /**
  * Shell integration manager implementation

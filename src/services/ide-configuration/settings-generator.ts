@@ -14,7 +14,7 @@ import type {
   IDETask,
   IDEType,
   IDEWorkspaceSettings
-} from './types.js';
+} from './types';
 
 /**
  * Project technology stack information
@@ -107,13 +107,13 @@ export interface SettingsTemplate {
   /** Supported frameworks */
   frameworks: string[];
   /** Generate workspace settings */
-  generateWorkspaceSettings(_context: SettingsGenerationContext): IDEWorkspaceSettings;
+  generateWorkspaceSettings(context: SettingsGenerationContext): IDEWorkspaceSettings;
   /** Generate tasks */
-  generateTasks(_context: SettingsGenerationContext): IDETask[];
+  generateTasks(context: SettingsGenerationContext): IDETask[];
   /** Generate launch configurations */
-  generateLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[];
+  generateLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[];
   /** Generate snippets */
-  generateSnippets(_context: SettingsGenerationContext): Record<string, IDESnippet[]>;
+  generateSnippets(context: SettingsGenerationContext): Record<string, IDESnippet[]>;
 }
 
 /**
@@ -136,7 +136,7 @@ export class SettingsGenerator {
   /**
    * Generate complete IDE configuration profile
    */
-  async generateProfile(_context: SettingsGenerationContext): Promise<IDEConfigurationProfile> {
+  async generateProfile(context: SettingsGenerationContext): Promise<IDEConfigurationProfile> {
     const workspaceSettings = this.generateWorkspaceSettings(context);
     const tasks = this.generateTasks(context);
     const launchConfigurations = this.generateLaunchConfigurations(context);
@@ -157,7 +157,7 @@ export class SettingsGenerator {
   /**
    * Generate workspace settings
    */
-  generateWorkspaceSettings(_context: SettingsGenerationContext): IDEWorkspaceSettings {
+  generateWorkspaceSettings(context: SettingsGenerationContext): IDEWorkspaceSettings {
     const baseSettings: IDEWorkspaceSettings = {
       editor: this.generateEditorSettings(context),
       languages: this.generateLanguageSettings(context),
@@ -179,7 +179,7 @@ export class SettingsGenerator {
   /**
    * Generate tasks configuration
    */
-  generateTasks(_context: SettingsGenerationContext): IDETask[] {
+  generateTasks(context: SettingsGenerationContext): IDETask[] {
     const tasks: IDETask[] = [];
 
     // Add common tasks based on tech stack
@@ -215,7 +215,7 @@ export class SettingsGenerator {
   /**
    * Generate launch configurations
    */
-  generateLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  generateLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
     const configurations: IDELaunchConfiguration[] = [];
 
     // Generate configurations based on primary language
@@ -247,7 +247,7 @@ export class SettingsGenerator {
   /**
    * Generate code snippets
    */
-  generateSnippets(_context: SettingsGenerationContext): Record<string, IDESnippet[]> {
+  generateSnippets(context: SettingsGenerationContext): Record<string, IDESnippet[]> {
     const snippets: Record<string, IDESnippet[]> = {};
 
     // Generate language-specific snippets
@@ -324,7 +324,7 @@ export class SettingsGenerator {
   /**
    * Generate editor settings
    */
-  private generateEditorSettings(_context: SettingsGenerationContext): Record<string, ConfigValue> {
+  private generateEditorSettings(context: SettingsGenerationContext): Record<string, ConfigValue> {
     const { preferences } = context;
     
     return {
@@ -344,7 +344,7 @@ export class SettingsGenerator {
   /**
    * Generate language-specific settings
    */
-  private generateLanguageSettings(_context: SettingsGenerationContext): Record<string, Record<string, ConfigValue>> {
+  private generateLanguageSettings(context: SettingsGenerationContext): Record<string, Record<string, ConfigValue>> {
     const languageSettings: Record<string, Record<string, ConfigValue>> = {};
 
     for (const language of context.techStack.languages) {
@@ -382,7 +382,7 @@ export class SettingsGenerator {
   /**
    * Generate extension-specific settings
    */
-  private generateExtensionSettings(_context: SettingsGenerationContext): Record<string, ConfigValue> {
+  private generateExtensionSettings(context: SettingsGenerationContext): Record<string, ConfigValue> {
     const settings: Record<string, ConfigValue> = {};
 
     // ESLint settings
@@ -408,7 +408,7 @@ export class SettingsGenerator {
   /**
    * Generate debug settings
    */
-  private generateDebugSettings(_context: SettingsGenerationContext): Record<string, ConfigValue> {
+  private generateDebugSettings(context: SettingsGenerationContext): Record<string, ConfigValue> {
     return {
       'debug.allowBreakpointsEverywhere': context.preferences.debugging.enableBreakpoints,
       'debug.showVariableTypes': context.preferences.debugging.showVariableTypes,
@@ -419,7 +419,7 @@ export class SettingsGenerator {
   /**
    * Generate terminal settings
    */
-  private generateTerminalSettings(_context: SettingsGenerationContext): Record<string, ConfigValue> {
+  private generateTerminalSettings(context: SettingsGenerationContext): Record<string, ConfigValue> {
     return {
       'terminal.integrated.defaultProfile.osx': context.preferences.terminal.defaultShell,
       'terminal.integrated.defaultProfile.linux': context.preferences.terminal.defaultShell,
@@ -432,7 +432,7 @@ export class SettingsGenerator {
   /**
    * Generate NPM tasks
    */
-  private generateNpmTasks(_context: SettingsGenerationContext): IDETask[] {
+  private generateNpmTasks(context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'npm: install',
@@ -470,7 +470,7 @@ export class SettingsGenerator {
   /**
    * Generate Yarn tasks
    */
-  private generateYarnTasks(_context: SettingsGenerationContext): IDETask[] {
+  private generateYarnTasks(context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'yarn: install',
@@ -507,7 +507,7 @@ export class SettingsGenerator {
   /**
    * Generate Vite tasks
    */
-  private generateViteTasks(_context: SettingsGenerationContext): IDETask[] {
+  private generateViteTasks(context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'vite: dev',
@@ -537,7 +537,7 @@ export class SettingsGenerator {
   /**
    * Generate Webpack tasks
    */
-  private generateWebpackTasks(_context: SettingsGenerationContext): IDETask[] {
+  private generateWebpackTasks(context: SettingsGenerationContext): IDETask[] {
     return [
       {
         label: 'webpack: dev',
@@ -560,7 +560,7 @@ export class SettingsGenerator {
   /**
    * Generate test tasks
    */
-  private generateTestTasks(_context: SettingsGenerationContext): IDETask[] {
+  private generateTestTasks(context: SettingsGenerationContext): IDETask[] {
     const tasks: IDETask[] = [];
 
     if (context.techStack.testingFrameworks.includes('jest')) {
@@ -589,14 +589,14 @@ export class SettingsGenerator {
   /**
    * Generate Node.js launch configurations
    */
-  private generateNodeLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generateNodeLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Launch Program',
         type: 'node',
         request: 'launch',
         program: '${workspaceFolder}/src/index.ts',
-        outFiles: ['${workspaceFolder}/dist/**/*.js'],
+        outFiles: ['${workspaceFolder}/dist/**/*'],
         env: {
           NODE_ENV: 'development'
         }
@@ -613,7 +613,7 @@ export class SettingsGenerator {
   /**
    * Generate Python launch configurations
    */
-  private generatePythonLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generatePythonLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Python: Current File',
@@ -635,7 +635,7 @@ export class SettingsGenerator {
   /**
    * Generate Java launch configurations
    */
-  private generateJavaLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generateJavaLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Launch Java Program',
@@ -650,7 +650,7 @@ export class SettingsGenerator {
   /**
    * Generate .NET launch configurations
    */
-  private generateDotNetLaunchConfigurations(_context: SettingsGenerationContext): IDELaunchConfiguration[] {
+  private generateDotNetLaunchConfigurations(context: SettingsGenerationContext): IDELaunchConfiguration[] {
     return [
       {
         name: 'Launch .NET Core',
@@ -665,7 +665,7 @@ export class SettingsGenerator {
   /**
    * Generate language-specific snippets
    */
-  private generateLanguageSnippets(language: string, _context: SettingsGenerationContext): IDESnippet[] {
+  private generateLanguageSnippets(language: string, context: SettingsGenerationContext): IDESnippet[] {
     const snippets: IDESnippet[] = [];
 
     switch (language) {
@@ -713,7 +713,7 @@ export class SettingsGenerator {
   /**
    * Get applicable templates for the context
    */
-  private getApplicableTemplates(_context: SettingsGenerationContext): SettingsTemplate[] {
+  private getApplicableTemplates(context: SettingsGenerationContext): SettingsTemplate[] {
     const applicable: SettingsTemplate[] = [];
 
     for (const template of this.templates.values()) {
@@ -751,7 +751,7 @@ export class SettingsGenerator {
   /**
    * Get configuration directory for IDE
    */
-  private getConfigurationDirectory(_context: SettingsGenerationContext): string {
+  private getConfigurationDirectory(context: SettingsGenerationContext): string {
     switch (context.ideType) {
       case 'vscode':
       case 'cursor':

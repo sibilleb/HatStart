@@ -4,17 +4,17 @@
  */
 
 import { arch, platform } from 'os';
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
-import { BaseCommandExecutor } from './base-command-executor.js';
-import { CommandBuilder } from './command-builder.js';
-import { UnixPlatformAdapter } from './platform-adapters/unix-adapter.js';
-import { WindowsPlatformAdapter } from './platform-adapters/windows-adapter.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
+import { BaseCommandExecutor } from './base-command-executor';
+import { CommandBuilder } from './command-builder';
+import { UnixPlatformAdapter } from './platform-adapters/unix-adapter';
+import { WindowsPlatformAdapter } from './platform-adapters/windows-adapter';
 import type {
     ICommandBuilder,
     ICommandExecutor,
     ICommandExecutorFactory,
     IPlatformCommandAdapter,
-} from './types.js';
+} from './types';
 
 /**
  * Platform-specific command executor implementations

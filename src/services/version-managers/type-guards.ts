@@ -3,7 +3,7 @@
  * Provides runtime type validation for version detection results
  */
 
-import type { DetectionResult } from '../../shared/detection-types.js';
+import type { DetectionResult } from '../../shared/detection-types';
 import type {
   IVersionInfo,
   IVersionOperationResult,
@@ -11,7 +11,7 @@ import type {
   VersionedTool,
   VersionManagerConfig,
   VersionManagerType
-} from '../version-manager-types.js';
+} from '../version-manager-types';
 
 /**
  * Type guard for IVersionInfo objects

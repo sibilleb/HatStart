@@ -3,7 +3,7 @@
  * Defines the unified interface for managing multiple versions of programming languages and tools
  */
 
-import type { Architecture, Platform } from '../shared/manifest-types.js';
+import type { Architecture, Platform } from '../shared/simple-manifest-types';
 
 /**
  * Supported version manager types

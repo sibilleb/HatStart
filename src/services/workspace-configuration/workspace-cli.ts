@@ -3,8 +3,8 @@
  * Command-line interface wrapper for workspace management
  */
 
-import type { VersionedTool } from '../version-manager-types.js';
-import { WorkspaceCLITools, type CLICommandResult } from './workspace-cli-tools.js';
+import type { VersionedTool } from '../version-manager-types';
+import { WorkspaceCLITools, type CLICommandResult } from './workspace-cli-tools';
 
 /**
  * CLI command interface

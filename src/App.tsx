@@ -11,7 +11,6 @@ import type {
   CategoryInfo,
   FilterOptions,
   InstallationProgress,
-  ToolCategory,
   ToolSelection,
   ToolWithStatus
 } from './types/ui-types';
@@ -39,6 +38,7 @@ function App() {
     selectedPlatforms: new Set(),
     filterByJobRole: false,
     selectedJobRole: undefined,
+    showRoleRecommendations: false,
   });
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [installationProgress, setInstallationProgress] = useState<InstallationProgress>({
@@ -56,7 +56,9 @@ function App() {
         setError(undefined);
         
         // Load categories from system detection
+        console.log('App: Starting system detection...');
         const detectedCategories = await systemDetectionService.getCategoriesForUI();
+        console.log('App: Detected categories:', detectedCategories);
         
         // Set default job role if available
         const jobRoles = jobRoleConfigService.getAllConfigs();
@@ -132,6 +134,7 @@ function App() {
 
   const handleInstall = async () => {
     const toolIds = Array.from(selection.selectedTools);
+    console.log('App: Starting installation for tools:', toolIds);
     if (toolIds.length === 0) return;
 
     setInstallationProgress({
@@ -144,6 +147,7 @@ function App() {
     try {
       // Set up progress listener
       const removeListener = window.electronAPI.onInstallationProgress((progress) => {
+        console.log('App: Installation progress:', progress);
         setInstallationProgress(prev => ({
           ...prev,
           currentTool: progress.message,
@@ -152,7 +156,9 @@ function App() {
       });
 
       // Install tools
+      console.log('App: Calling installTools IPC...');
       const result = await window.electronAPI.installTools(toolIds);
+      console.log('App: Installation result:', result);
       
       if (result.success) {
         const { summary } = result;
@@ -171,8 +177,11 @@ function App() {
         );
 
         // Show summary
-        if (summary?.failed > 0) {
+        if (summary && summary.failed && summary.failed > 0) {
           setError(`Installation completed with errors. ${summary.successful} succeeded, ${summary.failed} failed.`);
+        } else if (summary && summary.successful > 0) {
+          // Show success message
+          console.log(`Successfully installed ${summary.successful} tools`);
         }
       } else {
         setError(result.error || 'Installation failed');
@@ -230,17 +239,9 @@ function App() {
             {showRecommendations && (
               <div className="mb-6">
                 <RecommendationPanel
-                  recommendations={allTools.filter(tool => tool.isRecommended && !tool.isInstalled)}
-                  onAcceptAll={() => {
-                    const recommendedIds = allTools
-                      .filter(tool => tool.isRecommended && !tool.isInstalled)
-                      .map(tool => tool.id);
-                    setSelection({
-                      selectedTools: new Set(recommendedIds),
-                      deselectedRecommendations: new Set(),
-                      customSelections: new Set(),
-                    });
-                  }}
+                  allTools={allTools}
+                  currentSelection={selection}
+                  onSelectionChange={setSelection}
                   onDismiss={() => setShowRecommendations(false)}
                 />
               </div>
@@ -273,8 +274,8 @@ function App() {
             <div className="mt-8">
               <SelectionSummary
                 selection={selection}
-                categories={categories}
-                onInstall={handleInstall}
+                tools={allTools}
+                onInstallSelected={() => handleInstall()}
                 onClearSelection={() => setSelection({
                   selectedTools: new Set(),
                   deselectedRecommendations: new Set(),

@@ -5,7 +5,7 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import type { DetectionResult, PlatformType } from './detection-types.js';
+import type { DetectionResult, PlatformType } from './detection-types';
 
 const execAsync = promisify(exec);
 
@@ -44,7 +44,7 @@ export class LanguageDetector {
   private initializeLanguages(): void {
     this.languages = [
       {
-        name: 'Node.js',
+        name: 'Node',
         essential: true,
         commands: [
           {

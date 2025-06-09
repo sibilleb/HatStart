@@ -1,4 +1,4 @@
-import type { DetectionResult, SystemDetectionReport } from '../shared/detection-types.js';
+import type { DetectionResult, SystemDetectionReport } from '../shared/detection-types';
 
 // File operation types
 export interface FileOperationOptions {

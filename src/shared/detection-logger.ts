@@ -3,7 +3,7 @@
  * Centralized logging with configurable levels and structured output
  */
 
-import { DetectionError } from './detection-errors.js';
+import { DetectionError } from './detection-errors';
 
 export const LogLevel = {
   DEBUG: 0,

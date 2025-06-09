@@ -9,23 +9,23 @@ export type {
     CommandExecutionErrorType, CommandExecutionMode, CommandExecutionOptions,
     CommandExecutionResult, CommandOutputData, CommandValidationResult, ICommandBuilder, ICommandExecutor, ICommandExecutorFactory,
     IPlatformCommandAdapter, ShellType
-} from './types.js';
+} from './types';
 
 // Base implementations
-export { BaseCommandExecutor } from './base-command-executor.js';
+export { BaseCommandExecutor } from './base-command-executor';
 
 // Platform adapters
-export { UnixPlatformAdapter } from './platform-adapters/unix-adapter.js';
-export { WindowsPlatformAdapter } from './platform-adapters/windows-adapter.js';
+export { UnixPlatformAdapter } from './platform-adapters/unix-adapter';
+export { WindowsPlatformAdapter } from './platform-adapters/windows-adapter';
 
 // Command builder
-export { CommandBuilder } from './command-builder.js';
+export { CommandBuilder } from './command-builder';
 
 // Factory and convenience functions
 export {
     CommandExecutorFactory,
     commandExecutorFactory, createCommandBuilder, createCommandExecutor, executeCommand
-} from './command-executor-factory.js';
+} from './command-executor-factory';
 
 // Re-export platform and architecture types for convenience
-export type { Architecture, Platform } from '../../shared/manifest-types.js';
+export type { Architecture, Platform } from '../../shared/simple-manifest-types';

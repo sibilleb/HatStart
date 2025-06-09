@@ -8,13 +8,13 @@ import type {
     DetectionResult,
     SystemDetectionReport,
     ToolCategory
-} from '../shared/detection-types.js';
+} from '../shared/detection-types';
 
 import type {
     CategoryInfo,
     Tool,
     ToolCategory as UIToolCategory
-} from '../types/ui-types.js';
+} from '../types/ui-types';
 
 // Import the shared ElectronAPI type
 import '../types/electron.d.ts';
@@ -38,11 +38,14 @@ export class SystemDetectionService {
     public async getSystemDetectionReport(): Promise<SystemDetectionReport> {
         // Return cached report if available and recent
         if (this.cache && this.isReportRecent()) {
+            console.log('SystemDetectionService: Returning cached report');
             return this.cache;
         }
 
+        console.log('SystemDetectionService: Calling detectInstalledTools...');
         // Run real system detection via IPC
         const response = await window.electronAPI.detectInstalledTools();
+        console.log('SystemDetectionService: Response:', response);
         
         if (!response.success || !response.data) {
             throw new Error(response.error?.message || 'System detection failed');
@@ -74,7 +77,10 @@ export class SystemDetectionService {
      */
     public async getCategoriesForUI(): Promise<CategoryInfo[]> {
         const report = await this.getSystemDetectionReport();
-        return this.convertDetectionReportToCategories(report);
+        console.log('SystemDetectionService: Converting report to categories:', report);
+        const categories = this.convertDetectionReportToCategories(report);
+        console.log('SystemDetectionService: Converted categories:', categories);
+        return categories;
     }
 
     /**
@@ -83,8 +89,11 @@ export class SystemDetectionService {
     private convertDetectionReportToCategories(report: SystemDetectionReport): CategoryInfo[] {
         const categories: CategoryInfo[] = [];
 
+        console.log('SystemDetectionService: Processing categories:', report.categories);
         for (const categoryResult of report.categories) {
+            console.log('SystemDetectionService: Processing category:', categoryResult);
             const uiCategory = this.convertCategoryResult(categoryResult);
+            console.log('SystemDetectionService: Converted to UI category:', uiCategory);
             if (uiCategory) {
                 categories.push(uiCategory);
             }
@@ -97,18 +106,47 @@ export class SystemDetectionService {
      * Convert a single category detection result to UI format
      */
     private convertCategoryResult(categoryResult: CategoryDetectionResult): CategoryInfo | null {
-        const uiCategory = this.mapSystemCategoryToUI(categoryResult.category);
+        // Simple mapping for MVP
+        const categoryMappings: Record<string, { id: string; name: string; description: string; icon: string; color: string }> = {
+            'language': {
+                id: 'languages',
+                name: 'Programming Languages',
+                description: 'Core programming languages and runtimes',
+                icon: '💻',
+                color: '#3B82F6'
+            },
+            'productivity': {
+                id: 'productivity',
+                name: 'Productivity Tools',
+                description: 'Version control, editors, and development utilities',
+                icon: '🔧',
+                color: '#10B981'
+            },
+            'devops': {
+                id: 'devops',
+                name: 'DevOps Tools',
+                description: 'Containers, orchestration, and deployment tools',
+                icon: '🚀',
+                color: '#F59E0B'
+            },
+            'database': {
+                id: 'databases',
+                name: 'Databases',
+                description: 'Database systems and data storage solutions',
+                icon: '🗄️',
+                color: '#059669'
+            }
+        };
+
+        const uiCategory = categoryMappings[categoryResult.category];
         if (!uiCategory) {
+            console.log('SystemDetectionService: No mapping for category:', categoryResult.category);
             return null;
         }
 
         const tools: Tool[] = categoryResult.tools.map(detectionResult => 
             this.convertDetectionResultToTool(detectionResult, categoryResult.category)
         );
-
-        // Add some additional tools that might not be detected but are popular options
-        const additionalTools = this.getAdditionalToolsForCategory(categoryResult.category);
-        tools.push(...additionalTools);
 
         return {
             id: uiCategory.id,
@@ -124,28 +162,27 @@ export class SystemDetectionService {
      * Convert detection result to UI Tool format
      */
     private convertDetectionResultToTool(result: DetectionResult, category: ToolCategory): Tool {
-        // Determine if tool is recommended based on category and detection result
-        const isRecommended = this.isToolRecommended(result.name, category, result.found);
+        // Simple conversion for MVP - use metadata if available
+        const toolId = result.name; // This is actually the tool ID from manifest (e.g., "nodejs")
+        const displayName = result.metadata?.displayName as string || result.name;
+        const description = result.metadata?.description as string || `${displayName} - Development tool`;
         
-        // Estimate installation size and time (these would come from a tool database in a real app)
-        const metadata = this.getToolMetadata(result.name);
-
-        // Map system category to UI category
-        const uiCategoryInfo = this.mapSystemCategoryToUI(category);
-
+        console.log('SystemDetectionService: Converting tool - ID:', toolId, 'Display Name:', displayName);
+        console.log('SystemDetectionService: Full result:', result);
+        
         return {
-            id: this.generateToolId(result.name),
-            name: result.name,
-            description: this.getToolDescription(result.name, category),
+            id: toolId, // Use the manifest ID
+            name: displayName, // This is the display name
+            description: description,
             isInstalled: result.found,
-            isRecommended,
-            category: uiCategoryInfo?.id || 'frameworks',
+            isRecommended: false, // Simple MVP - no recommendations yet
+            category: category,
             version: result.version,
-            tags: this.getToolTags(result.name, category),
-            size: metadata.size,
-            installationTime: metadata.installTime,
-            dependencies: [], // Would be populated from tool database
-            platforms: ['windows', 'macos', 'linux'], // Default to all platforms
+            tags: [category],
+            size: '50MB', // Default estimate
+            installationTime: '1 min', // Default 1 minute as string
+            dependencies: [],
+            platforms: ['windows', 'macos', 'linux'],
         };
     }
 
@@ -292,7 +329,7 @@ export class SystemDetectionService {
             ],
             'web-frameworks': [
                 { name: 'Svelte', description: 'Cybernetically enhanced web apps' },
-                { name: 'Next.js', description: 'React framework for production' }
+                { name: 'Next', description: 'React framework for production' }
             ],
             'databases': [
                 { name: 'SQLite', description: 'Lightweight embedded database' },

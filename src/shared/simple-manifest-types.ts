@@ -53,4 +53,15 @@ export interface PlatformInfo {
   packageManager: 'brew' | 'chocolatey' | 'apt' | 'yum' | 'unknown';
 }
 
+/**
+ * Installation method (how to install a tool)
+ */
+export type InstallationMethod = 'packageManager' | 'direct' | 'script';
+
+/**
+ * Re-export common types for convenience
+ */
+export type Platform = 'darwin' | 'win32' | 'linux';
+export type Architecture = 'x64' | 'arm64';
+
 // That's it! 50 lines instead of 426, and it does everything we need.

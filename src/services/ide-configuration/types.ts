@@ -3,7 +3,7 @@
  * Comprehensive type definitions for managing IDE configurations, extensions, and workspace settings
  */
 
-import type { Platform } from '../../shared/manifest-types.js';
+import type { Platform } from '../../shared/simple-manifest-types';
 
 /**
  * Supported IDE types

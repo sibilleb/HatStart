@@ -7,12 +7,12 @@ import { exec } from 'child_process';
 import { access, readFile, writeFile } from 'fs/promises';
 import { join, resolve } from 'path';
 import { promisify } from 'util';
-import type { Architecture, Platform } from '../../shared/manifest-types.js';
+import type { Architecture, Platform } from '../../shared/simple-manifest-types';
 import type {
   VersionedTool,
   VersionManagerType,
   VersionSpecifier
-} from '../version-manager-types.js';
+} from '../version-manager-types';
 import type {
   ConfigurationBackup,
   EnvironmentVariable,
@@ -21,8 +21,8 @@ import type {
   WorkspaceConfiguration,
   WorkspaceDetectionResult,
   WorkspaceToolConfig
-} from './types.js';
-import { WorkspaceConfigurationService } from './workspace-configuration-service.js';
+} from './types';
+import { WorkspaceConfigurationService } from './workspace-configuration-service';
 
 const execAsync = promisify(exec);
 

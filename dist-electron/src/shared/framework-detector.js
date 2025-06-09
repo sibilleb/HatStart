@@ -419,7 +419,7 @@ class FrameworkDetector {
                 }
             },
             {
-                name: 'Vue.js',
+                name: 'Vue',
                 category: 'web-frontend',
                 essential: true,
                 commands: [
@@ -471,7 +471,7 @@ class FrameworkDetector {
                     }
                 ],
                 filePatterns: {
-                    configFiles: ['vue.config.js', 'vite.config.js', 'package.json'],
+                    configFiles: ['vue.config', 'vite.config', 'package.json'],
                     directories: ['node_modules/vue', 'src/views', 'src/router'],
                     dependencies: ['vue', '@vue/cli-service', 'vite']
                 }
@@ -601,7 +601,7 @@ class FrameworkDetector {
                 }
             },
             {
-                name: 'Express.js',
+                name: 'Express',
                 category: 'web-backend',
                 essential: true,
                 commands: [
@@ -653,7 +653,7 @@ class FrameworkDetector {
                     }
                 ],
                 filePatterns: {
-                    configFiles: ['package.json', 'app.js', 'server.js', 'index.js'],
+                    configFiles: ['package.json', 'app', 'server', 'index'],
                     directories: ['node_modules/express', 'routes', 'middleware'],
                     dependencies: ['express']
                 }
@@ -719,7 +719,7 @@ class FrameworkDetector {
                     }
                 ],
                 filePatterns: {
-                    configFiles: ['package.json', 'metro.config.js', 'react-native.config.js'],
+                    configFiles: ['package.json', 'metro.config', 'react-native.config'],
                     directories: ['android', 'ios', 'node_modules/react-native'],
                     dependencies: ['react-native', '@react-native-community/cli']
                 }
@@ -818,7 +818,7 @@ class FrameworkDetector {
                     }
                 ],
                 filePatterns: {
-                    configFiles: ['webpack.config.js', 'webpack.config.ts', 'package.json'],
+                    configFiles: ['webpack.config', 'webpack.config.ts', 'package.json'],
                     directories: ['node_modules/webpack'],
                     dependencies: ['webpack', 'webpack-cli']
                 }
@@ -876,7 +876,7 @@ class FrameworkDetector {
                     }
                 ],
                 filePatterns: {
-                    configFiles: ['vite.config.js', 'vite.config.ts', 'package.json'],
+                    configFiles: ['vite.config', 'vite.config.ts', 'package.json'],
                     directories: ['node_modules/vite'],
                     dependencies: ['vite']
                 }
@@ -942,7 +942,7 @@ class FrameworkDetector {
                     }
                 ],
                 filePatterns: {
-                    configFiles: ['jest.config.js', 'jest.config.ts', 'package.json'],
+                    configFiles: ['jest.config', 'jest.config.ts', 'package.json'],
                     directories: ['__tests__', 'test', 'tests', 'node_modules/jest'],
                     dependencies: ['jest', '@types/jest']
                 }

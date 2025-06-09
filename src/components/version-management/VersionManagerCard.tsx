@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { VersionManagerCardProps } from '../../types/version-management-ui-types.js';
+import type { VersionManagerCardProps } from '../../types/version-management-ui-types';
 
 /**
  * VersionManagerCard component displays an individual version manager

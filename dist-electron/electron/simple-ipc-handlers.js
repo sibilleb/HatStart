@@ -61,11 +61,14 @@ function registerSimpleHandlers() {
     electron_1.ipcMain.handle('load-manifest', async () => {
         try {
             const manifestPath = path.join(__dirname, '../src/shared/default-tools.json');
+            console.log('load-manifest: Loading from:', manifestPath);
             const content = await fs_1.promises.readFile(manifestPath, 'utf-8');
             const manifest = JSON.parse(content);
+            console.log('load-manifest: Loaded', manifest.tools.length, 'tools');
             return manifest;
         }
         catch (error) {
+            console.error('load-manifest: Failed:', error);
             return handleError(error);
         }
     });
@@ -111,11 +114,22 @@ function registerSimpleHandlers() {
                     },
                     categories: categorizedTools.map(cat => ({
                         category: cat.id,
-                        tools: cat.tools.map(tool => ({
-                            name: tool.name,
-                            found: false, // Simple manifest doesn't track installed status
-                            version: tool.verification ? 'Unknown' : undefined
-                        }))
+                        tools: cat.tools.map(tool => {
+                            console.log(`system-detection:detect - Tool: ${tool.id} (${tool.name})`);
+                            return {
+                                name: tool.id, // Use tool.id so it matches when installing
+                                found: false, // Simple manifest doesn't track installed status
+                                version: tool.verification ? 'Unknown' : undefined,
+                                path: '',
+                                detectionMethod: 'command',
+                                error: null,
+                                // Add metadata to pass display name
+                                metadata: {
+                                    displayName: tool.name,
+                                    description: tool.description
+                                }
+                            };
+                        })
                     })),
                     timestamp: new Date().toISOString()
                 }
@@ -139,6 +153,7 @@ function registerSimpleHandlers() {
     // Install tools
     electron_1.ipcMain.handle('install-tools', async (event, toolIds) => {
         try {
+            console.log('install-tools: Received tool IDs:', toolIds);
             const manifestResult = await loadManifestData();
             if ('error' in manifestResult) {
                 return manifestResult;
@@ -147,6 +162,11 @@ function registerSimpleHandlers() {
             const platform = process.platform;
             // Find tools in manifest
             const toolsToInstall = manifestResult.tools.filter(tool => toolIds.includes(tool.id));
+            console.log('install-tools: Found tools to install:', toolsToInstall.map(t => t.id));
+            // If no tools found, check if it's a naming mismatch
+            if (toolsToInstall.length === 0) {
+                console.log('install-tools: No exact matches. Available tools:', manifestResult.tools.map(t => ({ id: t.id, name: t.name })));
+            }
             // Install each tool
             for (let i = 0; i < toolsToInstall.length; i++) {
                 const tool = toolsToInstall[i];
@@ -159,6 +179,7 @@ function registerSimpleHandlers() {
                 try {
                     // Get install command based on platform
                     const command = getInstallCommand(tool, platform);
+                    console.log(`install-tools: Installing ${tool.name} with command: ${command}`);
                     if (!command) {
                         results.push({
                             success: false,
@@ -185,7 +206,7 @@ function registerSimpleHandlers() {
             }
             // Generate summary
             const summary = {
-                total: results.length,
+                total: toolIds.length, // Use requested count, not found count
                 successful: results.filter(r => r.success).length,
                 failed: results.filter(r => !r.success).length,
                 alreadyInstalled: 0,
@@ -260,12 +281,16 @@ function registerSimpleHandlers() {
  */
 async function loadManifestData() {
     try {
+        // Fix path - in compiled output, __dirname is dist-electron/electron
         const manifestPath = path.join(__dirname, '../src/shared/default-tools.json');
+        console.log('Loading manifest from:', manifestPath);
         const content = await fs_1.promises.readFile(manifestPath, 'utf-8');
         const manifest = JSON.parse(content);
+        console.log('Loaded manifest with', manifest.tools.length, 'tools');
         return manifest;
     }
     catch (error) {
+        console.error('Failed to load manifest:', error);
         return handleError(error);
     }
 }

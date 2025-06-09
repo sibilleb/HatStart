@@ -7,7 +7,7 @@ import { exec } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
-import type { DetectionResult, PlatformType } from './detection-types.js';
+import type { DetectionResult, PlatformType } from './detection-types';
 
 const execAsync = promisify(exec);
 

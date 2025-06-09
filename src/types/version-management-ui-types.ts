@@ -13,8 +13,8 @@ import type {
     VersionManagerType,
     IVersionOperationResult,
     VersionSpecifier
-} from '../services/version-manager-types.js';
-import type { Platform } from '../shared/manifest-types.js';
+} from '../services/version-manager-types';
+import type { Platform } from '../shared/simple-manifest-types';
 
 /**
  * UI-specific version manager information

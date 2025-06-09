@@ -30,10 +30,13 @@ export function registerSimpleHandlers(): void {
   ipcMain.handle('load-manifest', async (): Promise<SimpleManifest | { error: string }> => {
     try {
       const manifestPath = path.join(__dirname, '../src/shared/default-tools.json');
+      console.log('load-manifest: Loading from:', manifestPath);
       const content = await fs.readFile(manifestPath, 'utf-8');
       const manifest: SimpleManifest = JSON.parse(content);
+      console.log('load-manifest: Loaded', manifest.tools.length, 'tools');
       return manifest;
     } catch (error) {
+      console.error('load-manifest: Failed:', error);
       return handleError(error);
     }
   });
@@ -77,17 +80,28 @@ export function registerSimpleHandlers(): void {
         success: true,
         data: {
           systemInfo: {
-            platform: process.platform,
+            platform: process.platform as 'darwin' | 'win32' | 'linux',
             version: process.version,
-            architecture: process.arch
+            architecture: process.arch as 'x64' | 'arm64'
           },
           categories: categorizedTools.map(cat => ({
             category: cat.id,
-            tools: cat.tools.map(tool => ({
-              name: tool.name,
-              found: false, // Simple manifest doesn't track installed status
-              version: tool.verification ? 'Unknown' : undefined
-            }))
+            tools: cat.tools.map(tool => {
+              console.log(`system-detection:detect - Tool: ${tool.id} (${tool.name})`);
+              return {
+                name: tool.id, // Use tool.id so it matches when installing
+                found: false, // Simple manifest doesn't track installed status
+                version: tool.verification ? 'Unknown' : undefined,
+                path: '',
+                detectionMethod: 'command' as const,
+                error: null,
+                // Add metadata to pass display name
+                metadata: {
+                  displayName: tool.name,
+                  description: tool.description
+                }
+              };
+            })
           })),
           timestamp: new Date().toISOString()
         }
@@ -115,6 +129,7 @@ export function registerSimpleHandlers(): void {
     toolIds: string[]
   ) => {
     try {
+      console.log('install-tools: Received tool IDs:', toolIds);
       const manifestResult = await loadManifestData();
       if ('error' in manifestResult) {
         return manifestResult;
@@ -127,6 +142,12 @@ export function registerSimpleHandlers(): void {
       const toolsToInstall = manifestResult.tools.filter(tool => 
         toolIds.includes(tool.id)
       );
+      console.log('install-tools: Found tools to install:', toolsToInstall.map(t => t.id));
+
+      // If no tools found, check if it's a naming mismatch
+      if (toolsToInstall.length === 0) {
+        console.log('install-tools: No exact matches. Available tools:', manifestResult.tools.map(t => ({ id: t.id, name: t.name })));
+      }
 
       // Install each tool
       for (let i = 0; i < toolsToInstall.length; i++) {
@@ -142,6 +163,7 @@ export function registerSimpleHandlers(): void {
         try {
           // Get install command based on platform
           const command = getInstallCommand(tool, platform);
+          console.log(`install-tools: Installing ${tool.name} with command: ${command}`);
           if (!command) {
             results.push({
               success: false,
@@ -170,7 +192,7 @@ export function registerSimpleHandlers(): void {
 
       // Generate summary
       const summary = {
-        total: results.length,
+        total: toolIds.length, // Use requested count, not found count
         successful: results.filter(r => r.success).length,
         failed: results.filter(r => !r.success).length,
         alreadyInstalled: 0,
@@ -251,11 +273,15 @@ export function registerSimpleHandlers(): void {
  */
 async function loadManifestData(): Promise<SimpleManifest | { error: string }> {
   try {
+    // Fix path - in compiled output, __dirname is dist-electron/electron
     const manifestPath = path.join(__dirname, '../src/shared/default-tools.json');
+    console.log('Loading manifest from:', manifestPath);
     const content = await fs.readFile(manifestPath, 'utf-8');
     const manifest: SimpleManifest = JSON.parse(content);
+    console.log('Loaded manifest with', manifest.tools.length, 'tools');
     return manifest;
   } catch (error) {
+    console.error('Failed to load manifest:', error);
     return handleError(error);
   }
 }

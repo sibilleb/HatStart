@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import type { VersionManagerType, VersionedTool } from '../../services/version-manager-types.js';
-import type { VersionManagerPanelProps } from '../../types/version-management-ui-types.js';
-import { VersionManagerCard } from './VersionManagerCard.js';
-import { VersionSelector } from './VersionSelector.js';
+import type { VersionManagerType, VersionedTool } from '../../services/version-manager-types';
+import type { VersionManagerPanelProps } from '../../types/version-management-ui-types';
+import { VersionManagerCard } from './VersionManagerCard';
+import { VersionSelector } from './VersionSelector';
 
 /**
  * VersionManagerPanel component provides the main interface for version management

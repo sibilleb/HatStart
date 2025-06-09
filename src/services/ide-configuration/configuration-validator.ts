@@ -9,7 +9,7 @@ import type {
   IDEExtension,
   IDEType,
   IDEWorkspaceSettings
-} from './types.js';
+} from './types';
 
 /**
  * Validation severity levels

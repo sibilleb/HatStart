@@ -4,9 +4,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { DetectionError } from './detection-errors.js';
-import { DetectionLogger } from './detection-logger.js';
-import type { DetectionResult } from './detection-types.js';
+import { DetectionError } from './detection-errors';
+import { DetectionLogger } from './detection-logger';
+import type { DetectionResult } from './detection-types';
 
 export interface DetectionTask {
   /** Unique identifier for the task */

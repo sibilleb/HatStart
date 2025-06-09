@@ -3,12 +3,12 @@
  * Export all version manager adapter implementations
  */
 
-export { AsdfAdapter } from './asdf-adapter.js';
-export { BaseVersionManagerAdapter } from './base-adapter.js';
-export { MiseAdapter } from './mise-adapter.js';
-export { NvmAdapter } from './nvm-adapter.js';
-export { PyenvAdapter } from './pyenv-adapter.js';
-export { RbenvAdapter } from './rbenv-adapter.js';
+export { AsdfAdapter } from './asdf-adapter';
+export { BaseVersionManagerAdapter } from './base-adapter';
+export { MiseAdapter } from './mise-adapter';
+export { NvmAdapter } from './nvm-adapter';
+export { PyenvAdapter } from './pyenv-adapter';
+export { RbenvAdapter } from './rbenv-adapter';
 
 // Re-export types from version-manager-types for convenience
 export type {
@@ -18,5 +18,5 @@ export type {
     VersionManagerConfig,
     VersionManagerStatus, VersionManagerType, VersionOperationResult,
     VersionSpecifier, VersionedTool
-} from '../version-manager-types.js';
+} from '../version-manager-types';
 

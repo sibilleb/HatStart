@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import type { VersionManagerType } from '../../services/version-manager-types.js';
-import type { VersionManagerUI } from '../../types/version-management-ui-types.js';
-import { VersionManagerPanel } from './VersionManagerPanel.js';
+import type { VersionManagerType, VersionedTool } from '../../services/version-manager-types';
+import type { VersionManagerUI, ToolVersionUI } from '../../types/version-management-ui-types';
+import { VersionManagerPanel } from './VersionManagerPanel';
+
+// Create empty toolVersions object with all tools
+const EMPTY_TOOL_VERSIONS: Record<VersionedTool, ToolVersionUI[]> = {
+  node: [], python: [], ruby: [], java: [], go: [], rust: [], php: [], perl: [],
+  lua: [], elixir: [], erlang: [], julia: [], crystal: [], swift: [], scala: [],
+  kotlin: [], dart: [], flutter: [], deno: [], bun: [], terraform: [], cmake: [],
+  zig: [], lean: [], r: [], neovim: []
+};
 
 /**
  * Minimal container component for Version Management
@@ -79,7 +87,7 @@ export const VersionManagerContainer: React.FC = () => {
     <VersionManagerPanel
       managers={managers}
       tools={['node', 'python', 'ruby', 'go', 'rust'] as any}
-      toolVersions={{}}
+      toolVersions={EMPTY_TOOL_VERSIONS}
       onToolSelect={(tool) => {
         console.log('Tool selected:', tool);
         // TODO: Load versions for selected tool

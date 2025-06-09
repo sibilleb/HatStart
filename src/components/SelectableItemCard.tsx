@@ -16,6 +16,7 @@ export const SelectableItemCard: React.FC<SelectableItemCardProps> = ({
   
   const handleToggle = () => {
     if (!disabled) {
+      console.log('SelectableItemCard: Toggling tool', tool.id, tool.name, !isSelected);
       onToggle(tool.id, !isSelected);
     }
   };
