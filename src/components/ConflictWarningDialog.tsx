@@ -1,11 +1,11 @@
 import React from 'react';
 import type { ConflictRule } from '../services/conflict-rules';
-import type { SimpleTool } from '../shared/simple-manifest-types';
+import type { Tool } from '../types/ui-types';
 
 interface ConflictWarningDialogProps {
   isOpen: boolean;
   conflicts: ConflictRule[];
-  tools: SimpleTool[];
+  tools: Tool[];
   onResolve: (toolsToRemove: string[]) => void;
   onCancel: () => void;
 }

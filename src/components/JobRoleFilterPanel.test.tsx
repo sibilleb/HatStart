@@ -105,7 +105,7 @@ describe('JobRoleFilterPanel', () => {
     );
     
     // Re-render with the filter enabled to see the select
-    const { rerender } = render(
+    render(
       <JobRoleFilterPanel 
         filterOptions={{
           ...defaultFilterOptions,

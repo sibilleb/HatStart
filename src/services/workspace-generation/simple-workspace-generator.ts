@@ -6,7 +6,6 @@
 
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import type { ToolSelection } from '../../types/ui-types';
 import type { SimpleTool } from '../../shared/simple-manifest-types';
 
 export type IDEType = 'vscode' | 'cursor' | 'jetbrains';
@@ -70,7 +69,7 @@ const CATEGORY_EXTENSIONS: Record<string, string[]> = {
 /**
  * Basic VSCode settings for different languages
  */
-const LANGUAGE_SETTINGS: Record<string, any> = {
+const LANGUAGE_SETTINGS: Record<string, Record<string, unknown>> = {
   nodejs: {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -192,8 +191,8 @@ export class SimpleWorkspaceGenerator {
   /**
    * Get IDE settings based on selected tools
    */
-  private getSettingsForTools(selectedTools: string[], toolsMetadata: SimpleTool[]): Record<string, any> {
-    let settings: Record<string, any> = {
+  private getSettingsForTools(selectedTools: string[], _toolsMetadata: SimpleTool[]): Record<string, unknown> {
+    let settings: Record<string, unknown> = {
       "editor.tabSize": 2,
       "editor.insertSpaces": true,
       "files.trimTrailingWhitespace": true,

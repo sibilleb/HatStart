@@ -3,15 +3,13 @@
  * Replaces 708 lines with basic validation that actually matters
  */
 
-import type { SimpleManifest, SimpleTool, ToolCategory } from './simple-manifest-types';
+import type { SimpleManifest, ToolCategory } from './simple-manifest-types';
 
 const VALID_CATEGORIES: ToolCategory[] = [
   'language', 'ide', 'database', 'web-frameworks', 'containers', 
   'infrastructure', 'cloud', 'testing', 'monitoring', 
   'package-managers', 'developer-tools', 'other'
 ];
-
-const VALID_PLATFORMS = ['darwin', 'win32', 'linux'];
 
 /**
  * Validate a manifest and return errors if any

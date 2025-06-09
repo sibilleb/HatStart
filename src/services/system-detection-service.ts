@@ -21,19 +21,19 @@ import '../types/electron.d.ts';
 
 // Map detection categories to UI categories
 const categoryMap: Record<string, UIToolCategory> = {
-    'programming-languages': 'programming-languages',
-    'web-frameworks': 'frameworks',
-    'mobile-frameworks': 'frameworks',
-    'backend-frameworks': 'frameworks',
-    'databases': 'databases',
-    'version-control': 'version-control',
-    'containers': 'containerization',
-    'cloud-tools': 'cloud-tools',
-    'ides-editors': 'code-editors',
-    'testing-tools': 'frameworks',
-    'security-tools': 'security',
-    'build-tools': 'frameworks',
-    'package-managers': 'frameworks'
+    'programming-languages': 'language',
+    'web-frameworks': 'web-frameworks',
+    'mobile-frameworks': 'web-frameworks',
+    'backend-frameworks': 'web-frameworks',
+    'databases': 'database',
+    'version-control': 'developer-tools',
+    'containers': 'containers',
+    'cloud-tools': 'cloud',
+    'ides-editors': 'ide',
+    'testing-tools': 'testing',
+    'security-tools': 'testing', // Security tools go in testing category
+    'build-tools': 'developer-tools',
+    'package-managers': 'package-managers'
 };
 
 /**
@@ -126,35 +126,35 @@ export class SystemDetectionService {
         // Category mappings with expanded organization
         const categoryMappings: Record<string, { id: string; name: string; description: string; icon: string; color: string }> = {
             'language': {
-                id: 'programming-languages',
+                id: 'language',
                 name: 'Programming Languages',
                 description: 'Core programming languages and runtimes',
                 icon: '💻',
                 color: '#3B82F6'
             },
             'ide': {
-                id: 'code-editors',
+                id: 'ide',
                 name: 'Code Editors & IDEs',
                 description: 'Integrated Development Environments and code editors',
                 icon: '📝',
                 color: '#8B5CF6'
             },
             'database': {
-                id: 'databases',
+                id: 'database',
                 name: 'Databases',
                 description: 'Database systems and data storage solutions',
                 icon: '🗄️',
                 color: '#059669'
             },
             'web-frameworks': {
-                id: 'frameworks',
+                id: 'web-frameworks',
                 name: 'Web Frameworks',
                 description: 'Frontend and backend web frameworks',
                 icon: '🏗️',
                 color: '#EC4899'
             },
             'containers': {
-                id: 'containerization',
+                id: 'containers',
                 name: 'Containers & Orchestration',
                 description: 'Container platforms and orchestration tools',
                 icon: '📦',
@@ -168,7 +168,7 @@ export class SystemDetectionService {
                 color: '#7C3AED'
             },
             'cloud': {
-                id: 'cloud-tools',
+                id: 'cloud',
                 name: 'Cloud Tools',
                 description: 'Cloud platform CLIs and SDKs',
                 icon: '☁️',
@@ -211,14 +211,14 @@ export class SystemDetectionService {
                 color: '#10B981'
             },
             'devops': {
-                id: 'containerization',
+                id: 'containers',
                 name: 'DevOps Tools',
                 description: 'DevOps and deployment tools',
                 icon: '🚀',
                 color: '#F59E0B'
             },
             'framework': {
-                id: 'frameworks',
+                id: 'web-frameworks',
                 name: 'Frameworks',
                 description: 'Web frameworks and libraries',
                 icon: '🏗️',
@@ -249,7 +249,7 @@ export class SystemDetectionService {
     /**
      * Convert detection result to UI Tool format
      */
-    private convertDetectionResultToTool(result: DetectionResult, category: ToolCategory): Tool {
+    private convertDetectionResultToTool(result: DetectionResult, category: string): Tool {
         // Simple conversion for MVP - use metadata if available
         const toolId = result.name; // This is actually the tool ID from manifest (e.g., "nodejs")
         const displayName = result.metadata?.displayName as string || result.name;
@@ -264,271 +264,22 @@ export class SystemDetectionService {
             description: description,
             isInstalled: result.found,
             isRecommended: false, // Simple MVP - no recommendations yet
-            category: categoryMap[category] || 'frameworks',
+            category: categoryMap[category] || 'developer-tools',
             version: result.version,
-            tags: [categoryMap[category] || 'frameworks'],
+            tags: [categoryMap[category] || 'developer-tools'],
             size: '50MB', // Default estimate
             installationTime: '1 min', // Default 1 minute as string
             dependencies: [],
-            platforms: ['windows', 'macos', 'linux'],
+            platforms: ['win32', 'darwin', 'linux'],
         };
     }
 
-    /**
-     * Map system detection category to UI category
-     */
-    private mapSystemCategoryToUI(category: ToolCategory): { 
-        id: UIToolCategory; 
-        name: string; 
-        description: string; 
-        icon: string; 
-        color: string; 
-    } | null {
-        const categoryMap: Partial<Record<ToolCategory, { 
-            id: UIToolCategory; 
-            name: string; 
-            description: string; 
-            icon: string; 
-            color: string; 
-        }>> = {
-            'programming-languages': {
-                id: 'programming-languages',
-                name: 'Programming Languages',
-                description: 'Core programming languages and runtimes',
-                icon: '💻',
-                color: '#3B82F6'
-            },
-            'ides-editors': {
-                id: 'code-editors',
-                name: 'Code Editors & IDEs',
-                description: 'Development environments and text editors',
-                icon: '📝',
-                color: '#8B5CF6'
-            },
-            'version-control': {
-                id: 'version-control',
-                name: 'Version Control',
-                description: 'Source code management and collaboration tools',
-                icon: '🔧',
-                color: '#10B981'
-            },
-            'build-tools': {
-                id: 'frameworks', // Map to existing UI category
-                name: 'Build & Package Tools',
-                description: 'Compilation, bundling, and package management',
-                icon: '⚙️',
-                color: '#F59E0B'
-            },
-            'testing-tools': {
-                id: 'frameworks', // Map to existing UI category  
-                name: 'Testing Frameworks',
-                description: 'Testing libraries and quality assurance tools',
-                icon: '🧪',
-                color: '#EF4444'
-            },
-            'web-frameworks': {
-                id: 'frameworks',
-                name: 'Frameworks & Libraries',
-                description: 'Application frameworks and development libraries',
-                icon: '🚀',
-                color: '#8B5CF6'
-            },
-            'databases': {
-                id: 'databases',
-                name: 'Databases',
-                description: 'Database systems and data storage solutions',
-                icon: '🗄️',
-                color: '#059669'
-            },
-            'containers': {
-                id: 'containerization',
-                name: 'Containerization',
-                description: 'Container platforms and orchestration tools',
-                icon: '📦',
-                color: '#0EA5E9'
-            },
-            'cloud-tools': {
-                id: 'cloud-tools',
-                name: 'Cloud Platforms',
-                description: 'Cloud services and deployment platforms',
-                icon: '☁️',
-                color: '#6366F1'
-            }
-        };
 
-        return categoryMap[category] || null;
-    }
 
-    /**
-     * Determine if a tool should be recommended
-     */
-    /* private isToolRecommended(toolName: string, category: ToolCategory, isInstalled: boolean): boolean {
-        // If already installed, it's not a recommendation
-        if (isInstalled) {
-            return false;
-        }
 
-        // Recommend popular/essential tools based on category
-        const recommendedTools: Record<string, string[]> = {
-            'programming-languages': ['node', 'python', 'java', 'go'],
-            'ides-editors': ['vscode', 'vim', 'jetbrains'],
-            'version-control': ['git', 'github-cli'],
-            'build-tools': ['npm', 'yarn', 'webpack', 'docker'],
-            'testing-tools': ['jest', 'mocha', 'pytest'],
-            'web-frameworks': ['react', 'vue', 'angular', 'express'],
-            'databases': ['postgresql', 'mongodb', 'redis'],
-            'containers': ['docker', 'kubernetes'],
-            'cloud-tools': ['aws-cli', 'gcloud', 'azure-cli']
-        };
 
-        const categoryRecommendations = recommendedTools[category] || [];
-        return categoryRecommendations.some(rec => 
-            toolName.toLowerCase().includes(rec.toLowerCase())
-        );
-    } */
 
-    /**
-     * Get additional tools that might not be detected but are popular options
-     */
-    /* private getAdditionalToolsForCategory(category: ToolCategory): Tool[] {
-        const additionalTools: Partial<Record<ToolCategory, Partial<Tool>[]>> = {
-            'programming-languages': [
-                { name: 'Rust', description: 'Systems programming language focused on safety and performance' },
-                { name: 'TypeScript', description: 'Typed superset of JavaScript' },
-                { name: 'Kotlin', description: 'Modern programming language for JVM and Android' }
-            ],
-            'ides-editors': [
-                { name: 'WebStorm', description: 'Professional IDE for JavaScript development' },
-                { name: 'Atom', description: 'Hackable text editor for the 21st century' },
-                { name: 'Sublime Text', description: 'Sophisticated text editor for code, markup and prose' }
-            ],
-            'version-control': [
-                { name: 'Sourcetree', description: 'Free Git GUI client' },
-                { name: 'GitKraken', description: 'Legendary Git GUI client' }
-            ],
-            'build-tools': [
-                { name: 'Vite', description: 'Next generation frontend tooling' },
-                { name: 'Parcel', description: 'Zero configuration build tool' },
-                { name: 'Rollup', description: 'Module bundler for JavaScript' }
-            ],
-            'testing-tools': [
-                { name: 'Cypress', description: 'End-to-end testing framework' },
-                { name: 'Vitest', description: 'Blazing fast unit test framework' }
-            ],
-            'web-frameworks': [
-                { name: 'Svelte', description: 'Cybernetically enhanced web apps' },
-                { name: 'Next', description: 'React framework for production' }
-            ],
-            'databases': [
-                { name: 'SQLite', description: 'Lightweight embedded database' },
-                { name: 'Elasticsearch', description: 'Distributed search and analytics engine' }
-            ],
-            'containers': [
-                { name: 'Podman', description: 'Daemonless container engine' },
-                { name: 'Docker Compose', description: 'Multi-container Docker applications' }
-            ],
-            'cloud-tools': [
-                { name: 'Terraform', description: 'Infrastructure as code' },
-                { name: 'Ansible', description: 'Automation platform' }
-            ]
-        };
 
-        const categoryTools = additionalTools[category] || [];
-        const uiCategoryInfo = this.mapSystemCategoryToUI(category);
-        
-        return categoryTools.map(toolData => ({
-            id: this.generateToolId(toolData.name!),
-            name: toolData.name!,
-            description: toolData.description!,
-            isInstalled: false,
-            isRecommended: true,
-            category: uiCategoryInfo?.id || 'frameworks',
-            version: undefined,
-            tags: this.getToolTags(toolData.name!, category),
-            size: this.getToolMetadata(toolData.name!).size,
-            installationTime: this.getToolMetadata(toolData.name!).installTime,
-            dependencies: [],
-            platforms: ['windows', 'macos', 'linux'] as const,
-        }));
-    } */
-
-    /**
-     * Generate unique tool ID
-     */
-    private generateToolId(toolName: string): string {
-        return toolName.toLowerCase()
-            .replace(/[^a-z0-9]/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, '');
-    }
-
-    /**
-     * Get tool description based on name and category
-     */
-    /* private getToolDescription(toolName: string, category: ToolCategory): string {
-        const descriptions: Record<string, string> = {
-            // Programming Languages
-            'node': 'JavaScript runtime built on Chrome\'s V8 JavaScript engine',
-            'python': 'High-level programming language with clean syntax',
-            'java': 'Object-oriented programming language and computing platform',
-            'go': 'Open source programming language that makes it easy to build simple, reliable, and efficient software',
-            
-            // IDEs/Editors
-            'vscode': 'Free source-code editor made by Microsoft',
-            'vim': 'Highly configurable text editor',
-            'sublime': 'Sophisticated text editor for code, markup and prose',
-            
-            // Version Control
-            'git': 'Distributed version control system',
-            'github-cli': 'GitHub\'s official command line tool',
-            
-            // Build Tools
-            'npm': 'Package manager for the JavaScript programming language',
-            'yarn': 'Fast, reliable, and secure dependency management',
-            'webpack': 'Static module bundler for modern JavaScript applications',
-            'docker': 'Platform for developing, shipping, and running applications',
-        };
-
-        return descriptions[toolName.toLowerCase()] || `${toolName} - A ${category.replace('-', ' ')} tool`;
-    } */
-
-    /**
-     * Get tool tags based on name and category
-     */
-    private getToolTags(toolName: string, category: ToolCategory): string[] {
-        const tagMap: Record<string, string[]> = {
-            'node': ['runtime', 'javascript', 'backend'],
-            'python': ['language', 'scripting', 'data-science'],
-            'java': ['language', 'enterprise', 'jvm'],
-            'vscode': ['editor', 'microsoft', 'extensions'],
-            'vim': ['editor', 'terminal', 'modal'],
-            'git': ['vcs', 'distributed', 'collaboration'],
-            'npm': ['package-manager', 'javascript', 'registry'],
-            'docker': ['containers', 'virtualization', 'deployment'],
-        };
-
-        const baseTags = tagMap[toolName.toLowerCase()] || [];
-        const categoryTag = category.replace('-', ' ');
-        
-        return [...baseTags, categoryTag];
-    }
-
-    /**
-     * Get tool metadata (size, install time, etc.)
-     */
-    private getToolMetadata(toolName: string): { size: string; installTime: string } {
-        // In a real application, this would come from a comprehensive tool database
-        const metadata: Record<string, { size: string; installTime: string }> = {
-            'node': { size: '50MB', installTime: '2 min' },
-            'python': { size: '100MB', installTime: '5 min' },
-            'java': { size: '200MB', installTime: '8 min' },
-            'vscode': { size: '150MB', installTime: '3 min' },
-            'docker': { size: '500MB', installTime: '10 min' },
-            'git': { size: '30MB', installTime: '1 min' },
-        };
-
-        return metadata[toolName.toLowerCase()] || { size: '25MB', installTime: '2 min' };
-    }
 
     /**
      * Get basic system information

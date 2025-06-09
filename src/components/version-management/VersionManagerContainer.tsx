@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { VersionManagerType, VersionedTool } from '../../services/version-manager-types';
 import type { VersionManagerUI, ToolVersionUI } from '../../types/version-management-ui-types';
+import type { Platform } from '../../shared/simple-manifest-types';
 import { VersionManagerPanel } from './VersionManagerPanel';
 
 // Create empty toolVersions object with all tools
@@ -43,8 +44,8 @@ export const VersionManagerContainer: React.FC = () => {
                 isRecommended: manager.type === 'mise', // Mise is recommended for MVP
                 isInstalled: installCheck.isInstalled || false,
                 isActive: false,
-                supportedTools: manager.supportedTools as any,
-                supportedPlatforms: ['windows', 'macos', 'linux'] as any,
+                supportedTools: manager.supportedTools as VersionedTool[],
+                supportedPlatforms: ['win32', 'darwin', 'linux'] as Platform[],
                 installationUrl: 'https://mise.jdx.dev',
                 documentationUrl: 'https://mise.jdx.dev/docs'
               } as VersionManagerUI;
@@ -86,7 +87,7 @@ export const VersionManagerContainer: React.FC = () => {
   return (
     <VersionManagerPanel
       managers={managers}
-      tools={['node', 'python', 'ruby', 'go', 'rust'] as any}
+      tools={['node', 'python', 'ruby', 'go', 'rust'] as VersionedTool[]}
       toolVersions={EMPTY_TOOL_VERSIONS}
       onToolSelect={(tool) => {
         console.log('Tool selected:', tool);

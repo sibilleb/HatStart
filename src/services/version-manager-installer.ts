@@ -86,12 +86,9 @@ export interface VersionManagerInstallResult extends IVersionOperationResult {
 export class VersionManagerInstaller {
   // private categoryInstaller: CategoryInstaller;
   private platform: Platform;
-  private architecture: Architecture;
-
-  constructor(platform: Platform, architecture: Architecture) {
+  constructor(platform: Platform) {
     // this.categoryInstaller = new CategoryInstaller();
     this.platform = platform;
-    this.architecture = architecture;
   }
 
   /**
@@ -145,7 +142,7 @@ export class VersionManagerInstaller {
 
       // Collect warnings
       const warnings: string[] = [];
-      warnings.push(...setupResults.filter(r => !r.success).map(r => `Setup command failed`));
+      warnings.push(...setupResults.filter(r => !r.success).map(_r => `Setup command failed`));
       
       if (config.shellIntegration.required && !shellIntegrationResult) {
         warnings.push('shell integration setup failed');
@@ -216,12 +213,12 @@ export class VersionManagerInstaller {
     // Implementation depends on version manager type and platform
     switch (type) {
       case 'mise':
-        return this.platform === 'windows' 
+        return this.platform === 'win32' 
           ? (process.env.USERPROFILE || 'C:\\Users\\Default') + '\\.local\\bin\\mise.exe'
           : (process.env.HOME || '/home/user') + '/.local/bin/mise';
       
       case 'nvm':
-        if (this.platform === 'windows') {
+        if (this.platform === 'win32') {
           // For testing, return path with environment variable name
           if (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') {
             return process.env.NVM_HOME || '%USERPROFILE%\\AppData\\Roaming\\nvm';
@@ -231,7 +228,7 @@ export class VersionManagerInstaller {
         return (process.env.HOME || '/home/user') + '/.nvm';
       
       case 'pyenv':
-        return this.platform === 'windows'
+        return this.platform === 'win32'
           ? process.env.PYENV_ROOT || (process.env.USERPROFILE || 'C:\\Users\\Default') + '\\.pyenv'
           : process.env.PYENV_ROOT || (process.env.HOME || '/home/user') + '/.pyenv';
       
@@ -279,7 +276,7 @@ export class VersionManagerInstaller {
     return {
       type: 'mise',
       packages: {
-        macos: {
+        darwin: {
           homebrew: 'mise'
         },
         linux: {
@@ -287,14 +284,14 @@ export class VersionManagerInstaller {
           yum: 'mise',
           snap: 'mise'
         },
-        windows: {
+        win32: {
           winget: 'jdx.mise',
           chocolatey: 'mise',
           scoop: 'mise'
         }
       },
       installCommands: {
-        macos: {
+        darwin: {
           homebrew: {
             command: 'brew',
             args: ['install', 'mise']
@@ -306,7 +303,7 @@ export class VersionManagerInstaller {
             args: ['-fsSL', 'https://mise.run', '|', 'sh']
           }
         },
-        windows: {
+        win32: {
           winget: {
             command: 'winget',
             args: ['install', 'jdx.mise']
@@ -319,7 +316,7 @@ export class VersionManagerInstaller {
         initCommand: 'eval "$(mise activate bash)"'
       },
       verificationCommands: {
-        macos: {
+        darwin: {
           command: 'mise',
           args: ['--version']
         },
@@ -327,12 +324,12 @@ export class VersionManagerInstaller {
           command: 'mise',
           args: ['--version']
         },
-        windows: {
+        win32: {
           command: 'mise',
           args: ['--version']
         }
       },
-      supportedPlatforms: ['macos', 'linux', 'windows'],
+      supportedPlatforms: ['darwin', 'linux', 'win32'],
       supportedArchitectures: ['x64', 'arm64']
     };
   }
@@ -344,16 +341,16 @@ export class VersionManagerInstaller {
     return {
       type: 'nvm',
       packages: {
-        macos: {
+        darwin: {
           homebrew: 'nvm'
         },
-        windows: {
+        win32: {
           chocolatey: 'nvm',
           winget: 'CoreyButler.NVMforWindows'
         }
       },
       installCommands: {
-        macos: {
+        darwin: {
           script: {
             command: 'curl',
             args: ['-o-', 'https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh', '|', 'bash']
@@ -365,7 +362,7 @@ export class VersionManagerInstaller {
             args: ['-o-', 'https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh', '|', 'bash']
           }
         },
-        windows: {
+        win32: {
           winget: {
             command: 'winget',
             args: ['install', 'CoreyButler.NVMforWindows']
@@ -378,7 +375,7 @@ export class VersionManagerInstaller {
         initCommand: 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"'
       },
       verificationCommands: {
-        macos: {
+        darwin: {
           command: 'nvm',
           args: ['--version']
         },
@@ -386,12 +383,12 @@ export class VersionManagerInstaller {
           command: 'nvm',
           args: ['--version']
         },
-        windows: {
+        win32: {
           command: 'nvm',
           args: ['version']
         }
       },
-      supportedPlatforms: ['macos', 'linux', 'windows'],
+      supportedPlatforms: ['darwin', 'linux', 'win32'],
       supportedArchitectures: ['x64', 'arm64']
     };
   }
@@ -403,20 +400,20 @@ export class VersionManagerInstaller {
     return {
       type: 'pyenv',
       packages: {
-        macos: {
+        darwin: {
           homebrew: 'pyenv'
         },
         linux: {
           apt: 'pyenv',
           yum: 'pyenv'
         },
-        windows: {
+        win32: {
           chocolatey: 'pyenv-win',
           scoop: 'pyenv'
         }
       },
       installCommands: {
-        macos: {
+        darwin: {
           homebrew: {
             command: 'brew',
             args: ['install', 'pyenv']
@@ -428,7 +425,7 @@ export class VersionManagerInstaller {
             args: ['https://pyenv.run', '|', 'bash']
           }
         },
-        windows: {
+        win32: {
           chocolatey: {
             command: 'choco',
             args: ['install', 'pyenv-win']
@@ -441,7 +438,7 @@ export class VersionManagerInstaller {
         initCommand: 'eval "$(pyenv init -)"'
       },
       verificationCommands: {
-        macos: {
+        darwin: {
           command: 'pyenv',
           args: ['--version']
         },
@@ -449,13 +446,13 @@ export class VersionManagerInstaller {
           command: 'pyenv',
           args: ['--version']
         },
-        windows: {
+        win32: {
           command: 'pyenv',
           args: ['--version']
         }
       },
       dependencies: ['git', 'curl'],
-      supportedPlatforms: ['macos', 'linux', 'windows'],
+      supportedPlatforms: ['darwin', 'linux', 'win32'],
       supportedArchitectures: ['x64', 'arm64']
     };
   }
@@ -777,9 +774,9 @@ export class VersionManagerInstaller {
 
   private getPreferredPackageManager(): string {
     switch (this.platform) {
-      case 'macos':
+      case 'darwin':
         return 'homebrew';
-      case 'windows':
+      case 'win32':
         return 'winget';
       case 'linux':
         return 'apt'; // Default, could be detected dynamically

@@ -36,6 +36,8 @@ dist-ssr
 # Claude AI context and workflow files
 CLAUDE.md
 CLAUDE_CODE_WORKFLOW.md
+CLAUDE_QUICK_CONTEXT.md
+CLAUDE_CURRENT_WORK.md
 .hatstart_session
 .hatstart_*
 

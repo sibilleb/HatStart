@@ -289,48 +289,6 @@ export class ConfigurationValidator {
     return issues;
   }
 
-  /**
-   * Validate workspace structure
-   */
-  private async validateWorkspaceStructure(
-    ideType: IDEType,
-    workspaceFiles: Record<string, string>
-  ): Promise<ValidationIssue[]> {
-    const issues: ValidationIssue[] = [];
-    const rules = this.validationRules.get(ideType);
-
-    if (!rules) {
-      return issues;
-    }
-
-    // Check for required files
-    for (const requiredFile of rules.workspace.requiredFiles) {
-      if (!(requiredFile in workspaceFiles)) {
-        issues.push({
-          severity: 'error',
-          code: 'MISSING_REQUIRED_FILE',
-          message: `Required workspace file missing: ${requiredFile}`,
-          path: `workspace.${requiredFile}`,
-          suggestion: `Create the ${requiredFile} file`
-        });
-      }
-    }
-
-    // Check for recommended structure
-    for (const recommendedFile of rules.workspace.recommendedStructure) {
-      if (!(recommendedFile in workspaceFiles)) {
-        issues.push({
-          severity: 'info',
-          code: 'MISSING_RECOMMENDED_FILE',
-          message: `Recommended workspace file missing: ${recommendedFile}`,
-          path: `workspace.${recommendedFile}`,
-          suggestion: `Consider creating ${recommendedFile} for better IDE integration`
-        });
-      }
-    }
-
-    return issues;
-  }
 
   /**
    * Perform semantic validation
@@ -544,7 +502,7 @@ export class ConfigurationValidator {
    * Validate setting values
    */
   private async validateSettingValues(
-    ideType: IDEType,
+    _ideType: IDEType,
     settings: IDEWorkspaceSettings
   ): Promise<ValidationIssue[]> {
     const issues: ValidationIssue[] = [];

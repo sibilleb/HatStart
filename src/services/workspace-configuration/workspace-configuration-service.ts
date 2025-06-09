@@ -10,7 +10,7 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import type {
     VersionedTool,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult as VersionOperationResult,
     VersionSpecifier
 } from '../version-manager-types';
 import { EnvironmentManager } from './environment-manager';
@@ -106,16 +106,22 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
   public async saveConfiguration(config: WorkspaceConfiguration): Promise<void> {
     const configPath = join(config.workspaceRoot, this.configFileName);
     
-    // Update metadata
-    config.metadata.lastUpdated = new Date();
-    config.metadata.platform = this.platform;
-    config.metadata.architecture = this.architecture;
+    // Create updated configuration with new metadata
+    const updatedConfig: WorkspaceConfiguration = {
+      ...config,
+      metadata: {
+        ...config.metadata,
+        lastUpdated: new Date(),
+        platform: this.platform,
+        architecture: this.architecture
+      }
+    };
     
     // Ensure directory exists
     await mkdir(dirname(configPath), { recursive: true });
     
     // Save configuration
-    await writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8');
+    await writeFile(configPath, JSON.stringify(updatedConfig, null, 2), 'utf-8');
   }
 
   /**
@@ -151,7 +157,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
 
       // Apply PATH configuration
       if (config.pathConfiguration.length > 0) {
-        const pathSuccess = await this.environmentManager.updatePath(config.pathConfiguration);
+        const pathSuccess = await this.environmentManager.updatePath([...config.pathConfiguration]);
         if (pathSuccess) {
           result.modifiedPaths = config.pathConfiguration.map(p => p.path);
         } else {
@@ -452,9 +458,9 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
     const osPlatform = platform();
     switch (osPlatform) {
       case 'win32':
-        return 'windows';
+        return 'win32';
       case 'darwin':
-        return 'macos';
+        return 'darwin';
       case 'linux':
         return 'linux';
       default:
