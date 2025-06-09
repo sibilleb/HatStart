@@ -37,6 +37,7 @@ HatStart is an **open-source, cross-platform developer toolkit installer** that 
 - Job Role Assessment System
 - Cross-platform Installer Framework
 - MVP Simplification (removed 49,000+ lines of over-engineered code)
+- Expanded Tool Catalog (32 tools including IDEs, languages, frameworks, databases)
 
 ### In Progress 🔄
 - Conflict Resolution UI
@@ -72,6 +73,16 @@ HatStart can set up a complete full-stack environment including:
 - VS Code with relevant extensions
 - PostgreSQL and Redis
 - All configured and ready to use!
+
+### 📦 Available Tools (32 total)
+
+**IDEs**: VS Code, Cursor  
+**Languages**: Node.js, Python, Go, Rust, Java, Ruby, PHP  
+**Frameworks**: React, Vue.js, Django, FastAPI, Laravel, Rails  
+**Databases**: PostgreSQL, MySQL, MongoDB, Redis, SQLite  
+**DevOps**: Docker, Kubernetes, Terraform, Helm, Ansible, Vault  
+**Testing**: Vitest, Jest, Playwright  
+**Security**: Semgrep, Bandit
 
 ## 🤝 Contributing
 

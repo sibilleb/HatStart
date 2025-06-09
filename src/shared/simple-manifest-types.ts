@@ -34,6 +34,7 @@ export type ToolCategory =
   | 'database'
   | 'devops'
   | 'productivity'
+  | 'ide'
   | 'other';
 
 /**

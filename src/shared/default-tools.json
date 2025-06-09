@@ -58,8 +58,8 @@
     {
       "id": "vscode",
       "name": "Visual Studio Code",
-      "category": "productivity",
-      "description": "Lightweight code editor",
+      "category": "ide",
+      "description": "Popular open-source code editor by Microsoft",
       "packageNames": {
         "darwin": "visual-studio-code",
         "win32": "vscode",
@@ -136,6 +136,355 @@
       },
       "verification": "terraform --version",
       "recommendedFor": ["devops"]
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "category": "ide",
+      "description": "AI-powered code editor with built-in chat and MCP server support",
+      "packageNames": {
+        "darwin": "cursor",
+        "win32": "cursor",
+        "linux": "cursor"
+      },
+      "customInstall": {
+        "darwin": "brew install --cask cursor",
+        "win32": "winget install cursor.cursor",
+        "linux": "wget -O cursor.AppImage 'https://downloader.cursor.sh/linux/appImage/x64' && chmod +x cursor.AppImage"
+      },
+      "verification": "cursor --version",
+      "recommendedFor": ["frontend", "backend", "fullstack", "ai-development", "datascience"]
+    },
+    {
+      "id": "java",
+      "name": "Java (OpenJDK)",
+      "category": "language",
+      "description": "Java development kit (OpenJDK)",
+      "packageNames": {
+        "darwin": "openjdk",
+        "win32": "openjdk",
+        "linux": "openjdk-17-jdk"
+      },
+      "verification": "java --version",
+      "recommendedFor": ["backend", "enterprise"]
+    },
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "category": "language",
+      "description": "Dynamic programming language with focus on simplicity",
+      "packageNames": {
+        "darwin": "ruby",
+        "win32": "ruby",
+        "linux": "ruby-full"
+      },
+      "verification": "ruby --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "php",
+      "name": "PHP",
+      "category": "language",
+      "description": "Popular server-side scripting language",
+      "packageNames": {
+        "darwin": "php",
+        "win32": "php",
+        "linux": "php"
+      },
+      "verification": "php --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "category": "database",
+      "description": "Popular open-source relational database",
+      "packageNames": {
+        "darwin": "mysql",
+        "win32": "mysql",
+        "linux": "mysql-server"
+      },
+      "verification": "mysql --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "category": "database", 
+      "description": "NoSQL document database",
+      "packageNames": {
+        "darwin": "mongodb-community",
+        "win32": "mongodb",
+        "linux": "mongodb"
+      },
+      "customInstall": {
+        "darwin": "brew tap mongodb/brew && brew install mongodb-community"
+      },
+      "verification": "mongod --version",
+      "recommendedFor": ["backend", "fullstack"]
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "category": "database",
+      "description": "In-memory data structure store",
+      "packageNames": {
+        "darwin": "redis",
+        "win32": "redis",
+        "linux": "redis-server"
+      },
+      "verification": "redis-server --version",
+      "recommendedFor": ["backend", "fullstack", "devops"]
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "category": "database",
+      "description": "Lightweight embedded database",
+      "packageNames": {
+        "darwin": "sqlite",
+        "win32": "sqlite",
+        "linux": "sqlite3"
+      },
+      "verification": "sqlite3 --version",
+      "recommendedFor": ["backend", "mobile", "embedded"]
+    },
+    {
+      "id": "helm",
+      "name": "Helm",
+      "category": "devops",
+      "description": "Kubernetes package manager",
+      "packageNames": {
+        "darwin": "helm",
+        "win32": "kubernetes-helm",
+        "linux": "helm"
+      },
+      "verification": "helm version",
+      "recommendedFor": ["devops", "kubernetes"]
+    },
+    {
+      "id": "ansible",
+      "name": "Ansible",
+      "category": "devops",
+      "description": "Automation and configuration management tool",
+      "packageNames": {
+        "darwin": "ansible",
+        "win32": "ansible",
+        "linux": "ansible"
+      },
+      "verification": "ansible --version",
+      "recommendedFor": ["devops", "sysadmin"]
+    },
+    {
+      "id": "vault",
+      "name": "HashiCorp Vault",
+      "category": "devops",
+      "description": "Secrets management and data protection",
+      "packageNames": {
+        "darwin": "vault",
+        "win32": "vault",
+        "linux": "vault"
+      },
+      "verification": "vault --version",
+      "recommendedFor": ["devops", "security"]
+    },
+    {
+      "id": "vitest",
+      "name": "Vitest",
+      "category": "devops",
+      "description": "Fast Vite-native test framework",
+      "packageNames": {
+        "darwin": "vitest",
+        "win32": "vitest",
+        "linux": "vitest"
+      },
+      "customInstall": {
+        "darwin": "npm install -g vitest",
+        "win32": "npm install -g vitest",
+        "linux": "npm install -g vitest"
+      },
+      "verification": "vitest --version",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "jest",
+      "name": "Jest",
+      "category": "devops",
+      "description": "JavaScript testing framework",
+      "packageNames": {
+        "darwin": "jest",
+        "win32": "jest",
+        "linux": "jest"
+      },
+      "customInstall": {
+        "darwin": "npm install -g jest",
+        "win32": "npm install -g jest",
+        "linux": "npm install -g jest"
+      },
+      "verification": "jest --version",
+      "recommendedFor": ["frontend", "backend", "fullstack"]
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "category": "devops",
+      "description": "Cross-browser end-to-end testing",
+      "packageNames": {
+        "darwin": "playwright",
+        "win32": "playwright",
+        "linux": "playwright"
+      },
+      "customInstall": {
+        "darwin": "npm install -g @playwright/test && npx playwright install",
+        "win32": "npm install -g @playwright/test && npx playwright install",
+        "linux": "npm install -g @playwright/test && npx playwright install"
+      },
+      "verification": "npx playwright --version",
+      "recommendedFor": ["frontend", "fullstack", "qa"]
+    },
+    {
+      "id": "django",
+      "name": "Django",
+      "category": "framework",
+      "description": "High-level Python web framework",
+      "packageNames": {
+        "darwin": "django",
+        "win32": "django",
+        "linux": "django"
+      },
+      "customInstall": {
+        "darwin": "pip3 install django",
+        "win32": "pip install django",
+        "linux": "pip3 install django"
+      },
+      "verification": "django-admin --version",
+      "recommendedFor": ["backend", "fullstack", "python"]
+    },
+    {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "framework",
+      "description": "Modern, fast Python web framework for building APIs",
+      "packageNames": {
+        "darwin": "fastapi",
+        "win32": "fastapi",
+        "linux": "fastapi"
+      },
+      "customInstall": {
+        "darwin": "pip3 install fastapi uvicorn",
+        "win32": "pip install fastapi uvicorn",
+        "linux": "pip3 install fastapi uvicorn"
+      },
+      "verification": "pip3 show fastapi",
+      "recommendedFor": ["backend", "api", "python"]
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "category": "framework",
+      "description": "JavaScript library for building user interfaces",
+      "packageNames": {
+        "darwin": "react",
+        "win32": "react",
+        "linux": "react"
+      },
+      "customInstall": {
+        "darwin": "npm install -g create-react-app",
+        "win32": "npm install -g create-react-app",
+        "linux": "npm install -g create-react-app"
+      },
+      "verification": "npm list -g create-react-app",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "vue",
+      "name": "Vue.js",
+      "category": "framework",
+      "description": "Progressive JavaScript framework",
+      "packageNames": {
+        "darwin": "vue",
+        "win32": "vue",
+        "linux": "vue"
+      },
+      "customInstall": {
+        "darwin": "npm install -g @vue/cli",
+        "win32": "npm install -g @vue/cli",
+        "linux": "npm install -g @vue/cli"
+      },
+      "verification": "vue --version",
+      "recommendedFor": ["frontend", "fullstack"]
+    },
+    {
+      "id": "laravel",
+      "name": "Laravel",
+      "category": "framework",
+      "description": "PHP web application framework",
+      "packageNames": {
+        "darwin": "laravel",
+        "win32": "laravel",
+        "linux": "laravel"
+      },
+      "customInstall": {
+        "darwin": "composer global require laravel/installer",
+        "win32": "composer global require laravel/installer",
+        "linux": "composer global require laravel/installer"
+      },
+      "verification": "laravel --version",
+      "recommendedFor": ["backend", "fullstack", "php"]
+    },
+    {
+      "id": "rails",
+      "name": "Ruby on Rails",
+      "category": "framework",
+      "description": "Full-stack web application framework for Ruby",
+      "packageNames": {
+        "darwin": "rails",
+        "win32": "rails",
+        "linux": "rails"
+      },
+      "customInstall": {
+        "darwin": "gem install rails",
+        "win32": "gem install rails",
+        "linux": "gem install rails"
+      },
+      "verification": "rails --version",
+      "recommendedFor": ["backend", "fullstack", "ruby"]
+    },
+    {
+      "id": "semgrep",
+      "name": "Semgrep",
+      "category": "devops",
+      "description": "Static analysis tool for finding bugs and security issues",
+      "packageNames": {
+        "darwin": "semgrep",
+        "win32": "semgrep",
+        "linux": "semgrep"
+      },
+      "customInstall": {
+        "darwin": "brew install semgrep",
+        "win32": "pip install semgrep",
+        "linux": "pip3 install semgrep"
+      },
+      "verification": "semgrep --version",
+      "recommendedFor": ["security", "devops", "backend"]
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "category": "devops",
+      "description": "Security linter for Python code",
+      "packageNames": {
+        "darwin": "bandit",
+        "win32": "bandit",
+        "linux": "bandit"
+      },
+      "customInstall": {
+        "darwin": "pip3 install bandit",
+        "win32": "pip install bandit",
+        "linux": "pip3 install bandit"
+      },
+      "verification": "bandit --version",
+      "recommendedFor": ["python", "security", "backend"]
     }
   ]
 }
