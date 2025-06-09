@@ -2,7 +2,7 @@
  * Tests for Experience Assessment Service
  */
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { QuestionnaireResponse, ScoringConfig } from '../../types/experience-types';
 import { DEFAULT_SCORING_CONFIG, ExperienceLevel } from '../../types/experience-types';
 import { EXPERIENCE_QUESTIONS, ExperienceAssessmentService } from '../experience-assessment';

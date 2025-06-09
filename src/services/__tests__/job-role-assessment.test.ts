@@ -2,63 +2,17 @@
  * Tests for Job Role Assessment Service
  */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { JobRole, JobRoleResponse } from '../../types/job-role-types';
 import { DEFAULT_CONFIDENCE_THRESHOLD, JOB_ROLE_QUESTIONS, JobRoleAssessmentService } from '../job-role-assessment';
 
 // Create mock for the JobRoleConfigService
-jest.mock('../job-role-config-service', () => {
-  return {
-    JobRoleConfigService: jest.fn().mockImplementation(() => {
-      return {
-        getConfig: (roleId: string | JobRole) => {
-          if (roleId === 'frontend-developer') {
-            return {
-              id: 'frontend-developer',
-              name: 'Frontend Developer',
-              description: 'Build user interfaces and client-side applications',
-              icon: '🎨',
-              color: '#EF4444',
-              primaryTools: ['vscode', 'chrome-devtools', 'npm'],
-              recommendedTools: ['react-devtools', 'figma', 'storybook'],
-              optionalTools: ['webpack', 'sass', 'tailwind'],
-              categories: ['ui', 'web', 'javascript'],
-              skillAreas: ['UI/UX', 'JavaScript', 'CSS'],
-              workflowTypes: ['component-based', 'responsive-design']
-            };
-          } else if (roleId === 'backend-developer') {
-            return {
-              id: 'backend-developer',
-              name: 'Backend Developer',
-              description: 'Develop server-side logic and APIs',
-              icon: '⚡',
-              color: '#6366F1',
-              primaryTools: ['vscode', 'docker', 'git'],
-              recommendedTools: ['postman', 'dbeaver', 'insomnia'],
-              optionalTools: ['pgadmin', 'kubectx', 'redis-cli'],
-              categories: ['api', 'database', 'server'],
-              skillAreas: ['Databases', 'APIs', 'Server Architecture'],
-              workflowTypes: ['api-development', 'data-persistence']
-            };
-          }
-          
-          // Return a default for any other role
+vi.mock('../job-role-config-service', () => ({
+  JobRoleConfigService: vi.fn().mockImplementation(() => {
+    return {
+      getConfig: (roleId: string | JobRole) => {
+        if (roleId === 'frontend-developer') {
           return {
-            id: roleId as JobRole,
-            name: String(roleId).replace('-', ' '),
-            description: 'Generic role description',
-            icon: '💻',
-            color: '#666666',
-            primaryTools: ['vscode', 'git'],
-            recommendedTools: [],
-            optionalTools: [],
-            categories: [],
-            skillAreas: [],
-            workflowTypes: []
-          };
-        },
-        getAllConfigs: () => [
-          {
             id: 'frontend-developer',
             name: 'Frontend Developer',
             description: 'Build user interfaces and client-side applications',
@@ -70,8 +24,9 @@ jest.mock('../job-role-config-service', () => {
             categories: ['ui', 'web', 'javascript'],
             skillAreas: ['UI/UX', 'JavaScript', 'CSS'],
             workflowTypes: ['component-based', 'responsive-design']
-          },
-          {
+          };
+        } else if (roleId === 'backend-developer') {
+          return {
             id: 'backend-developer',
             name: 'Backend Developer',
             description: 'Develop server-side logic and APIs',
@@ -83,286 +38,277 @@ jest.mock('../job-role-config-service', () => {
             categories: ['api', 'database', 'server'],
             skillAreas: ['Databases', 'APIs', 'Server Architecture'],
             workflowTypes: ['api-development', 'data-persistence']
-          }
-        ]
-      };
-    })
-  };
-});
+          };
+        }
+        
+        // Return a default for any other role
+        return {
+          id: roleId as JobRole,
+          name: String(roleId).replace('-', ' '),
+          description: 'Generic role description',
+          icon: '💻',
+          color: '#666666',
+          primaryTools: ['vscode', 'git'],
+          recommendedTools: [],
+          optionalTools: [],
+          categories: [],
+          skillAreas: [],
+          workflowTypes: []
+        };
+      },
+      
+      getAllConfigs: () => [
+        {
+          id: 'frontend-developer',
+          name: 'Frontend Developer',
+          description: 'Build user interfaces and client-side applications',
+          icon: '🎨',
+          color: '#EF4444',
+          primaryTools: ['vscode', 'chrome-devtools', 'npm'],
+          recommendedTools: ['react-devtools', 'figma', 'storybook'],
+          optionalTools: ['webpack', 'sass', 'tailwind'],
+          categories: ['ui', 'web', 'javascript']
+        },
+        {
+          id: 'backend-developer',
+          name: 'Backend Developer',
+          description: 'Develop server-side logic and APIs',
+          icon: '⚡',
+          color: '#6366F1',
+          primaryTools: ['vscode', 'docker', 'git'],
+          recommendedTools: ['postman', 'dbeaver', 'insomnia'],
+          optionalTools: ['pgadmin', 'kubectx', 'redis-cli'],
+          categories: ['api', 'database', 'server']
+        }
+      ]
+    };
+  })
+}));
 
 describe('JobRoleAssessmentService', () => {
   let service: JobRoleAssessmentService;
 
   beforeEach(() => {
-    jest.clearAllMocks();
     service = new JobRoleAssessmentService();
   });
 
-  describe('getQuestions', () => {
-    it('should return all job role questions', () => {
-      const questions = service.getQuestions();
-      expect(questions).toEqual(JOB_ROLE_QUESTIONS);
-      expect(questions.length).toBeGreaterThan(0);
+  describe('Role Questions', () => {
+    it('should have questions for all roles', () => {
+      expect(JOB_ROLE_QUESTIONS).toBeDefined();
+      expect(Object.keys(JOB_ROLE_QUESTIONS).length).toBeGreaterThan(0);
     });
 
-    it('should have valid question structure', () => {
-      const questions = service.getQuestions();
+    it('should have valid questions for frontend developer role', () => {
+      const questions = JOB_ROLE_QUESTIONS['frontend-developer'];
+      expect(questions).toBeDefined();
+      expect(questions.length).toBeGreaterThan(0);
+      
+      // Verify question structure
       questions.forEach(question => {
         expect(question).toHaveProperty('id');
-        expect(question).toHaveProperty('text');
-        expect(question).toHaveProperty('type');
-        expect(question).toHaveProperty('category');
-        expect(question).toHaveProperty('options');
-        expect(question.options.length).toBeGreaterThan(0);
-
-        question.options.forEach(option => {
-          expect(option).toHaveProperty('id');
-          expect(option).toHaveProperty('text');
-          expect(option).toHaveProperty('roleIndicators');
-          expect(option.roleIndicators.length).toBeGreaterThan(0);
-        });
+        expect(question).toHaveProperty('question');
+        expect(question).toHaveProperty('answers');
+        expect(question.answers.length).toBeGreaterThan(0);
       });
     });
   });
 
-  describe('detectJobRole', () => {
-    it('should detect frontend developer role from frontend-focused answers', () => {
-      const response: JobRoleResponse = {
-        answers: [
-          {
-            questionId: 'tech-stack',
-            selectedOptionIds: ['frontend-tech'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'primary-responsibility',
-            selectedOptionIds: ['building-ui'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'daily-tools',
-            selectedOptionIds: ['code-editors', 'project-management'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'work-focus',
-            selectedOptionIds: ['building-features'],
-            timestamp: new Date()
-          }
-        ],
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 300000), // 5 minutes
-        completionRate: 80,
-        skipped: false
-      };
+  describe('Role Matching', () => {
+    it('should match frontend developer role based on responses', () => {
+      const responses: JobRoleResponse[] = [
+        {
+          questionId: 'project-type',
+          answer: 'web-frontend'
+        },
+        {
+          questionId: 'primary-focus',
+          answer: 'ui-ux'
+        },
+        {
+          questionId: 'team-size',
+          answer: 'small'
+        },
+        {
+          questionId: 'tech-preference',
+          answer: 'javascript'
+        },
+        {
+          questionId: 'deployment-target',
+          answer: 'browser'
+        }
+      ];
 
-      const result = service.detectJobRole(response);
+      const result = service.assessJobRole(responses);
       
-      expect(result.primaryRole).toBe('frontend-developer');
-      expect(result.confidence).toBeGreaterThan(0.5);
-      expect(result.alternativeRoles.some(r => r.role === 'fullstack-developer')).toBe(true);
-      expect(result.recommendations).toContain('Explore Frontend Developer specific tools and workflows');
-      expect(result.recommendations).toContain('Install vscode - an essential tool for Frontend Developer roles');
+      expect(result).toBeDefined();
+      expect(result.recommendedRole).toBe('frontend-developer');
+      expect(result.confidence).toBeGreaterThan(DEFAULT_CONFIDENCE_THRESHOLD);
+      expect(result.roleScores).toHaveProperty('frontend-developer');
+      expect(result.roleScores['frontend-developer']).toBeGreaterThan(0);
     });
 
-    it('should detect backend developer role from backend-focused answers', () => {
-      const response: JobRoleResponse = {
-        answers: [
-          {
-            questionId: 'tech-stack',
-            selectedOptionIds: ['backend-tech', 'cloud-tech'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'primary-responsibility',
-            selectedOptionIds: ['server-apis'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'daily-tools',
-            selectedOptionIds: ['code-editors', 'terminal-cli', 'docker-containers'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'work-focus',
-            selectedOptionIds: ['building-features', 'optimizing-performance'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'career-goals',
-            selectedOptionIds: ['technical-depth'],
-            timestamp: new Date()
-          }
-        ],
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 400000), // 6.7 minutes
-        completionRate: 100,
-        skipped: false
-      };
+    it('should match backend developer role based on responses', () => {
+      const responses: JobRoleResponse[] = [
+        {
+          questionId: 'project-type',
+          answer: 'web-backend'
+        },
+        {
+          questionId: 'primary-focus',
+          answer: 'api-development'
+        },
+        {
+          questionId: 'team-size',
+          answer: 'medium'
+        },
+        {
+          questionId: 'tech-preference',
+          answer: 'nodejs'
+        },
+        {
+          questionId: 'deployment-target',
+          answer: 'server'
+        }
+      ];
 
-      const result = service.detectJobRole(response);
+      const result = service.assessJobRole(responses);
       
-      expect(result.primaryRole).toBe('backend-developer');
-      expect(result.confidence).toBeGreaterThan(0.6);
-      expect(result.recommendations).toContain('Install vscode - an essential tool for Backend Developer roles');
+      expect(result).toBeDefined();
+      expect(result.recommendedRole).toBe('backend-developer');
+      expect(result.confidence).toBeGreaterThan(DEFAULT_CONFIDENCE_THRESHOLD);
     });
 
-    it('should handle mixed signals with appropriate alternative roles', () => {
-      const response: JobRoleResponse = {
-        answers: [
-          {
-            questionId: 'tech-stack',
-            selectedOptionIds: ['frontend-tech', 'backend-tech', 'cloud-tech'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'primary-responsibility',
-            selectedOptionIds: ['building-ui'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'daily-tools',
-            selectedOptionIds: ['code-editors', 'terminal-cli', 'docker-containers'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'work-focus',
-            selectedOptionIds: ['building-features'],
-            timestamp: new Date()
-          }
-        ],
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 300000),
-        completionRate: 80,
-        skipped: false
-      };
+    it('should return null recommendation when confidence is too low', () => {
+      const responses: JobRoleResponse[] = [
+        {
+          questionId: 'project-type',
+          answer: 'mobile'
+        },
+        {
+          questionId: 'primary-focus',
+          answer: 'data-analysis'
+        },
+        {
+          questionId: 'team-size',
+          answer: 'large'
+        }
+      ];
 
-      const result = service.detectJobRole(response);
+      const result = service.assessJobRole(responses);
       
-      // Expect a primary role with some alternatives
-      expect(result.primaryRole).toBeDefined();
-      expect(result.alternativeRoles.length).toBeGreaterThan(0);
+      expect(result).toBeDefined();
+      expect(result.recommendedRole).toBeNull();
+      expect(result.confidence).toBeLessThan(DEFAULT_CONFIDENCE_THRESHOLD);
+    });
+
+    it('should rank multiple roles by match score', () => {
+      const responses: JobRoleResponse[] = [
+        {
+          questionId: 'project-type',
+          answer: 'web-fullstack'
+        },
+        {
+          questionId: 'primary-focus',
+          answer: 'ui-ux'
+        },
+        {
+          questionId: 'team-size',
+          answer: 'small'
+        },
+        {
+          questionId: 'tech-preference',
+          answer: 'javascript'
+        },
+        {
+          questionId: 'deployment-target',
+          answer: 'browser'
+        }
+      ];
+
+      const result = service.assessJobRole(responses);
       
-      // In this mixed case, confidence should be relatively lower
-      expect(result.confidence).toBeLessThan(0.9);
-    });
-
-    it('should throw error for insufficient answers', () => {
-      const response: JobRoleResponse = {
-        answers: [
-          {
-            questionId: 'tech-stack',
-            selectedOptionIds: ['frontend-tech'],
-            timestamp: new Date()
-          }
-        ],
-        startTime: new Date(),
-        completionRate: 20,
-        skipped: false
-      };
-
-      expect(() => service.detectJobRole(response)).toThrow('Insufficient answers');
-    });
-
-    it('should have lower confidence for skipped questionnaires', () => {
-      const response: JobRoleResponse = {
-        answers: [
-          {
-            questionId: 'tech-stack',
-            selectedOptionIds: ['frontend-tech'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'primary-responsibility',
-            selectedOptionIds: ['building-ui'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'daily-tools',
-            selectedOptionIds: ['code-editors'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'work-focus',
-            selectedOptionIds: ['building-features'],
-            timestamp: new Date()
-          }
-        ],
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 60000), // Just 1 minute
-        completionRate: 80,
-        skipped: true
-      };
-
-      const normalResponse = {
-        ...response,
-        skipped: false
-      };
-
-      const skippedResult = service.detectJobRole(response);
-      const normalResult = service.detectJobRole(normalResponse);
-
-      expect(skippedResult.confidence).toBeLessThan(normalResult.confidence);
-    });
-
-    it('should adjust confidence based on completion rate', () => {
-      const lowCompletionResponse: JobRoleResponse = {
-        answers: [
-          {
-            questionId: 'tech-stack',
-            selectedOptionIds: ['frontend-tech'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'primary-responsibility',
-            selectedOptionIds: ['building-ui'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'daily-tools',
-            selectedOptionIds: ['code-editors'],
-            timestamp: new Date()
-          },
-          {
-            questionId: 'work-focus',
-            selectedOptionIds: ['building-features'],
-            timestamp: new Date()
-          }
-        ],
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 300000),
-        completionRate: 40, // Lower completion rate
-        skipped: false
-      };
-
-      const highCompletionResponse: JobRoleResponse = {
-        ...lowCompletionResponse,
-        completionRate: 100 // Higher completion rate
-      };
-
-      const lowResult = service.detectJobRole(lowCompletionResponse);
-      const highResult = service.detectJobRole(highCompletionResponse);
-
-      expect(lowResult.confidence).toBeLessThan(highResult.confidence);
+      expect(result).toBeDefined();
+      expect(result.roleScores).toBeDefined();
+      
+      // Should have scores for multiple roles
+      const roleScoreEntries = Object.entries(result.roleScores);
+      expect(roleScoreEntries.length).toBeGreaterThan(1);
+      
+      // Scores should be sorted in descending order
+      for (let i = 1; i < roleScoreEntries.length; i++) {
+        expect(roleScoreEntries[i - 1][1]).toBeGreaterThanOrEqual(roleScoreEntries[i][1]);
+      }
     });
   });
 
-  describe('getRoleConfigs', () => {
-    it('should return all role configurations', () => {
-      const configs = service.getRoleConfigs();
-      expect(configs).toHaveLength(2);
-      expect(configs[0].id).toBe('frontend-developer');
-      expect(configs[1].id).toBe('backend-developer');
+  describe('Question Handling', () => {
+    it('should handle empty responses gracefully', () => {
+      const responses: JobRoleResponse[] = [];
+      const result = service.assessJobRole(responses);
+      
+      expect(result).toBeDefined();
+      expect(result.recommendedRole).toBeNull();
+      expect(result.confidence).toBe(0);
+    });
+
+    it('should handle invalid question IDs', () => {
+      const responses: JobRoleResponse[] = [
+        {
+          questionId: 'invalid-question-id',
+          answer: 'some-answer'
+        }
+      ];
+      
+      // Should not throw and should return low confidence
+      const result = service.assessJobRole(responses);
+      expect(result).toBeDefined();
+      expect(result.confidence).toBeLessThan(DEFAULT_CONFIDENCE_THRESHOLD);
+    });
+
+    it('should get questions for a specific role', () => {
+      const questions = service.getQuestionsForRole('frontend-developer' as JobRole);
+      expect(questions).toBeDefined();
+      expect(questions.length).toBeGreaterThan(0);
+    });
+
+    it('should return empty array for invalid role', () => {
+      const questions = service.getQuestionsForRole('invalid-role' as JobRole);
+      expect(questions).toBeDefined();
+      expect(questions).toEqual([]);
     });
   });
 
-  describe('isConfidenceSufficient', () => {
-    it('should return true for confidence above threshold', () => {
-      expect(service.isConfidenceSufficient(DEFAULT_CONFIDENCE_THRESHOLD + 0.1)).toBe(true);
+  describe('Confidence Calculation', () => {
+    it('should calculate higher confidence with more matching answers', () => {
+      const manyMatchingResponses: JobRoleResponse[] = [
+        { questionId: 'project-type', answer: 'web-frontend' },
+        { questionId: 'primary-focus', answer: 'ui-ux' },
+        { questionId: 'team-size', answer: 'small' },
+        { questionId: 'tech-preference', answer: 'javascript' },
+        { questionId: 'deployment-target', answer: 'browser' }
+      ];
+
+      const fewMatchingResponses: JobRoleResponse[] = [
+        { questionId: 'project-type', answer: 'web-frontend' },
+        { questionId: 'primary-focus', answer: 'data-analysis' }
+      ];
+
+      const result1 = service.assessJobRole(manyMatchingResponses);
+      const result2 = service.assessJobRole(fewMatchingResponses);
+
+      expect(result1.confidence).toBeGreaterThan(result2.confidence);
     });
 
-    it('should return false for confidence below threshold', () => {
-      expect(service.isConfidenceSufficient(DEFAULT_CONFIDENCE_THRESHOLD - 0.1)).toBe(false);
+    it('should have confidence between 0 and 1', () => {
+      const responses: JobRoleResponse[] = [
+        { questionId: 'project-type', answer: 'web-frontend' },
+        { questionId: 'primary-focus', answer: 'ui-ux' }
+      ];
+
+      const result = service.assessJobRole(responses);
+      
+      expect(result.confidence).toBeGreaterThanOrEqual(0);
+      expect(result.confidence).toBeLessThanOrEqual(1);
     });
   });
-}); 
+});
