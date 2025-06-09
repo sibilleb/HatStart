@@ -28,9 +28,10 @@ HatStart is an **open-source, cross-platform developer toolkit installer** that 
 ## 📊 Project Status
 
 **Current Version**: Development (Pre-release)  
-**Progress**: 11 of 25 planned features complete (44%)
+**Progress**: 12 of 25 planned features complete (48%)
 
 ### Recently Completed ✅
+- Tool Installation Detection (shows installed status & versions)
 - Version Management System (Mise, NVM, PyEnv, ASDF, RBenv)
 - IDE Workspace Generation (VS Code/Cursor configuration)
 - Job Role Assessment System
