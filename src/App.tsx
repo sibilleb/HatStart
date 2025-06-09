@@ -3,10 +3,12 @@ import { CategoryGrid } from './components/CategoryGrid';
 import { RecommendationPanel } from './components/RecommendationPanel';
 import { SearchFilterPanel } from './components/SearchFilterPanel';
 import { SelectionSummary } from './components/SelectionSummary';
+import { ConflictWarningDialog } from './components/ConflictWarningDialog';
 import './index.css';
 import { JobRoleConfigService } from './services/job-role-config-service';
 import { JobRoleRecommendationService } from './services/job-role-recommendation-service';
 import { SystemDetectionService } from './services/system-detection-service';
+import { checkForConflicts, type ConflictRule } from './services/conflict-rules';
 import type {
   CategoryInfo,
   FilterOptions,
@@ -47,6 +49,8 @@ function App() {
     completed: 0,
     total: 0,
   });
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [conflicts, setConflicts] = useState<ConflictRule[]>([]);
 
   // Load system detection data on mount
   useEffect(() => {
@@ -137,6 +141,19 @@ function App() {
     console.log('App: Starting installation for tools:', toolIds);
     if (toolIds.length === 0) return;
 
+    // Check for conflicts before proceeding
+    const foundConflicts = checkForConflicts(toolIds);
+    if (foundConflicts.length > 0) {
+      console.log('App: Conflicts found:', foundConflicts);
+      setConflicts(foundConflicts);
+      setShowConflictDialog(true);
+      return;
+    }
+
+    await proceedWithInstallation(toolIds);
+  };
+
+  const proceedWithInstallation = async (toolIds: string[]) => {
     setInstallationProgress({
       isInstalling: true,
       currentTool: 'Preparing installation...',
@@ -232,6 +249,32 @@ function App() {
     setFilterOptions(newFilters);
   };
 
+  const handleConflictResolve = async (toolsToRemove: string[]) => {
+    // Remove conflicting tools from selection
+    const newSelection = new Set(selection.selectedTools);
+    toolsToRemove.forEach(toolId => newSelection.delete(toolId));
+    
+    setSelection({
+      ...selection,
+      selectedTools: newSelection,
+    });
+    
+    // Close dialog and proceed with installation
+    setShowConflictDialog(false);
+    setConflicts([]);
+    
+    // Proceed with remaining tools
+    const remainingTools = Array.from(newSelection);
+    if (remainingTools.length > 0) {
+      await proceedWithInstallation(remainingTools);
+    }
+  };
+
+  const handleConflictCancel = () => {
+    setShowConflictDialog(false);
+    setConflicts([]);
+  };
+
   // Get all tools for recommendations
   const allTools = categories.flatMap(cat => cat.tools);
 
@@ -313,6 +356,15 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Conflict Warning Dialog */}
+      <ConflictWarningDialog
+        isOpen={showConflictDialog}
+        conflicts={conflicts}
+        tools={allTools}
+        onResolve={handleConflictResolve}
+        onCancel={handleConflictCancel}
+      />
     </div>
   );
 }
