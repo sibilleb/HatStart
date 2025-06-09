@@ -10,7 +10,7 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import type {
     VersionedTool,
     VersionManagerType,
-    IIVersionOperationResult as IVersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier
 } from '../version-manager-types';
 import { EnvironmentManager } from './environment-manager';
@@ -253,7 +253,6 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
          success: true,
          operation: 'switch',
          tool,
-         version: typeof version === 'string' ? version : `${version.major}.${version.minor || 0}.${version.patch || 0}`,
          message: `Updated ${tool} to version ${version}`,
          duration: Date.now() - startTime,
          timestamp: new Date(),
@@ -263,9 +262,10 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
         success: false,
         operation: 'switch',
         tool,
-        version,
+        message: `Failed to update ${tool} to version ${version}`,
         error: error instanceof Error ? error.message : 'Unknown error',
         duration: Date.now() - startTime,
+        timestamp: new Date(),
       };
     }
   }
@@ -300,8 +300,10 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
           success: false,
           operation: 'remove',
           tool,
+          message: 'No workspace configuration found',
           error: 'No workspace configuration found',
           duration: Date.now() - startTime,
+          timestamp: new Date(),
         };
       }
 
@@ -314,8 +316,10 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
           success: false,
           operation: 'remove',
           tool,
+          message: `Tool ${tool} not found in workspace configuration`,
           error: `Tool ${tool} not found in workspace configuration`,
           duration: Date.now() - startTime,
+          timestamp: new Date(),
         };
       }
 
@@ -331,14 +335,17 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
         tool,
         message: `Removed ${tool} from workspace`,
         duration: Date.now() - startTime,
+        timestamp: new Date(),
       };
     } catch (error) {
       return {
         success: false,
         operation: 'remove',
         tool,
+        message: `Failed to remove ${tool} from workspace`,
         error: error instanceof Error ? error.message : 'Unknown error',
         duration: Date.now() - startTime,
+        timestamp: new Date(),
       };
     }
   }
@@ -652,7 +659,7 @@ export class WorkspaceConfigurationService implements IWorkspaceConfigurationSer
    * Create default configuration
    */
   private async createDefaultConfiguration(workspaceRoot: string): Promise<WorkspaceConfiguration> {
-          const _detection = await this.detectWorkspace(workspaceRoot);
+          await this.detectWorkspace(workspaceRoot);
     
     return {
       workspaceRoot,

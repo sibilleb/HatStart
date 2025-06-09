@@ -6,7 +6,8 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import type { Platform, Architecture, InstallationMethod } from '../shared/simple-manifest-types';
-import type { CommandExecutionResult, InstallationOptions } from './installer-types';
+import type { CommandExecutionResult } from './command-execution/types';
+import type { InstallationOptions } from './installer-types';
 import type { VersionManagerType, IVersionOperationResult, VersionedTool } from './version-manager-types';
 
 const execAsync = promisify(exec);
@@ -461,10 +462,15 @@ export class VersionManagerInstaller {
         exitCode: 0,
         stdout: `Successfully installed ${config.type}`,
         stderr: '',
+        output: `Successfully installed ${config.type}`,
         duration: 100,
         success: true,
         command: 'mock-install',
-        args: [config.type]
+        args: [config.type],
+        platform: this.platform,
+        timedOut: false,
+        startTime: new Date(),
+        endTime: new Date()
       };
     }
 
@@ -517,10 +523,15 @@ export class VersionManagerInstaller {
         exitCode: 0,
         stdout: `Successfully set up ${config.type}`,
         stderr: '',
+        output: `Successfully set up ${config.type}`,
         duration: 50,
         success: true,
         command: 'mock-setup',
-        args: [config.type]
+        args: [config.type],
+        platform: this.platform,
+        timedOut: false,
+        startTime: new Date(),
+        endTime: new Date()
       }];
     }
 
@@ -553,10 +564,15 @@ export class VersionManagerInstaller {
             exitCode: 1,
             stdout: '',
             stderr: (error as Error).message,
+            output: (error as Error).message,
             duration: 0,
             success: false,
             command: setupCommand.command,
-            args: setupCommand.args
+            args: setupCommand.args,
+            platform: this.platform,
+            timedOut: false,
+            startTime: new Date(),
+            endTime: new Date()
           });
         }
       }
@@ -634,7 +650,7 @@ export class VersionManagerInstaller {
 
       // Check expected output if specified
       if (verificationCommand.expectedOutput) {
-        return result.stdout.includes(verificationCommand.expectedOutput);
+        return result.stdout?.includes(verificationCommand.expectedOutput) || false;
       }
 
       return true;
@@ -729,10 +745,15 @@ export class VersionManagerInstaller {
         exitCode: 0,
         stdout: stdout.toString(),
         stderr: stderr.toString(),
+        output: stdout.toString() + stderr.toString(),
         duration,
         success: true,
         command,
         args,
+        platform: this.platform,
+        timedOut: false,
+        startTime: new Date(startTime),
+        endTime: new Date(),
         workingDirectory: options.workingDirectory
       };
     } catch (error: unknown) {
@@ -743,10 +764,15 @@ export class VersionManagerInstaller {
         exitCode: execError.code || 1,
         stdout: execError.stdout?.toString() || '',
         stderr: execError.stderr?.toString() || execError.message || 'Unknown error',
+        output: (execError.stdout?.toString() || '') + (execError.stderr?.toString() || execError.message || 'Unknown error'),
         duration,
         success: false,
         command,
         args,
+        platform: this.platform,
+        timedOut: false,
+        startTime: new Date(startTime),
+        endTime: new Date(),
         workingDirectory: options.workingDirectory
       };
     }
@@ -754,7 +780,7 @@ export class VersionManagerInstaller {
 
   // Utility methods for CategoryInstaller integration
   private convertToInstallationCommand(
-    config: VersionManagerInstallConfig,
+    _config: VersionManagerInstallConfig,
     method: string,
     commandConfig: { command: string; args: string[]; requiresElevation?: boolean }
   ) {

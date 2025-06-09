@@ -7,10 +7,10 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     VersionedTool,
-    VersionInfo,
+    IVersionInfo,
     VersionManagerCapabilities,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier
 } from '../version-manager-types';
 import { BaseVersionManagerAdapter } from './base-adapter';
@@ -29,11 +29,11 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
     supportsGlobal: true,
     supportsLocal: true,
     supportsShell: true,
-    supportsAutoSwitch: false,
-    supportsLTS: false,
+    supportsAutoSwitch: false, // Ruby doesn't have built-in auto-switching
+    supportsLTS: false, // Ruby doesn't have LTS versions
     supportsRemoteList: true,
     requiresShellIntegration: true,
-    supportedPlatforms: ['macos', 'linux'],
+    supportedPlatforms: ['darwin', 'linux'],
     supportedArchitectures: ['x64', 'arm64']
   };
 
@@ -41,13 +41,13 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
 
   constructor(platform: Platform, architecture: Architecture) {
     super(platform, architecture);
-    this.installer = new VersionManagerInstaller(platform, architecture);
+    this.installer = new VersionManagerInstaller(platform);
   }
 
   /**
    * Install RBenv itself
    */
-  public async installManager(): Promise<VersionOperationResult> {
+  public async installManager(): Promise<IVersionOperationResult> {
     const result = await this.installer.installVersionManager('rbenv');
     
     if (result.success) {
@@ -63,7 +63,6 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
       tool: 'rbenv' as VersionedTool,
       message: result.message,
       error: result.error,
-      output: result.output,
       duration: result.duration,
       timestamp: result.timestamp
     };
@@ -110,16 +109,16 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
     return { command: 'rbenv', args: ['version'] };
   }
 
-  protected getInstallCommand(tool: VersionedTool, version: string): { command: string; args: string[] } {
+  protected getInstallCommand(_tool: VersionedTool, version: string): { command: string; args: string[] } {
     return { command: 'rbenv', args: ['install', version] };
   }
 
-  protected getUninstallCommand(tool: VersionedTool, version: string): { command: string; args: string[] } {
+  protected getUninstallCommand(_tool: VersionedTool, version: string): { command: string; args: string[] } {
     return { command: 'rbenv', args: ['uninstall', '-f', version] };
   }
 
   protected getSwitchCommand(
-    tool: VersionedTool, 
+    _tool: VersionedTool, 
     version: string, 
     scope: 'global' | 'local' | 'shell'
   ): { command: string; args: string[] } {
@@ -147,8 +146,8 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
   }
 
   // Output parsing methods
-  protected parseInstalledVersions(tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseInstalledVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
@@ -159,21 +158,18 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
         const isActive = match[1].includes('*');
         const version = match[2];
         
-        versions.push({
-          version,
+        versions.push(this.createVersionInfo(tool, version, {
           isInstalled: true,
-          isActive,
-          isLTS: false, // Ruby doesn't have LTS versions
-          isPrerelease: this.isPrereleaseVersion(version)
-        });
+          isActive
+        }));
       }
     }
     
     return versions;
   }
 
-  protected parseAvailableVersions(tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseAvailableVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
@@ -186,13 +182,10 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
         continue;
       }
       
-      versions.push({
-        version,
+      versions.push(this.createVersionInfo(tool, version, {
         isInstalled: false,
-        isActive: false,
-        isLTS: false,
-        isPrerelease: this.isPrereleaseVersion(version)
-      });
+        isActive: false
+      }));
     }
     
     // Sort versions in descending order (newest first)
@@ -201,19 +194,16 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseCurrentVersion(tool: VersionedTool, output: string): VersionInfo | null {
+  protected parseCurrentVersion(tool: VersionedTool, output: string): IVersionInfo | null {
     // RBenv format: "3.1.2 (set by /path/to/.ruby-version)"
     const match = output.match(/^(\d+\.\d+\.\d+(?:-\w+)?)/);
     
     if (match) {
       const version = match[1];
-      return {
-        version,
+      return this.createVersionInfo(tool, version, {
         isInstalled: true,
-        isActive: true,
-        isLTS: false,
-        isPrerelease: this.isPrereleaseVersion(version)
-      };
+        isActive: true
+      });
     }
     
     return null;
@@ -258,12 +248,6 @@ export class RbenvAdapter extends BaseVersionManagerAdapter {
   }
 
   // Helper methods
-  private isPrereleaseVersion(version: string): boolean {
-    return version.includes('-') && 
-           (version.includes('preview') || 
-            version.includes('rc') ||
-            version.includes('dev'));
-  }
 
   private compareVersions(a: string, b: string): number {
     const aParts = a.split(/[.-]/).map(p => parseInt(p) || 0);

@@ -6,8 +6,7 @@
 import type {
     CategoryDetectionResult,
     DetectionResult,
-    SystemDetectionReport,
-    ToolCategory
+    SystemDetectionReport
 } from '../shared/detection-types';
 
 import type {
@@ -233,11 +232,11 @@ export class SystemDetectionService {
         }
 
         const tools: Tool[] = categoryResult.tools.map(detectionResult => 
-            this.convertDetectionResultToTool(detectionResult, categoryResult.category)
+            this.convertDetectionResultToTool(detectionResult, categoryMap[categoryResult.category] || 'developer-tools')
         );
 
         return {
-            id: uiCategory.id as ToolCategory,
+            id: categoryMap[categoryResult.category] || 'developer-tools',
             name: uiCategory.name,
             description: uiCategory.description,
             icon: uiCategory.icon,
@@ -249,7 +248,7 @@ export class SystemDetectionService {
     /**
      * Convert detection result to UI Tool format
      */
-    private convertDetectionResultToTool(result: DetectionResult, category: string): Tool {
+    private convertDetectionResultToTool(result: DetectionResult, category: UIToolCategory): Tool {
         // Simple conversion for MVP - use metadata if available
         const toolId = result.name; // This is actually the tool ID from manifest (e.g., "nodejs")
         const displayName = result.metadata?.displayName as string || result.name;

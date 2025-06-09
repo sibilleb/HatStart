@@ -4,7 +4,7 @@
  */
 
 import { join } from 'path';
-import type { Platform } from '../../shared/simple-manifest-types';
+import type { Platform, Architecture } from '../../shared/simple-manifest-types';
 import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     IVersionManager,
@@ -26,15 +26,14 @@ import type {
  * Version manager integration service
  */
 export class VersionManagerIntegration {
-  private _installer: VersionManagerInstaller;
   private workspaceService: IWorkspaceConfigurationService;
   private versionManagers: Map<VersionManagerType, IVersionManager> = new Map();
 
   constructor(
-    installer: VersionManagerInstaller,
+    _installer: VersionManagerInstaller,
     workspaceService: IWorkspaceConfigurationService,
   ) {
-    this._installer = installer;
+    // installer parameter kept for future use
     this.workspaceService = workspaceService;
   }
 
@@ -98,7 +97,6 @@ export class VersionManagerIntegration {
         success: true,
         operation: 'switch',
         tool,
-        version: typeof version === 'string' ? version : `${version.major}.${version.minor || 0}.${version.patch || 0}`,
         message: `Successfully switched ${tool} to version ${version} and updated workspace configuration`,
         duration: Date.now() - startTime,
         timestamp: new Date(),
@@ -108,7 +106,6 @@ export class VersionManagerIntegration {
         success: false,
         operation: 'switch',
         tool,
-        version: typeof version === 'string' ? version : `${version.major}.${version.minor || 0}.${version.patch || 0}`,
         message: `Failed to switch ${tool} to version ${version}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         duration: Date.now() - startTime,
         timestamp: new Date(),
@@ -426,7 +423,7 @@ export class VersionManagerIntegration {
   /**
    * Detect current architecture
    */
-  private detectArchitecture(): 'x64' | 'arm64' | 'x86' {
+  private detectArchitecture(): Architecture {
     const arch = process.arch;
     switch (arch) {
       case 'x64':
@@ -434,7 +431,7 @@ export class VersionManagerIntegration {
       case 'arm64':
         return 'arm64';
       case 'ia32':
-        return 'x86';
+        return 'x64'; // Map x86 to x64 for compatibility
       default:
         return 'x64';
     }

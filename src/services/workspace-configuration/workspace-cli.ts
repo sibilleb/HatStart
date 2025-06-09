@@ -226,11 +226,11 @@ export class WorkspaceCLI {
       execute: async (args, options) => {
         const workspaceRoot = args[0] || process.cwd();
         return this.tools.synchronizeWorkspace(workspaceRoot, {
-          direction: options.direction,
-          force: options.force,
-          dryRun: options['dry-run'],
-          backup: options.backup,
-          conflictResolution: options['conflict-resolution']
+          direction: options.direction as 'push' | 'pull' | 'both' | undefined,
+          force: Boolean(options.force),
+          dryRun: Boolean(options['dry-run']),
+          backup: Boolean(options.backup),
+          conflictResolution: options['conflict-resolution'] as 'local' | 'remote' | 'merge' | 'interactive' | undefined
         });
       }
     });
@@ -377,7 +377,7 @@ export class WorkspaceCLI {
     
     if (typedData.tools) {
       output += '\nTools:\n';
-      typedData.tools.forEach((tool: VersionedTool) => {
+      typedData.tools.forEach((tool: any) => {
         const status = tool.active ? '✅' : '❌';
         output += `  ${status} ${tool.tool}@${tool.version} (${tool.manager})\n`;
       });
@@ -446,4 +446,3 @@ export async function runWorkspaceCLI(argv: string[]): Promise<void> {
   process.exit(result.success ? 0 : 1);
 }
 
-export type { CLICommand, CLIOption };

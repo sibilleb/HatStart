@@ -8,10 +8,10 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     VersionedTool,
-    VersionInfo,
+    IVersionInfo,
     VersionManagerCapabilities,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier,
 } from '../version-manager-types';
 import { BaseVersionManagerAdapter } from './base-adapter';
@@ -34,7 +34,7 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
     supportsLTS: false, // Python doesn't have LTS versions
     supportsRemoteList: true,
     requiresShellIntegration: true,
-    supportedPlatforms: ['macos', 'linux', 'windows'],
+    supportedPlatforms: ['darwin', 'linux', 'win32'],
     supportedArchitectures: ['x64', 'arm64']
   };
 
@@ -43,14 +43,14 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
 
   constructor(platform: Platform, architecture: Architecture) {
     super(platform, architecture);
-    this.installer = new VersionManagerInstaller(platform, architecture);
-    this.isWindows = platform === 'windows';
+    this.installer = new VersionManagerInstaller(platform);
+    this.isWindows = platform === 'win32';
   }
 
   /**
    * Install PyEnv itself
    */
-  public async installManager(): Promise<VersionOperationResult> {
+  public async installManager(): Promise<IVersionOperationResult> {
     const result = await this.installer.installVersionManager('pyenv');
     
     if (result.success) {
@@ -63,7 +63,6 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
       tool: 'python' as VersionedTool,
       message: result.message,
       error: result.error,
-      output: result.output,
       duration: result.duration,
       timestamp: result.timestamp
     };
@@ -130,8 +129,8 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
   }
 
   // Output parsing methods
-  protected parseInstalledVersions(_tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseInstalledVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
@@ -142,13 +141,10 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
       if (match) {
         const [, prefix, version] = match;
         if (version !== 'system') {
-          versions.push({
-            version,
+          versions.push(this.createVersionInfo(tool, version, {
             isInstalled: true,
-            isActive: prefix.includes('*'),
-            isLTS: false, // Python doesn't have LTS
-            isPrerelease: this.isPythonPrerelease(version)
-          });
+            isActive: prefix.includes('*')
+          }));
         }
       }
     }
@@ -156,8 +152,8 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseAvailableVersions(_tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseAvailableVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
@@ -167,13 +163,10 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
           !version.startsWith('Available versions:') &&
           !version.includes('-dev') &&
           this.isValidPythonVersion(version)) {
-        versions.push({
-          version,
+        versions.push(this.createVersionInfo(tool, version, {
           isInstalled: false,
-          isActive: false,
-          isLTS: false,
-          isPrerelease: this.isPythonPrerelease(version)
-        });
+          isActive: false
+        }));
       }
     }
     
@@ -183,7 +176,7 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseCurrentVersion(_tool: VersionedTool, output: string): VersionInfo | null {
+  protected parseCurrentVersion(tool: VersionedTool, output: string): IVersionInfo | null {
     // PyEnv format: "3.11.4 (set by /home/user/.pyenv/version)"
     const match = output.match(/^(\S+)(\s+\(set by.*\))?/);
     
@@ -193,13 +186,10 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
         return null;
       }
       
-      return {
-        version,
+      return this.createVersionInfo(tool, version, {
         isInstalled: true,
-        isActive: true,
-        isLTS: false,
-        isPrerelease: this.isPythonPrerelease(version)
-      };
+        isActive: true
+      });
     }
     
     return null;
@@ -325,12 +315,6 @@ export class PyenvAdapter extends BaseVersionManagerAdapter {
     return /^\d+\.\d+\.\d+/.test(version);
   }
 
-  private isPythonPrerelease(version: string): boolean {
-    return version.includes('a') || // Alpha
-           version.includes('b') || // Beta
-           version.includes('rc') || // Release candidate
-           version.includes('dev'); // Development
-  }
 
   private compareVersions(a: string, b: string): number {
     const aParts = a.split(/[.-]/).map(p => parseInt(p) || 0);

@@ -8,10 +8,10 @@ import type { Architecture, Platform } from '../../shared/simple-manifest-types'
 import { VersionManagerInstaller } from '../version-manager-installer';
 import type {
     VersionedTool,
-    VersionInfo,
+    IVersionInfo,
     VersionManagerCapabilities,
     VersionManagerType,
-    VersionOperationResult,
+    IVersionOperationResult,
     VersionSpecifier,
 } from '../version-manager-types';
 import { BaseVersionManagerAdapter } from './base-adapter';
@@ -29,12 +29,12 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
     canUninstall: true,
     supportsGlobal: true,
     supportsLocal: true,
-    supportsShell: this.platform !== 'windows', // Windows NVM doesn't support shell-specific versions
-    supportsAutoSwitch: this.platform !== 'windows',
+    supportsShell: this.platform !== 'win32', // Windows NVM doesn't support shell-specific versions
+    supportsAutoSwitch: this.platform !== 'win32',
     supportsLTS: true,
     supportsRemoteList: true,
-    requiresShellIntegration: this.platform !== 'windows',
-    supportedPlatforms: ['macos', 'linux', 'windows'],
+    requiresShellIntegration: this.platform !== 'win32',
+    supportedPlatforms: ['darwin', 'linux', 'win32'],
     supportedArchitectures: ['x64', 'arm64']
   };
 
@@ -43,14 +43,14 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
 
   constructor(platform: Platform, architecture: Architecture) {
     super(platform, architecture);
-    this.installer = new VersionManagerInstaller(platform, architecture);
-    this.isWindows = platform === 'windows';
+    this.installer = new VersionManagerInstaller(platform);
+    this.isWindows = platform === 'win32';
   }
 
   /**
    * Install NVM itself
    */
-  public async installManager(): Promise<VersionOperationResult> {
+  public async installManager(): Promise<IVersionOperationResult> {
     const result = await this.installer.installVersionManager('nvm');
     
     if (result.success) {
@@ -63,7 +63,6 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
       tool: 'node' as VersionedTool,
       message: result.message,
       error: result.error,
-      output: result.output,
       duration: result.duration,
       timestamp: result.timestamp
     };
@@ -153,8 +152,8 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
   }
 
   // Output parsing methods
-  protected parseInstalledVersions(_tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseInstalledVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     if (this.isWindows) {
@@ -164,13 +163,10 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
         const match = line.match(/^\s*(\*?)\s*(\d+\.\d+\.\d+)/);
         if (match) {
           const [, active, version] = match;
-          versions.push({
-            version,
+          versions.push(this.createVersionInfo(tool, version, {
             isInstalled: true,
-            isActive: active === '*',
-            isLTS: this.isNodeLTSVersion(version),
-            isPrerelease: false
-          });
+            isActive: active === '*'
+          }));
         }
       }
     } else {
@@ -180,13 +176,10 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
         const match = line.match(/^(\s*->)?\s*v?(\d+\.\d+\.\d+)/);
         if (match) {
           const [, arrow, version] = match;
-          versions.push({
-            version,
+          versions.push(this.createVersionInfo(tool, version, {
             isInstalled: true,
-            isActive: !!arrow,
-            isLTS: this.isNodeLTSVersion(version),
-            isPrerelease: false
-          });
+            isActive: !!arrow
+          }));
         }
       }
     }
@@ -194,8 +187,8 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseAvailableVersions(_tool: VersionedTool, output: string): VersionInfo[] {
-    const versions: VersionInfo[] = [];
+  protected parseAvailableVersions(tool: VersionedTool, output: string): IVersionInfo[] {
+    const versions: IVersionInfo[] = [];
     const lines = output.split('\n').filter(line => line.trim());
     
     if (this.isWindows) {
@@ -213,13 +206,10 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
           const parts = line.split('|').map(p => p.trim()).filter(p => p);
           for (const part of parts) {
             if (part.match(/^\d+\.\d+\.\d+$/)) {
-              versions.push({
-                version: part,
+              versions.push(this.createVersionInfo(tool, part, {
                 isInstalled: false,
-                isActive: false,
-                isLTS: false, // Will be determined by version number
-                isPrerelease: false
-              });
+                isActive: false
+              }));
             }
           }
         }
@@ -231,13 +221,15 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
         const match = line.match(/^\s*v?(\d+\.\d+\.\d+)(\s+\(.*LTS.*\))?/);
         if (match) {
           const [, version, ltsInfo] = match;
-          versions.push({
-            version,
+          const isLts = !!ltsInfo;
+          versions.push(this.createVersionInfo(tool, version, {
             isInstalled: false,
             isActive: false,
-            isLTS: !!ltsInfo || this.isNodeLTSVersion(version),
-            isPrerelease: false
-          });
+            metadata: {
+              isLts,
+              ltsCodename: isLts ? this.extractLtsCodename(ltsInfo) : undefined
+            }
+          }));
         }
       }
     }
@@ -248,20 +240,17 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
     return versions;
   }
 
-  protected parseCurrentVersion(_tool: VersionedTool, output: string): VersionInfo | null {
+  protected parseCurrentVersion(tool: VersionedTool, output: string): IVersionInfo | null {
     const version = output.trim().replace(/^v/, '');
     
     if (!version || version === 'none' || version === 'system') {
       return null;
     }
     
-    return {
-      version,
+    return this.createVersionInfo(tool, version, {
       isInstalled: true,
-      isActive: true,
-      isLTS: this.isNodeLTSVersion(version),
-      isPrerelease: false
-    };
+      isActive: true
+    });
   }
 
   protected getProjectConfigFileName(): string {
@@ -380,9 +369,10 @@ export class NvmAdapter extends BaseVersionManagerAdapter {
   }
 
   // Helper methods
-  private isNodeLTSVersion(version: string): boolean {
-    const major = parseInt(version.split('.')[0]);
-    return major % 2 === 0 && major >= 14; // Even major versions >= 14 are LTS
+
+  private extractLtsCodename(ltsInfo: string): string | undefined {
+    const match = ltsInfo.match(/Latest LTS: (\w+)/);
+    return match?.[1];
   }
 
   private compareVersions(a: string, b: string): number {

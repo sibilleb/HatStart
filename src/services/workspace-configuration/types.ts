@@ -8,7 +8,7 @@ import type {
   ProjectVersionConfig,
   VersionedTool,
   VersionManagerType,
-  IIVersionOperationResult,
+  IVersionOperationResult,
   VersionSpecifier,
 } from '../version-manager-types';
 

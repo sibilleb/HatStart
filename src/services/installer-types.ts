@@ -15,6 +15,7 @@ export interface CommandExecutionResult {
   stderr?: string;
   error?: Error;
   exitCode?: number;
+  duration?: number;
 }
 
 // Re-export types from simple-installer
