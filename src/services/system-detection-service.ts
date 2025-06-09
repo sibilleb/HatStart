@@ -126,7 +126,7 @@ export class SystemDetectionService {
         // Simple mapping for MVP
         const categoryMappings: Record<string, { id: string; name: string; description: string; icon: string; color: string }> = {
             'language': {
-                id: 'languages',
+                id: 'programming-languages',
                 name: 'Programming Languages',
                 description: 'Core programming languages and runtimes',
                 icon: '💻',
@@ -140,8 +140,8 @@ export class SystemDetectionService {
                 color: '#10B981'
             },
             'devops': {
-                id: 'devops',
-                name: 'DevOps Tools',
+                id: 'containerization',
+                name: 'DevOps & Containerization',
                 description: 'Containers, orchestration, and deployment tools',
                 icon: '🚀',
                 color: '#F59E0B'
@@ -152,6 +152,20 @@ export class SystemDetectionService {
                 description: 'Database systems and data storage solutions',
                 icon: '🗄️',
                 color: '#059669'
+            },
+            'ide': {
+                id: 'code-editors',
+                name: 'Code Editors & IDEs',
+                description: 'Integrated Development Environments and code editors',
+                icon: '📝',
+                color: '#8B5CF6'
+            },
+            'framework': {
+                id: 'frameworks',
+                name: 'Frameworks',
+                description: 'Web frameworks and application development tools',
+                icon: '🏗️',
+                color: '#EC4899'
             }
         };
 
