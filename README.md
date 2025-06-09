@@ -37,7 +37,7 @@ HatStart is an **open-source, cross-platform developer toolkit installer** that 
 - Job Role Assessment System
 - Cross-platform Installer Framework
 - MVP Simplification (removed 49,000+ lines of over-engineered code)
-- Expanded Tool Catalog (32 tools including IDEs, languages, frameworks, databases)
+- Expanded Tool Catalog (63 tools across 6 categories)
 
 ### In Progress 🔄
 - Conflict Resolution UI
@@ -74,15 +74,26 @@ HatStart can set up a complete full-stack environment including:
 - PostgreSQL and Redis
 - All configured and ready to use!
 
-### 📦 Available Tools (32 total)
+### 📦 Available Tools (63 total)
 
-**IDEs**: VS Code, Cursor  
-**Languages**: Node.js, Python, Go, Rust, Java, Ruby, PHP  
-**Frameworks**: React, Vue.js, Django, FastAPI, Laravel, Rails  
-**Databases**: PostgreSQL, MySQL, MongoDB, Redis, SQLite  
-**DevOps**: Docker, Kubernetes, Terraform, Helm, Ansible, Vault  
-**Testing**: Vitest, Jest, Playwright  
-**Security**: Semgrep, Bandit
+**IDEs** (2): VS Code, Cursor
+
+**Languages** (7): Node.js, Python, Go, Rust, Java, Ruby, PHP
+
+**Frameworks** (13): React, Vue.js, Angular, Next.js, Nuxt.js, SvelteKit, NestJS, Django, FastAPI, Flask, Laravel, Rails, Tailwind CSS, PostCSS
+
+**Databases** (5): PostgreSQL, MySQL, MongoDB, Redis, SQLite
+
+**DevOps & Infrastructure** (26): 
+- Containers: Docker, Podman, Kubernetes, Minikube
+- Cloud CLIs: AWS CLI, Azure CLI, Google Cloud SDK
+- HashiCorp: Terraform, Vault, Packer, Consul, Nomad
+- CI/CD: Helm, Ansible
+- Testing: Vitest, Jest, Playwright, Cypress, K6
+- Monitoring: Prometheus, Grafana
+- Security: Semgrep, Bandit, Checkov, SOPS, age
+
+**Productivity & Build Tools** (10): Git, GitHub CLI, Postman, Insomnia, HTTPie, Gradle, Maven, Yarn, pnpm, Composer
 
 ## 🤝 Contributing
 
